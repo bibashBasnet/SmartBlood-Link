@@ -1,4 +1,4 @@
-package com.kathfordstudent.smart.blood.link;
+package com.KathfordStudent.SmartBloodLink;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

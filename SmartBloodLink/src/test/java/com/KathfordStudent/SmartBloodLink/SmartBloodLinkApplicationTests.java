@@ -1,4 +1,4 @@
-package com.kathfordstudent.smart.blood.link;
+package com.KathfordStudent.SmartBloodLink;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

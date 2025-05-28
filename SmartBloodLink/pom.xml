@@ -8,11 +8,11 @@
 		<version>3.5.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.kathfordstudent</groupId>
-	<artifactId>smart-blood-link</artifactId>
+	<groupId>com.KathfordStudent</groupId>
+	<artifactId>SmartBloodLink</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>smart-blood-link</name>
-	<description>Backend for Bloodlink</description>
+	<name>SmartBloodLink</name>
+	<description>Final project</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -41,10 +41,6 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	<dependency>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-web</artifactId>
-	</dependency>
 
 	<build>
 		<plugins>
