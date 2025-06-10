@@ -1,12 +1,18 @@
 import React from 'react'
 import { Image, SafeAreaView, Text, TouchableOpacity, View } from 'react-native'
-import { styles } from './HomePageStyle'
+import { DrawerActions } from '@react-navigation/native'
+import { styles } from '../../Styles'
 
-const HomePage = () => {
+const HomeScreen = ({navigation}) => {
+
+  const showMenu = () => {
+    navigation.dispatch(DrawerActions.openDrawer())
+  }
+
   return (
     <SafeAreaView style={styles.container}>
 
-      <TouchableOpacity style={styles.menuButton}>
+      <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
         <Image source={require('../../assets/list.png')} style={styles.menuIcon} />
       </TouchableOpacity>
 
@@ -22,11 +28,9 @@ const HomePage = () => {
         <Text style={styles.buttonText}>Donate Now</Text>
       </TouchableOpacity>
 
-      <Text style={{color: '#000', fontSize: 18}}>Hello</Text>
-
     </SafeAreaView>
     
   )
 }
 
-export default HomePage
+export default HomeScreen
