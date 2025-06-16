@@ -1,9 +1,10 @@
 package com.KathfordStudent.SmartBloodLink.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,23 +28,47 @@ public class UserController {
     }
 
     @GetMapping("/getUserById/{id}")
-    public Optional<UserModel> getUserById(@PathVariable String id){
-        return userRepository.findById(id);
+    public ResponseEntity<?> getUserById(@PathVariable String id){
+        if(userRepository.existsById(id)){
+            return ResponseEntity.ok(userRepository.findById(id));
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not found");
+        }
+        
     }
 
     @PostMapping("/createUser")
-    public UserModel createUser(@RequestBody UserModel user){
-        return userRepository.save(user);
+    public ResponseEntity<?> createUser(@RequestBody UserModel user){
+        if(userRepository.existsByName(user.getName())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User Already exist");
+        }
+        else{
+            return ResponseEntity.ok(userRepository.save(user));
+        }
     }
 
     @DeleteMapping("/deleteUser/{id}")
-    public void deleteUser(@PathVariable String id){
-        userRepository.deleteById(id);
+    public ResponseEntity<?> deleteUser(@PathVariable String id){
+        if(!userRepository.existsById(id)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exits");
+        }
+        else{
+            userRepository.deleteById(id);
+            return ResponseEntity.ok("User has been successfully deleted");
+        }
+        
     }
 
     @PutMapping("/updateUser/{id}")
-    public UserModel updateUser(@PathVariable String id, @RequestBody UserModel user){
-        user.setId(id);
-        return userRepository.save(user);
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UserModel user){
+        if(!userRepository.existsById(id)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exits");
+        }
+        else{
+            user.setId(id);
+            return ResponseEntity.ok(userRepository.save(user));
+        }
+        
     }
 }
