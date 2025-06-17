@@ -32,7 +32,7 @@ const HistoryScreen = ({navigation}) => {
             <Text style={[styles.cell, styles.header]}>Status</Text>
           </View>
           {date.map((d, i) => (
-          <View style={styles.row}>
+          <View key = {i}style={styles.row}>
             <Text style={styles.cell}>{d}</Text>
             <Text style={styles.cell}>{location[i]}</Text>
             <Text style={styles.cell}>{status[i]}</Text>
