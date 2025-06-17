@@ -36,7 +36,7 @@ const RequestListScreen = ({navigation}) => {
               <Text style={[styles.cell, styles.header]}></Text>
             </View>
               {date.map((d, i) => (
-              <View style={styles.row}>
+              <View key={i} style={styles.row}>
                 <Text style={styles.cell}>{d}</Text>
                 <Text style={styles.cell}>{name[i]}</Text>
                 <Text style={styles.cell}>{address[i]}</Text>

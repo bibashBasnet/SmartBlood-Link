@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 0,
     paddingBottom: 30,
   },
   headerContainer: {
@@ -133,7 +133,7 @@ export const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingTop: 50,
+    paddingTop: 10,
     paddingBottom: 30,
     backgroundColor: '#f7f6f7',
     borderBottomWidth: 1,

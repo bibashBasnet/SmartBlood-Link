@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -29,7 +28,7 @@ const LoginScreen = ({ navigation }) => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
           <Image source={require('../assets/logo.png')} style={styles.logo} />
           <Text style={styles.title}>Welcome Back</Text>
@@ -83,98 +82,5 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#f7fafc',
-//   },
-//   scrollContainer: {
-//     flexGrow: 1,
-//     justifyContent: 'center',
-//     padding: 20,
-//   },
-//   header: {
-//     alignItems: 'center',
-//     marginBottom: 40,
-//   },
-//   logo: {
-//     width: 80,
-//     height: 80,
-//     marginBottom: 20,
-//     resizeMode: 'contain',
-//   },
-//   title: {
-//     fontSize: 28,
-//     fontWeight: 'bold',
-//     color: '#e53935',
-//     marginBottom: 8,
-//   },
-//   subtitle: {
-//     fontSize: 16,
-//     color: '#718096',
-//   },
-//   form: {
-//     backgroundColor: '#fff',
-//     borderRadius: 12,
-//     padding: 24,
-//     shadowColor: '#000',
-//     shadowOffset: { width: 0, height: 2 },
-//     shadowOpacity: 0.1,
-//     shadowRadius: 8,
-//     elevation: 5,
-//   },
-//   inputContainer: {
-//     marginBottom: 20,
-//   },
-//   label: {
-//     fontSize: 16,
-//     fontWeight: '600',
-//     color: '#2d3748',
-//     marginBottom: 8,
-//   },
-//   input: {
-//     borderWidth: 1,
-//     borderColor: '#e2e8f0',
-//     borderRadius: 8,
-//     padding: 12,
-//     fontSize: 16,
-//     backgroundColor: '#f7fafc',
-//   },
-//   loginButton: {
-//     backgroundColor: '#e53935',
-//     borderRadius: 25,
-//     padding: 16,
-//     alignItems: 'center',
-//     marginTop: 10,
-//   },
-//   loginButtonText: {
-//     color: '#fff',
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//   },
-//   forgotButton: {
-//     alignItems: 'center',
-//     marginTop: 16,
-//   },
-//   forgotText: {
-//     color: '#e53935',
-//     fontSize: 16,
-//     fontWeight: '500',
-//   },
-//   signUpContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     marginTop: 24,
-//   },
-//   normalText: {
-//     color: '#718096',
-//     fontSize: 16,
-//   },
-//   linkText: {
-//     color: '#e53935',
-//     fontSize: 16,
-//     fontWeight: '500',
-//   },
-// });
 
 export default LoginScreen;
