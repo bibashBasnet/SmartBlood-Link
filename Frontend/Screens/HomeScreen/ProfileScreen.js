@@ -32,8 +32,8 @@ const ProfileScreen = ({navigation}) => {
       </SafeAreaView>
       <SafeAreaView style={styles.infoContainer}>
         <Text style={styles.infoText}>Name: {name}</Text>
-        <Text style={styles.infoText}>Address: {address}</Text>
         <Text style={styles.infoText}>Phone No: {phone}</Text>
+        <Text style={styles.infoText}>Address: {address}</Text>
         <Text style={styles.infoText}>Gender: {gender}</Text>
         <Text style={styles.infoText}>Blood Type: {type}</Text>
       </SafeAreaView>

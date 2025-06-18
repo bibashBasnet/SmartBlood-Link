@@ -34,11 +34,11 @@ export const styles = StyleSheet.create({
   logo: {
     width: 80,
     height: 80,
-    marginBottom: 20,
+    marginBottom: 0,
     resizeMode: 'contain',
   },
   organizationName: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#e53935',
   },
@@ -110,35 +110,23 @@ export const styles = StyleSheet.create({
     color: '#555',
   },
   row: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    paddingHorizontal: 4,
-    backgroundColor: '#f9f9f9',
-    marginBottom: 8,
-    borderRadius: 8,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    justifyContent: 'center',
-    alignContent: 'center',
+     flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderColor: '#eee',
   },
   cell: {
     flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    textAlign: 'center',
     fontSize: 14,
     color: '#333',
-    textAlign: 'center',
-    textAlignVertical: 'center',
   },
   header: {
-    alignItems: 'center',
-    paddingTop: 10,
-    paddingBottom: 30,
-    backgroundColor: '#f7f6f7',
-    borderBottomWidth: 1,
-    borderColor: '#e53935',
+    backgroundColor: '#e53935',
+    color: '#fff',
     fontWeight: 'bold',
+    fontSize: 15,
   },
   form: {
     backgroundColor: '#fff',
@@ -318,9 +306,284 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   table: {
-    marginTop: -100,
-    height: 350,
-    width: 350,
+    marginTop: 0,
+    width: 400,
+    margin: 16,
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
+    elevation: 2,
+  },
+
+  historyTitle: {
+  fontSize: 25,
+  fontWeight: 'bold',
+  color: '#e53935',
+  textAlign: 'center',
+  marginTop: -150,
+  marginBottom: 10,
+},
+
+
+card: {
+  width: 350,
+  backgroundColor: '#ffffff',
+  marginHorizontal: 20,
+  marginVertical: 10,
+  padding: 16,
+  borderRadius: 12,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3,
+},
+
+name: {
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: '#e53935',
+  marginBottom: 6,
+},
+
+date: {
+  fontSize: 16,
+  color: '#999',
+  marginBottom: 8,
+},
+
+detailsRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 4,
+},
+
+bloodTypeBox: {
+  backgroundColor: '#e53935',
+  paddingHorizontal: 10,
+  paddingVertical: 4,
+  borderRadius: 8,
+  marginRight: 12,
+},
+
+bloodTypeText: {
+  color: '#fff',
+  fontWeight: 'bold',
+  fontSize: 16,
+},
+
+place: {
+  fontSize: 16,
+  color: '#444',
+  flexShrink: 1,
+},
+
+//Landing Screen
+
+LandingPageContainer: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+  },
+  LandingPageScrollContainer: {
+    flexGrow: 1,
+  },
+  LandingPageHeader: {
+    alignItems: 'center',
+    paddingVertical: 30,
+    backgroundColor: '#ffffff',
+  },
+  LandingPageLogo: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+  },
+  LandingPageAppName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#e53935',
+    marginTop: 10,
+  },
+  LandingPageCountryName: {
+    fontSize: 20,
+    color: '#444',
+    marginTop: 2,
+  },
+  LandingPageTagline: {
+    fontSize: 14,
+    color: '#777',
+    marginTop: 5,
+  },
+  LandingPageHeroSection: {
+    backgroundColor: '#e53935',
+    paddingVertical: 30,
+    paddingHorizontal: 10,
+    marginHorizontal: 10,
+    alignItems: 'center',
+    borderRadius: 15,
+  },
+  LandingPageHeroTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 10,
+  },
+  LandingPageHeroSubtitle: {
+    fontSize: 16,
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  LandingPageFeaturesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  LandingPageFeature: {
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  LandingPageFeatureIcon: {
+    fontSize: 30,
+    marginBottom: 5,
+    color: '#fff',
+  },
+  LandingPageFeatureText: {
+    fontSize: 14,
+    color: '#fff',
+  },
+  LandingPageActionSection: {
+    backgroundColor: '#ffffff',
+    paddingVertical: 30,
+    paddingHorizontal: 40,
+    alignItems: 'center',
+  },
+  LandingPageLoginButton: {
+    backgroundColor: '#e53935',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    marginBottom: 15,
+    width: '100%',
+  },
+  LandingPageLoginButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  LandingPageSignUpButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e53935',
+    width: '100%',
+  },
+  LandingPageSignUpButtonText: {
+    color: '#e53935',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+
+
+
+
+
+  //Login Screen
+  LoginContainer: {
+    flex: 1,
     backgroundColor: '#f7f6f7',
   },
+  LoginScrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'flex-start',
+    paddingHorizontal: 24,
+    paddingTop: 60,
+  },
+  LoginHeader: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  LoginLogo: {
+    width: 90,
+    height: 90,
+    resizeMode: 'contain',
+    marginBottom: 10,
+  },
+  LoginTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#e53935',
+  },
+  LoginSubtitle: {
+    fontSize: 15,
+    color: '#555',
+    marginTop: 4,
+  },
+  LoginForm: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+  },
+  LoginInputContainer: {
+    marginBottom: 16,
+  },
+  LoginLabel: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 4,
+  },
+  LoginInput: {
+    height: 44,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#fafafa',
+    fontSize: 15,
+  },
+  LoginButton: {
+    backgroundColor: '#e53935',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  LoginButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  LoginForgotButton: {
+    marginTop: 25,
+    alignItems: 'center', // Center the text horizontally
+  },
+  LoginForgotText: {
+    fontSize: 13,
+    color: '#e53935',
+    textAlign: 'center',
+  },
+  LoginSignUpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 25,
+  },
+  LoginNormalText: {
+    fontSize: 14,
+    color: '#444',
+  },
+  LoginLinkText: {
+    fontSize: 14,
+    color: '#e53935',
+    fontWeight: 'bold',
+  },
+
 });

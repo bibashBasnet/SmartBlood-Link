@@ -8,7 +8,9 @@ import {
   Platform,
   ScrollView,
   Image,
+
 } from 'react-native';
+import axios from 'axios';
 import { styles } from '../Styles';
 
 const LoginScreen = ({ navigation }) => {
@@ -16,7 +18,16 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    console.log('Login button pressed');
+    axios.post("http://192.168.1.68:8080/users/login", {
+      username: username,
+      password: password
+    })
+    .then(res => {
+      navigation.navigate("Main");
+    })
+    .catch(err => {
+      alert("Login failed", err.response?.data || err.message);
+    });
   };
 
   const handleForgotPassword = () => {
@@ -25,21 +36,21 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView 
-      style={styles.container}
+      style={styles.LoginContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.header}>
-          <Image source={require('../assets/logo.png')} style={styles.logo} />
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to continue</Text>
+      <ScrollView contentContainerStyle={styles.LoginScrollContainer}>
+        <View style={styles.LoginHeader}>
+          <Image source={require('../assets/logo.png')} style={styles.LoginLogo} />
+          <Text style={styles.LoginTitle}>Welcome Back</Text>
+          <Text style={styles.LoginSubtitle}>Sign in to continue</Text>
         </View>
 
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Username</Text>
+        <View style={styles.LoginForm}>
+          <View style={styles.LoginInputContainer}>
+            <Text style={styles.LoginLabel}>Username</Text>
             <TextInput
-              style={styles.input}
+              style={styles.LoginInput}
               placeholder="Enter your Username"
               value={username}
               onChangeText={setUsername}
@@ -49,10 +60,10 @@ const LoginScreen = ({ navigation }) => {
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
+          <View style={styles.LoginInputContainer}>
+            <Text style={styles.LoginLabel}>Password</Text>
             <TextInput
-              style={styles.input}
+              style={styles.LoginInput}
               placeholder="Enter your password"
               keyboardType='default'
               value={password}
@@ -62,18 +73,18 @@ const LoginScreen = ({ navigation }) => {
             />
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Login</Text>
+          <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
+            <Text style={styles.LoginButtonText}>Login</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotButton}>
-            <Text style={styles.forgotText}>Forgot Password?</Text>
+          <TouchableOpacity onPress={handleForgotPassword} style={styles.LoginForgotButton}>
+            <Text style={styles.LoginForgotText}>Forgot Password?</Text>
           </TouchableOpacity>
 
-          <View style={styles.signUpContainer}>
-            <Text style={styles.normalText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Registration')}>
-              <Text style={styles.linkText}>Sign Up</Text>
+          <View style={styles.LoginSignUpContainer}>
+            <Text style={styles.LoginNormalText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={handleLogin}>
+              <Text style={styles.LoginLinkText}>Sign Up</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -81,6 +92,7 @@ const LoginScreen = ({ navigation }) => {
     </KeyboardAvoidingView>
   );
 };
+
 
 
 export default LoginScreen;

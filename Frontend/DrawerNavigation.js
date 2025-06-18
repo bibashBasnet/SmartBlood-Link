@@ -11,7 +11,7 @@ const Drawer = createDrawerNavigator();
 
 const DrawerNavigation = () => {
   return (
-      <Drawer.Navigator>
+      <Drawer.Navigator initialRouteName='RequestList'>
 
         <Drawer.Screen name='Home' component={HomeScreen} options={{headerShown: false}}/>
         <Drawer.Screen name='Profile' component={ProfileScreen} options={{headerShown: false}}/>

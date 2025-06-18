@@ -19,52 +19,47 @@ const LandingScreen = ({ navigation }) => {
     navigation.navigate('Registration');
   };
 
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor='#f7f6f7' />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        
-        {/* Header with Logo */}
-        <View style={styles.header}>
-          <Image source={require('../assets/logo.png')} style={styles.logo} />
-          <Text style={styles.appName}>Smart BloodLink</Text>
-          <Text style={styles.countryName}>Nepal</Text>
-          <Text style={styles.tagline}>Connecting Lives, Saving Lives</Text>
+    <SafeAreaView style={styles.LandingPageContainer}>
+      <StatusBar barStyle="light-content" backgroundColor="#f7f6f7" />
+      <ScrollView contentContainerStyle={styles.LandingPageScrollContainer}>
+
+        <View style={styles.LandingPageHeader}>
+          <Image source={require('../assets/logo.png')} style={styles.LandingPageLogo} />
+          <Text style={styles.LandingPageAppName}>Smart BloodLink</Text>
+          <Text style={styles.LandingPageCountryName}>Nepal</Text>
+          <Text style={styles.LandingPageTagline}>Connecting Lives, Saving Lives</Text>
         </View>
 
-        {/* Hero Section */}
-        <View style={styles.heroSection}>
-          <Text style={styles.heroTitle}>Every Drop Counts</Text>
-          <Text style={styles.heroSubtitle}>
+        <View style={styles.LandingPageHeroSection}>
+          <Text style={styles.LandingPageHeroTitle}>Every Drop Counts</Text>
+          <Text style={styles.LandingPageHeroSubtitle}>
             Join Nepal's largest blood donation network and help save lives in your community
           </Text>
-          
-          {/* Features */}
-          <View style={styles.featuresContainer}>
-            <View style={styles.feature}>
-              <Text style={styles.featureIcon}>🩸</Text>
-              <Text style={styles.featureText}>Donate Blood</Text>
+
+          <View style={styles.LandingPageFeaturesContainer}>
+            <View style={styles.LandingPageFeature}>
+              <Text style={styles.LandingPageFeatureIcon}>🩸</Text>
+              <Text style={styles.LandingPageFeatureText}>Donate Blood</Text>
             </View>
-            <View style={styles.feature}>
-              <Text style={styles.featureIcon}>🔍</Text>
-              <Text style={styles.featureText}>Find Donors</Text>
+            <View style={styles.LandingPageFeature}>
+              <Text style={styles.LandingPageFeatureIcon}>🔍</Text>
+              <Text style={styles.LandingPageFeatureText}>Find Donors</Text>
             </View>
-            <View style={styles.feature}>
-              <Text style={styles.featureIcon}>🚑</Text>
-              <Text style={styles.featureText}>Emergency Help</Text>
+            <View style={styles.LandingPageFeature}>
+              <Text style={styles.LandingPageFeatureIcon}>🚑</Text>
+              <Text style={styles.LandingPageFeatureText}>Emergency Help</Text>
             </View>
           </View>
         </View>
 
-        {/* Action Buttons */}
-        <View style={styles.actionSection}>
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Login</Text>
+        <View style={styles.LandingPageActionSection}>
+          <TouchableOpacity style={styles.LandingPageLoginButton} onPress={handleLogin}>
+            <Text style={styles.LandingPageLoginButtonText}>Login</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-            <Text style={styles.signUpButtonText}>Create Account</Text>
+          <TouchableOpacity style={styles.LandingPageSignUpButton} onPress={handleSignUp}>
+            <Text style={styles.LandingPageSignUpButtonText}>Create Account</Text>
           </TouchableOpacity>
         </View>
 
@@ -72,5 +67,7 @@ const LandingScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
+
 
 export default LandingScreen;

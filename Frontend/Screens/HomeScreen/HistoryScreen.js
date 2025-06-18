@@ -7,8 +7,8 @@ import logo from '../../assets/logo.png'
 
 const HistoryScreen = ({navigation}) => {
 
-  const [date, setDate] = useState([1,4,3])
-  const [location, setLocation] = useState(['kathmandu', 'kathmandu', 'kathmandy'])
+  const [date, setDate] = useState([1,4,3, 4])
+  const [location, setLocation] = useState(['kathmandu', 'kathmandu', 'kathmandy', 'Pokhara'])
   const [status, setStatus] = useState(['Accepted','Accepted', 'In-progress'])
 
     const showMenu = () => {
@@ -25,6 +25,10 @@ const HistoryScreen = ({navigation}) => {
         <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
             <Image source={require("../../assets/list.png")} style={styles.menuIcon} />
         </TouchableOpacity>
+
+        <Text style={styles.historyTitle}>History Of Donation</Text>
+
+        
         <View style={styles.table}>
           <View style={styles.row}>
             <Text style={[styles.cell, styles.header]}>Date</Text>
