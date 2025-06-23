@@ -12,6 +12,8 @@ public class RequestModel {
     @Id
     private String id;
 
+    private String createdBy;
+
     
     private LocalDate time;
 
@@ -49,4 +51,7 @@ public class RequestModel {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    public String getCreatedBy() { return createdBy; }
+    public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 }
