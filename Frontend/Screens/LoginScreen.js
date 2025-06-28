@@ -1,133 +1,114 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
   Image,
+
 } from 'react-native';
-import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+import { styles } from '../Styles';
+
+import Constants from 'expo-constants';
+import { UserContext } from '../Context/UserContext';
+const API_URL = Constants.expoConfig.extra.apiUrl;
+
+
+
+
 
 const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({});
-  const { login, loading } = useAuth();
 
-  const validateInputs = () => {
-    const newErrors = {};
+  const {setUser} = useContext(UserContext);
 
-    if (!email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
+  const [username, setUsername] = useState('bibash');
+  const [password, setPassword] = useState('bibash123');
 
-    if (!password.trim()) {
-      newErrors.password = 'Password is required';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
+const handleLogin = () => {
+  if (!username.trim() || !password.trim()) {
+    alert("Please enter both username and password.");
+    return;
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleLogin = async () => {
-    if (!validateInputs()) {
-      return;
-    }
-
-    const result = await login(email.trim(), password);
-    
-    if (result.success) {
-      navigation.replace('Main');
+  axios.post(`${API_URL}/users/login`, {
+    username: username.trim(),
+    password: password.trim()
+  })
+  .then(res => {
+    if (res.status === 200 && res.data) {
+      const user = res.data;
+      setUser(user);
+      navigation.navigate("Main");
     } else {
-      Alert.alert('Login Failed', result.error);
+      alert("Invalid response from server.");
     }
-  };
+  })
+  .catch(err => {
+    alert("Login failed", err.response?.data?.message || err.message || "Unknown error");
+  });
+};
+
 
   const handleForgotPassword = () => {
-    Alert.alert('Forgot Password', 'Password reset feature coming soon!');
+    console.log('Forgot Password clicked');
   };
 
   return (
     <KeyboardAvoidingView 
-      style={styles.container}
+      style={styles.LoginContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        
-        {/* Header */}
-        <View style={styles.header}>
-          <Image source={require('../assets/logo.png')} style={styles.logo} />
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to continue</Text>
+      <ScrollView contentContainerStyle={styles.LoginScrollContainer}>
+        <View style={styles.LoginHeader}>
+          <Image source={require('../assets/logo.png')} style={styles.LoginLogo} />
+          <Text style={styles.LoginTitle}>Welcome Back</Text>
+          <Text style={styles.LoginSubtitle}>Sign in to continue</Text>
         </View>
 
-        {/* Login Form */}
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
+        <View style={styles.LoginForm}>
+          <View style={styles.LoginInputContainer}>
+            <Text style={styles.LoginLabel}>Username</Text>
             <TextInput
-              style={[styles.input, errors.email && styles.inputError]}
-              placeholder="Enter your email"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
+              style={styles.LoginInput}
+              placeholder="Enter your Username"
+              value={username}
+              onChangeText={setUsername}
+              keyboardType="default"
               autoCapitalize="none"
               autoCorrect={false}
             />
-            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
+          <View style={styles.LoginInputContainer}>
+            <Text style={styles.LoginLabel}>Password</Text>
             <TextInput
-              style={[styles.input, errors.password && styles.inputError]}
+              style={styles.LoginInput}
               placeholder="Enter your password"
+              keyboardType='default'
               value={password}
               onChangeText={setPassword}
               secureTextEntry
               autoCapitalize="none"
             />
-            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
           </View>
 
-          <TouchableOpacity 
-            style={[styles.loginButton, loading && styles.loginButtonDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.loginButtonText}>Login</Text>
-            )}
+          <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>
+            <Text style={styles.LoginButtonText}>Login</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotButton}>
-            <Text style={styles.forgotText}>Forgot Password?</Text>
+          <TouchableOpacity onPress={handleForgotPassword} style={styles.LoginForgotButton}>
+            <Text style={styles.LoginForgotText}>Forgot Password?</Text>
           </TouchableOpacity>
 
-          <View style={styles.signUpContainer}>
-            <Text style={styles.normalText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Registration')}>
-              <Text style={styles.linkText}>Sign Up</Text>
+          <View style={styles.LoginSignUpContainer}>
+            <Text style={styles.LoginNormalText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Registration")}>
+              <Text style={styles.LoginLinkText}>Sign Up</Text>
             </TouchableOpacity>
-          </View>
-
-          {/* Demo Credentials */}
-          <View style={styles.demoContainer}>
-            <Text style={styles.demoTitle}>Demo Credentials:</Text>
-            <Text style={styles.demoText}>Email: test@bloodlink.com</Text>
-            <Text style={styles.demoText}>Password: password123</Text>
           </View>
         </View>
       </ScrollView>
@@ -135,128 +116,6 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f7fafc',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  logo: {
-    width: 80,
-    height: 80,
-    marginBottom: 20,
-    resizeMode: 'contain',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#e53935',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#718096',
-  },
-  form: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2d3748',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#f7fafc',
-  },
-  inputError: {
-    borderColor: '#e53935',
-  },
-  errorText: {
-    color: '#e53935',
-    fontSize: 14,
-    marginTop: 4,
-  },
-  loginButton: {
-    backgroundColor: '#e53935',
-    borderRadius: 25,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  loginButtonDisabled: {
-    backgroundColor: '#a0aec0',
-  },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  forgotButton: {
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  forgotText: {
-    color: '#e53935',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  signUpContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 24,
-  },
-  normalText: {
-    color: '#718096',
-    fontSize: 16,
-  },
-  linkText: {
-    color: '#e53935',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  demoContainer: {
-    marginTop: 24,
-    padding: 16,
-    backgroundColor: '#edf2f7',
-    borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: '#4299e1',
-  },
-  demoTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#2d3748',
-    marginBottom: 8,
-  },
-  demoText: {
-    fontSize: 14,
-    color: '#4a5568',
-    marginBottom: 2,
-  },
-});
+
 
 export default LoginScreen;

@@ -1,6 +1,7 @@
 package com.KathfordStudent.SmartBloodLink.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.KathfordStudent.SmartBloodLink.dto.LoginRequest;
+import com.KathfordStudent.SmartBloodLink.dto.LoginResponse;
 import com.KathfordStudent.SmartBloodLink.model.UserModel;
 import com.KathfordStudent.SmartBloodLink.repository.UserRepository;
 
@@ -40,10 +43,15 @@ public class UserController {
 
     @PostMapping("/createUser")
     public ResponseEntity<?> createUser(@RequestBody UserModel user){
-        if(userRepository.existsByName(user.getName())){
+        if(userRepository.existsByName(user.getUsername())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User Already exist");
         }
         else{
+            if(user.getUserType() == 1){
+                if(user.getDriverLicenceUrl() == null || user.getDriverLicenceUrl().isEmpty()){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Driver Licence picture is missing");
+                }
+            }
             return ResponseEntity.ok(userRepository.save(user));
         }
     }
@@ -70,5 +78,31 @@ public class UserController {
             return ResponseEntity.ok(userRepository.save(user));
         }
         
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
+        Optional<UserModel> user = userRepository.findByUsername(loginRequest.getUsername());
+
+        if(user.isPresent()){
+            UserModel userDetail = user.get();
+            if(userDetail.getPassword().equals(loginRequest.getPassword())){
+                LoginResponse response = new LoginResponse(
+                    userDetail.getId(),
+                    userDetail.getName(),
+                    userDetail.getEmail(),
+                    userDetail.getPhone(),
+                    userDetail.getBloodType(),
+                    userDetail.getAge(),
+                    userDetail.getGender(),
+                    userDetail.getAddress()
+                );
+                return ResponseEntity.ok(response);
+            }
+            else{
+                return ResponseEntity.status(401).body("Incorrect Password");
+            }
+        }
+        return ResponseEntity.status(401).body("Incorrect Username");
     }
 }

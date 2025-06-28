@@ -12,4 +12,5 @@ public interface UserRepository extends MongoRepository<UserModel, String>{
     void deleteById(String id);
     boolean existsById(String id);
     boolean existsByName(String name);
+    Optional<UserModel> findByUsername(String username);
 }

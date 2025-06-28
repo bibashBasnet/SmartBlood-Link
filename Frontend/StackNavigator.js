@@ -3,19 +3,25 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import RegistrationScreen from './Screens/RegistrationScreen/RegistrationScreen';
 import DrawerNavigation from './DrawerNavigation';
 import DonateScreen from './Screens/HomeScreen/DonateScreen';
+import LoginScreen from './Screens/LoginScreen';
+import LandingScreen from './Screens/LandingScreen';
+import RequestDetail from './Components/RequestDetail';
 
-const Stack = createNativeStackNavigator();
 
-const StackNavigator = () => {
+const stack = createNativeStackNavigator();
+
+const stackNavigator = () => {
   return (
-        <Stack.Navigator initialRouteName='Main'>
-          <Stack.Screen name='Registration' component={RegistrationScreen} options={{headerShown: false}}/>
-          <Stack.Screen name='Main' component={DrawerNavigation} options={{headerShown: false}}/>
-          
-          <Stack.Screen name="DonateScreen" component={DonateScreen} /> 
 
-        </Stack.Navigator>
+        <stack.Navigator initialRouteName='LandingPage' >
+          <stack.Screen name='Registration' component={RegistrationScreen} options={{headerShown: false}}/>
+          <stack.Screen name='Main' component={DrawerNavigation} options={{headerShown: false}}/>
+          <stack.Screen name='Login' component={LoginScreen} options={{headerShown: false}}/>
+          <stack.Screen name='LandingPage' component={LandingScreen} options={{headerShown: false}}/>
+          <stack.Screen name='RequestDetail' component={RequestDetail} options={{headerShown: false}}/>
+        </stack.Navigator>
+
   )
 }
 
-export default StackNavigator;
+export default stackNavigator;

@@ -22,12 +22,16 @@ const HomeScreen = ({navigation}) => {
         <Image source={require('../../assets/list.png')} style={styles.menuIcon} />
       </TouchableOpacity>
 
+
       <TouchableOpacity onPress={() => navigation.navigate('DonateScreen')}>
         <Text>Donate Now</Text>
       </TouchableOpacity>
 
 
       <Image source={require('../../assets/logo.png')} style={styles.logo} />
+
+      <Image source={require('../../assets/logo.png')} style={styles.homeLogo} />
+
 
       <View style={styles.textContainer}>
         <Text style={styles.title}>Donate Blood</Text>
