@@ -20,7 +20,7 @@ const RequestScreen = ({navigation}) => {
             <Image source={require("../../assets/list.png")} style={styles.menuIcon} />
         </TouchableOpacity>
         <Text>
-            Request Screen
+            
         </Text>
     </SafeAreaView>
   )

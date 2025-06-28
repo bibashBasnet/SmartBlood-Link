@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
@@ -7,14 +7,19 @@ export const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    // paddingTop: 80
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: 20,
+    paddingBottom: 30,
   },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
     position: 'absolute',
-    top: 40
+    top: 40,
   },
   menuButton: {
     position: 'absolute',
@@ -27,26 +32,32 @@ export const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   logo: {
-    width: 200,
-    height: 200,
+    width: 80,
+    height: 80,
     marginBottom: 20,
     resizeMode: 'contain',
+  },
+  organizationName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#e53935',
   },
   textContainer: {
     alignItems: 'center',
     marginBottom: 30,
     padding: 10,
     height: 200,
-    width: 300
+    width: 300,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 5,
+    color: '#e53935',
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 20,
-    marginBottom: 5
+    fontSize: 16,
+    color: '#718096',
   },
   button: {
     backgroundColor: '#e53935',
@@ -60,15 +71,11 @@ export const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   text: {
-    fontSize: 16
+    fontSize: 16,
   },
-
-
-
-
   profileImageContainer: {
     marginTop: -50,
     marginBottom: 30,
@@ -90,7 +97,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 20,
     alignItems: 'center',
-    marginTop: 50
+    marginTop: 50,
   },
   infoText: {
     fontSize: 18,
@@ -102,8 +109,6 @@ export const styles = StyleSheet.create({
     fontWeight: '400',
     color: '#555',
   },
-
-
   row: {
     flexDirection: 'row',
     paddingVertical: 12,
@@ -111,42 +116,212 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     marginBottom: 8,
     borderRadius: 8,
-    elevation: 1, // for light shadow on Android
-    shadowColor: '#000', // for light shadow on iOS
+    elevation: 1,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
-    justifyContent:'center',
-    alignContent:'center'
+    justifyContent: 'center',
+    alignContent: 'center',
   },
   cell: {
     flex: 1,
     fontSize: 14,
     color: '#333',
     textAlign: 'center',
-    textAlignVertical: 'center'
+    textAlignVertical: 'center',
   },
   header: {
+    alignItems: 'center',
+    paddingTop: 50,
+    paddingBottom: 30,
+    backgroundColor: '#f7f6f7',
+    borderBottomWidth: 1,
+    borderColor: '#e53935',
     fontWeight: 'bold',
   },
-
+  form: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2d3748',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: '#f7fafc',
+  },
+  loginButton: {
+    backgroundColor: '#e53935',
+    borderRadius: 25,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 16,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  forgotButton: {
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  forgotText: {
+    color: '#e53935',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  signUpContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 24,
+  },
+  normalText: {
+    color: '#718096',
+    fontSize: 16,
+  },
+  linkText: {
+    color: '#e53935',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  appName: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#e53935',
+  },
+  countryName: {
+    fontSize: 22,
+    fontWeight: '500',
+    color: '#e53935',
+  },
+  tagline: {
+    fontSize: 14,
+    color: '#e53935',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 6,
+  },
+  heroSection: {
+    backgroundColor: '#e53935',
+    borderRadius: 16,
+    marginHorizontal: 20,
+    padding: 24,
+    marginBottom: 30,
+    marginTop: 20,
+  },
+  heroTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  heroSubtitle: {
+    fontSize: 15,
+    color: '#ffe0e0',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  featuresContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  feature: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  featureIcon: {
+    fontSize: 30,
+    color: '#fff',
+    marginBottom: 6,
+  },
+  featureText: {
+    fontSize: 13,
+    color: '#fff',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  actionSection: {
+    backgroundColor: '#f7f6f7',
+    marginHorizontal: 20,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  signUpButton: {
+    borderColor: '#e53935',
+    borderWidth: 2,
+    borderRadius: 25,
+    padding: 15,
+    alignItems: 'center',
+  },
+  signUpButtonText: {
+    color: '#e53935',
+    fontSize: 17,
+    fontWeight: 'bold',
+  },
+  statsSection: {
+    backgroundColor: '#e53935',
+    borderRadius: 16,
+    marginHorizontal: 20,
+    padding: 20,
+  },
+  statsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 13,
+    color: '#ffe0e0',
+    textAlign: 'center',
+  },
   table: {
     marginTop: -100,
     height: 350,
     width: 350,
-    backgroundColor: '#f7f6f7'
-  },
+    backgroundColor: '#f7f6f7',
+  },
 
-  logo: {
-    width: 50,
-    height: 50,
-    borderRadius: 25, // half of width/height to make it circular
-    marginRight: 10,
-    resizeMode: 'cover',
-  },
-  organizationName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#e53935',
-  },
 });
