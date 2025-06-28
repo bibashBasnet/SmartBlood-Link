@@ -6,7 +6,7 @@ const LogOut = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.text}>Are you sure you want to log out?</Text>
 
-      <TouchableOpacity style={styles.buttonYes} onPress={() => navigation.navigate('Login')}>
+      <TouchableOpacity style={styles.buttonYes} onPress={() => navigation.navigate('LandingPage')}>
         <Text style={styles.buttonTextYes}>Yes</Text>
       </TouchableOpacity>
 

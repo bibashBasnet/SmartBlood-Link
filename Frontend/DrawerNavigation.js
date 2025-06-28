@@ -11,13 +11,11 @@ import { useRoute } from '@react-navigation/native';
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigation = () => {
-  const route = useRoute()
-  const {user} = route.params || {}
   return (
       <Drawer.Navigator initialRouteName='RequestList' >
 
         <Drawer.Screen name='Home' component={HomeScreen} options={{headerShown: false}}/>
-        <Drawer.Screen name='Profile' component={ProfileScreen} options={{headerShown: false}} initialParams={{user}}/>
+        <Drawer.Screen name='Profile' component={ProfileScreen} options={{headerShown: false}}/>
         <Drawer.Screen name='Donate' component={DonateScreen} options={{headerShown: false}}/>
         <Drawer.Screen name='History' component={HistoryScreen} options={{headerShown: false}}/>
         <Drawer.Screen name='RequestList' component={RequestListScreen} options={{headerShown: false}} />

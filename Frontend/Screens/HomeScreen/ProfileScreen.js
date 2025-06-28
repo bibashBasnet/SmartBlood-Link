@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DrawerActions, useRoute } from '@react-navigation/native';
 import { styles } from '../../Styles';
 import logo from '../../assets/logo.png';
+import { UserContext } from '../../Context/UserContext';
 
 const ProfileScreen = ({ navigation }) => {
-  const route = useRoute();
-  const { user } = route.params || {};
+
+  const {user} = useContext(UserContext);
 
   const [name, setName] = useState('');
-  const [address, setAddress] = useState('Kathmandu');
+  const [address, setAddress] = useState('');
   const [type, setType] = useState('-');
-  const [gender, setGender] = useState('Male');
+  const [gender, setGender] = useState('');
   const [phone, setPhone] = useState('9800000000');
-  const [age, setAge] = useState('');
+  const [age, setAge] = useState();
   const [email, setEmail] = useState('');
+
 
   useEffect(() => {
     if (user) {

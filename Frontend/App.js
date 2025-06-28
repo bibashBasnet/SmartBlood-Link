@@ -5,15 +5,23 @@ import HomeScreen from './Screens/HomeScreen/HomeScreen';
 import RegistrationScreen from './Screens/RegistrationScreen/RegistrationScreen';
 import DrawerNavigation from './DrawerNavigation';
 import StackNavigator from './StackNavigator';
+import { useState } from 'react';
+import { UserContext } from './Context/UserContext';
 
 export default function App() {
+
+  const [user, setUser] = useState(null);
+
   const stack = createNativeStackNavigator();
   return (
-    <SafeAreaProvider>
+    <UserContext.Provider value={{user, setUser}}>
+      <SafeAreaProvider>
       <NavigationContainer>
         <StackNavigator/>
       </NavigationContainer>
     </SafeAreaProvider>
+    </UserContext.Provider>
+    
     
   );
 }

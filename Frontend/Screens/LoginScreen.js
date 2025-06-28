@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -14,13 +14,19 @@ import axios from 'axios';
 import { styles } from '../Styles';
 
 import Constants from 'expo-constants';
+import { UserContext } from '../Context/UserContext';
 const API_URL = Constants.expoConfig.extra.apiUrl;
 
 
 
+
+
 const LoginScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('suman');
-  const [password, setPassword] = useState('suman123');
+
+  const {setUser} = useContext(UserContext);
+
+  const [username, setUsername] = useState('bibash');
+  const [password, setPassword] = useState('bibash123');
 
 const handleLogin = () => {
   if (!username.trim() || !password.trim()) {
@@ -35,7 +41,8 @@ const handleLogin = () => {
   .then(res => {
     if (res.status === 200 && res.data) {
       const user = res.data;
-      navigation.navigate("Main", { user });
+      setUser(user);
+      navigation.navigate("Main");
     } else {
       alert("Invalid response from server.");
     }

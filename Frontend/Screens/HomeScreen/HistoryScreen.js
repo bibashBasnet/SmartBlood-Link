@@ -7,7 +7,7 @@ import logo from '../../assets/logo.png'
 
 const HistoryScreen = ({navigation}) => {
 
-  const [date, setDate] = useState([1,4,3, 4])
+  const [date, setDate] = useState([1,2,3, 4])
   const [location, setLocation] = useState(['kathmandu', 'kathmandu', 'kathmandy', 'Pokhara'])
   const [status, setStatus] = useState(['Accepted','Accepted', 'In-progress'])
 
@@ -31,7 +31,7 @@ const HistoryScreen = ({navigation}) => {
 
         <View>
           {date.map((d, i) => (
-            <View style={styles.card}>
+            <View key = {d} style={styles.card}>
               <Text style={[styles.location, styles.name]}>Location: {location[i]}</Text>
               <Text style={styles.date}>Time: {d}</Text>
               <Text>Status: {status[i]}</Text>

@@ -43,10 +43,15 @@ public class UserController {
 
     @PostMapping("/createUser")
     public ResponseEntity<?> createUser(@RequestBody UserModel user){
-        if(userRepository.existsByName(user.getName())){
+        if(userRepository.existsByName(user.getUsername())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User Already exist");
         }
         else{
+            if(user.getUserType() == 1){
+                if(user.getDriverLicenceUrl() == null || user.getDriverLicenceUrl().isEmpty()){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Driver Licence picture is missing");
+                }
+            }
             return ResponseEntity.ok(userRepository.save(user));
         }
     }
@@ -88,7 +93,9 @@ public class UserController {
                     userDetail.getEmail(),
                     userDetail.getPhone(),
                     userDetail.getBloodType(),
-                    userDetail.getAge()
+                    userDetail.getAge(),
+                    userDetail.getGender(),
+                    userDetail.getAddress()
                 );
                 return ResponseEntity.ok(response);
             }
