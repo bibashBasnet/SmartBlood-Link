@@ -7,7 +7,7 @@ import logo from '../../assets/logo.png'
 
 const HistoryScreen = ({navigation}) => {
 
-  const [date, setDate] = useState([1,4,3, 4])
+  const [date, setDate] = useState([1,2,3, 4])
   const [location, setLocation] = useState(['kathmandu', 'kathmandu', 'kathmandy', 'Pokhara'])
   const [status, setStatus] = useState(['Accepted','Accepted', 'In-progress'])
 
@@ -28,21 +28,17 @@ const HistoryScreen = ({navigation}) => {
 
         <Text style={styles.historyTitle}>History Of Donation</Text>
 
-        
-        <View style={styles.table}>
-          <View style={styles.row}>
-            <Text style={[styles.cell, styles.header]}>Date</Text>
-            <Text style={[styles.cell, styles.header]}>Location</Text>
-            <Text style={[styles.cell, styles.header]}>Status</Text>
-          </View>
+
+        <View>
           {date.map((d, i) => (
-          <View key = {i}style={styles.row}>
-            <Text style={styles.cell}>{d}</Text>
-            <Text style={styles.cell}>{location[i]}</Text>
-            <Text style={styles.cell}>{status[i]}</Text>
-          </View>
-          ))}
+            <View key = {d} style={styles.card}>
+              <Text style={[styles.location, styles.name]}>Location: {location[i]}</Text>
+              <Text style={styles.date}>Time: {d}</Text>
+              <Text>Status: {status[i]}</Text>
+            </View>
+        ))}
         </View>
+        
         
     </SafeAreaView>
   )

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -13,22 +13,45 @@ import {
 import axios from 'axios';
 import { styles } from '../Styles';
 
-const LoginScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+import Constants from 'expo-constants';
+import { UserContext } from '../Context/UserContext';
+const API_URL = Constants.expoConfig.extra.apiUrl;
 
-  const handleLogin = () => {
-    axios.post("http://192.168.1.68:8080/users/login", {
-      username: username,
-      password: password
-    })
-    .then(res => {
+
+
+
+
+const LoginScreen = ({ navigation }) => {
+
+  const {setUser} = useContext(UserContext);
+
+  const [username, setUsername] = useState('bibash');
+  const [password, setPassword] = useState('bibash123');
+
+const handleLogin = () => {
+  if (!username.trim() || !password.trim()) {
+    alert("Please enter both username and password.");
+    return;
+  }
+
+  axios.post(`${API_URL}/users/login`, {
+    username: username.trim(),
+    password: password.trim()
+  })
+  .then(res => {
+    if (res.status === 200 && res.data) {
+      const user = res.data;
+      setUser(user);
       navigation.navigate("Main");
-    })
-    .catch(err => {
-      alert("Login failed", err.response?.data || err.message);
-    });
-  };
+    } else {
+      alert("Invalid response from server.");
+    }
+  })
+  .catch(err => {
+    alert("Login failed", err.response?.data?.message || err.message || "Unknown error");
+  });
+};
+
 
   const handleForgotPassword = () => {
     console.log('Forgot Password clicked');
@@ -83,7 +106,7 @@ const LoginScreen = ({ navigation }) => {
 
           <View style={styles.LoginSignUpContainer}>
             <Text style={styles.LoginNormalText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={handleLogin}>
+            <TouchableOpacity onPress={() => navigation.navigate("Registration")}>
               <Text style={styles.LoginLinkText}>Sign Up</Text>
             </TouchableOpacity>
           </View>
