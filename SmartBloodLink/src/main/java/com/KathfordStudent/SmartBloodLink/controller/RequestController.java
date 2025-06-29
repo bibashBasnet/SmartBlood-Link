@@ -1,9 +1,9 @@
 package com.KathfordStudent.SmartBloodLink.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.KathfordStudent.SmartBloodLink.model.RequestModel;
@@ -26,9 +27,10 @@ public class RequestController {
         return requestRepository.findAll();
     }
 
-    @GetMapping("/getRequestById?{id}")
-    public Optional<RequestModel> getRequestById(String id){
-        return requestRepository.findById(id);
+    @GetMapping("/getRequest")
+    public ResponseEntity<?> getRequest(@RequestParam String id){
+        List<RequestModel> list = requestRepository.findAllByCreatedBy(id);
+        return ResponseEntity.ok(list);
     }
 
     @PostMapping("/create")

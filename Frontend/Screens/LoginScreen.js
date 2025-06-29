@@ -14,7 +14,8 @@ import axios from 'axios';
 import { styles } from '../Styles';
 
 import Constants from 'expo-constants';
-import { UserContext } from '../Context/UserContext';
+import { Context } from '../Context/Context';
+
 const API_URL = Constants.expoConfig.extra.apiUrl;
 
 
@@ -23,7 +24,7 @@ const API_URL = Constants.expoConfig.extra.apiUrl;
 
 const LoginScreen = ({ navigation }) => {
 
-  const {setUser} = useContext(UserContext);
+  const {setUser} = useContext(Context);
 
   const [username, setUsername] = useState('bibash');
   const [password, setPassword] = useState('bibash123');

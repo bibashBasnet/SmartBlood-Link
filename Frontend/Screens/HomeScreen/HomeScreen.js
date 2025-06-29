@@ -22,14 +22,6 @@ const HomeScreen = ({navigation}) => {
         <Image source={require('../../assets/list.png')} style={styles.menuIcon} />
       </TouchableOpacity>
 
-
-      <TouchableOpacity onPress={() => navigation.navigate('DonateScreen')}>
-        <Text>Donate Now</Text>
-      </TouchableOpacity>
-
-
-      <Image source={require('../../assets/logo.png')} style={styles.logo} />
-
       <Image source={require('../../assets/logo.png')} style={styles.homeLogo} />
 
 
@@ -39,7 +31,7 @@ const HomeScreen = ({navigation}) => {
         <Text style={styles.text}>Your Donation Can Make A Difference.</Text>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DonateScreen')}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Donate',{screen: "DonateScreen"})}>
       <Text style={styles.buttonText}>Donate Now</Text>
       </TouchableOpacity>
 

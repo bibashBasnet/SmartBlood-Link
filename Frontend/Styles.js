@@ -413,4 +413,38 @@ buttonText: {
     color: '#444',
     flexShrink: 1,
   },
+
+
+ // ========History List Screen=====
+ historyListLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 10,
+    color: '#333',
+  },
+  historyListValue: {
+    fontWeight: 'normal',
+    color: '#555',
+  },
+  historyListButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 15,
+  },
+  historyListButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  historyListAcceptButton: {
+    backgroundColor: '#4CAF50',
+  },
+  historyListRejectButton: {
+    backgroundColor: '#F44336',
+  },
+  historyListButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 });

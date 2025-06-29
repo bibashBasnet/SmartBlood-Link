@@ -1,51 +1,93 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView, Switch, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { styles } from './DonationScreenStyle';
+import { Context } from '../../Context/Context';
+import axios from 'axios';
 
-export default function BloodDonationForm() {
-  const [fullName, setFullName] = useState('');
-  const [ageOrDOB, setAgeOrDOB] = useState('');
+import Constants from 'expo-constants'
+const API_URL = Constants.expoConfig.extra.apiUrl;
+
+
+
+export default function BloodDonationForm({navigation}) {
+
+
+  const [trigger, setTrigger] = useState('0')
+
+  const {user} = useContext(Context);
+
+  const {setDonate} = useContext(Context);
+
+
+  useEffect(() => {
+
+    const fetchAndNavigate = async () => {
+      await axios.get(`${API_URL}/donate/get`, {
+        params: {
+          createdBy: user.id
+        }
+      })
+      .then((res) => {
+        if(res.data){
+          console.log("Donate data", JSON.stringify(res.data))
+          setDonate(res.data);
+          navigation.navigate("DonateStatusScreen")
+        }
+    })
+    .catch((e) => {alert(e)})
+    }
+    fetchAndNavigate();
+
+  },[trigger])
+
+  const [fullName, setFullName] = useState(user.name);
+  const [ageOrDOB, setAgeOrDOB] = useState(`${user.age}`);
   const [showDOBPicker, setShowDOBPicker] = useState(false);
   const [dob, setDOB] = useState(new Date());
-  const [gender, setGender] = useState('');
-  const [bloodGroup, setBloodGroup] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [weight, setWeight] = useState('');
-  const [healthStatus, setHealthStatus] = useState('');
+  const [gender, setGender] = useState(user.gender);
+  const [bloodGroup, setBloodGroup] = useState(user.bloodType);
+  const [contactNumber, setContactNumber] = useState(user.phone);
+  const [email, setEmail] = useState(user.email);
+  const [address, setAddress] = useState(user.address);
+  const [weight, setWeight] = useState('50');
+  const [healthStatus, setHealthStatus] = useState('ok');
   const [lastDonationDate, setLastDonationDate] = useState(new Date());
   const [showLastDonationPicker, setShowLastDonationPicker] = useState(false);
   const [preferredDonationDate, setPreferredDonationDate] = useState(new Date());
   const [showPreferredDonationPicker, setShowPreferredDonationPicker] = useState(false);
-  const [allergies, setAllergies] = useState('');
-  const [emergencyContact, setEmergencyContact] = useState('');
-  const [consent, setConsent] = useState(false);
+  const [allergies, setAllergies] = useState('None');
+  const [emergencyContact, setEmergencyContact] = useState('90000000000000');
+  const [createdBy, setCreatedBy] = useState(user.id);
 
   const onSubmit = () => {
-    if (!consent) {
-      Alert.alert('Consent Required', 'You must agree to the terms and conditions.');
-      return;
-    }
-    // For now just show an alert with data summary
-    Alert.alert('Form Submitted', 
-      `Name: ${fullName}
-Age/DOB: ${ageOrDOB || dob.toDateString()}
-Gender: ${gender}
-Blood Group: ${bloodGroup}
-Contact: ${contactNumber}
-Email: ${email}
-Address: ${address}
-Weight: ${weight}
-Health: ${healthStatus}
-Last Donation: ${lastDonationDate.toDateString()}
-Preferred Donation: ${preferredDonationDate.toDateString()}
-Allergies/Medication: ${allergies}
-Emergency Contact: ${emergencyContact}
-Consent: ${consent ? 'Yes' : 'No'}`
-    );
+   const payload = {
+    "name": fullName,
+    "age":ageOrDOB,
+    gender,
+    bloodGroup,
+    "phone":contactNumber,
+    email,
+    address,
+    weight,
+    "medicalHistory":healthStatus,
+    lastDonationDate,
+    "preferredDate": preferredDonationDate,
+    allergies,
+    emergencyContact,
+    createdBy
+  }
+  console.log(JSON.stringify(payload))
+  try{
+    axios.post(`${API_URL}/donate/create`, payload)
+    Alert.alert("Success", "Donation request submitted!");
+    setTrigger('1')
+  }catch(e){
+    Alert.alert(e);
+  }
+
+
   };
 
   return (
@@ -192,13 +234,6 @@ Consent: ${consent ? 'Yes' : 'No'}`
         placeholder="Emergency contact number"
         keyboardType="phone-pad"
       />
-
-      <View style={styles.consentContainer}>
-        <Switch value={consent} onValueChange={setConsent} />
-        <Text style={{ marginLeft: 8 }}>
-          I agree to the terms and conditions / eligibility criteria
-        </Text>
-      </View>
 
       <Button title="Submit" onPress={onSubmit} />
     </ScrollView>

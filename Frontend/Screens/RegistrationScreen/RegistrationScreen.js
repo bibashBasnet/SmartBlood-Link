@@ -114,7 +114,6 @@ const RegistrationScreen = ({navigation}) => {
         Alert.alert("Error", "Something went wrong.");
       }
     } catch (e) {
-      console.error(e);
       Alert.alert("Error", e?.response?.data?.message || "Registration failed");
     }
 };

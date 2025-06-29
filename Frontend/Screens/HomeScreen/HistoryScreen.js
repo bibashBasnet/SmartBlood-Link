@@ -1,15 +1,38 @@
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Image, SafeAreaView, Text, TouchableOpacity, View } from 'react-native'
 import { styles } from '../../Styles'
 import { DrawerActions } from '@react-navigation/native'
 import logo from '../../assets/logo.png'
+import Constants from 'expo-constants'
+import { Context } from '../../Context/Context'
+import axios from 'axios'
+
 
 
 const HistoryScreen = ({navigation}) => {
 
-  const [date, setDate] = useState([1,2,3, 4])
-  const [location, setLocation] = useState(['kathmandu', 'kathmandu', 'kathmandy', 'Pokhara'])
-  const [status, setStatus] = useState(['Accepted','Accepted', 'In-progress'])
+  const {user} = useContext(Context);
+
+  const API_URL = Constants.expoConfig.extra.apiUrl
+
+  const [historyList, setHistoryList] = useState([])
+
+  // const [date, setDate] = useState([])
+  // const [location, setLocation] = useState([])
+  // const [status, setStatus] = useState([])
+
+  useEffect(()=>{
+    axios.get(`${API_URL}/donationHistory/get`, {
+      params: {
+        id: user.id
+      }
+    })
+    .then(res =>{
+        if(res.data && Array.isArray(res.data)){
+          setHistoryList(res.data)
+    }})
+    .catch(e => {alert("History List " + e.message)})
+  },[])
 
     const showMenu = () => {
         navigation.dispatch(DrawerActions.openDrawer())
@@ -26,15 +49,15 @@ const HistoryScreen = ({navigation}) => {
             <Image source={require("../../assets/list.png")} style={styles.menuIcon} />
         </TouchableOpacity>
 
-        <Text style={styles.historyTitle}>History Of Donation</Text>
+        <Text style={styles.historyTitle}>My Donation History</Text>
 
 
         <View>
-          {date.map((d, i) => (
-            <View key = {d} style={styles.card}>
-              <Text style={[styles.location, styles.name]}>Location: {location[i]}</Text>
-              <Text style={styles.date}>Time: {d}</Text>
-              <Text>Status: {status[i]}</Text>
+          {historyList.map((item, i) => (
+            <View key = {i} style={styles.card}>
+              <Text style={[styles.location, styles.name]}>Location: {item.location}</Text>
+              <Text style={styles.date}>Time: {item.time}</Text>
+              <Text>Status: {item.status}</Text>
             </View>
         ))}
         </View>

@@ -6,6 +6,8 @@ import DonateScreen from './Screens/HomeScreen/DonateScreen';
 import LoginScreen from './Screens/LoginScreen';
 import LandingScreen from './Screens/LandingScreen';
 import RequestDetail from './Components/RequestDetail';
+import DonateStatusScreen from './Screens/HomeScreen/DonateStatusScreen';
+import DonateNavigation from './StackNavigation/DonateNavigation';
 
 
 const stack = createNativeStackNavigator();
@@ -19,6 +21,7 @@ const stackNavigator = () => {
           <stack.Screen name='Login' component={LoginScreen} options={{headerShown: false}}/>
           <stack.Screen name='LandingPage' component={LandingScreen} options={{headerShown: false}}/>
           <stack.Screen name='RequestDetail' component={RequestDetail} options={{headerShown: false}}/>
+          <stack.Screen name='donate' component={DonateNavigation} options={{headerShown:false}}/>
         </stack.Navigator>
 
   )
