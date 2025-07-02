@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Image, SafeAreaView, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { Image, SafeAreaView, Text, TouchableOpacity, View, Alert, ScrollView } from 'react-native';
 import { DrawerActions } from '@react-navigation/native';
 import logo from '../../assets/logo.png';
 import { styles } from '../../Styles';
@@ -45,7 +45,8 @@ const RequestListScreen = ({ navigation }) => {
 
       <Text style={[styles.historyTitle, { marginTop: 50 }]}>Blood Request List</Text>
 
-      <View>
+      <View style={{flex: 1, marginHorizontal: 10, maxHeight: 670}}>
+      <ScrollView>
         {requestList.map((item, i) => (
           <TouchableOpacity key={i} onPress={() => showDetail(i)}>
             <View style={styles.card}>
@@ -82,7 +83,10 @@ const RequestListScreen = ({ navigation }) => {
             </View>
           </TouchableOpacity>
         ))}
+      </ScrollView>
       </View>
+
+
     </SafeAreaView>
   );
 };

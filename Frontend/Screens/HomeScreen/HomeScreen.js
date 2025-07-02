@@ -14,9 +14,9 @@ const HomeScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
 
       <View style={styles.headerContainer}>
-          <Image source={logo} style={styles.logo} />
-          <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
-        </View>
+        <Image source={logo} style={styles.logo} />
+        <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
+      </View>
 
       <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
         <Image source={require('../../assets/list.png')} style={styles.menuIcon} />

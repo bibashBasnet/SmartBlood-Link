@@ -19,7 +19,6 @@ const ProfileScreen = ({ navigation }) => {
 
 
   useEffect(() => {
-    console.log(user);
     if (user) {
       setName(user.name);
       setAddress(user.address || 'Unknown');
@@ -70,7 +69,7 @@ const ProfileScreen = ({ navigation }) => {
       </View>
 
       {/* Edit Button */}
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("UpdateProfileScreen")}}>
         <Text style={styles.buttonText}>Edit Profile</Text>
       </TouchableOpacity>
 

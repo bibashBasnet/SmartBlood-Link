@@ -1,11 +1,10 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import React from 'react'
 import DonateStatusScreen from '../Screens/HomeScreen/DonateStatusScreen';
 import DonateScreen from '../Screens/HomeScreen/DonateScreen'
 
 const DonateNavigation = () => {
 
-    const stack = createNativeStackNavigator();
+  const stack = createNativeStackNavigator();
 
   return (
     <stack.Navigator initialRouteName='DonateScreen'>

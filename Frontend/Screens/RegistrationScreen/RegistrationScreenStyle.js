@@ -11,6 +11,24 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+   donateheaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+    menuButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    padding: 10,
+  },
+  menuIcon: {
+    width: 28,
+    height: 28,
+    tintColor: '#e53935',
+  },
   logo: {
     width: 50,
     height: 50,

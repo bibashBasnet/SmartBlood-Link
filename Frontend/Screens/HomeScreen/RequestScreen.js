@@ -6,8 +6,8 @@ import logo from '../../assets/logo.png'
 import { styles } from '../../Styles'
 import axios from 'axios'
 import Constants from 'expo-constants'
-import App from '../../App'
 import { Context } from '../../Context/Context'
+import { ScrollView } from 'react-native-gesture-handler'
 
 const RequestScreen = ({navigation}) => {
 
@@ -23,7 +23,6 @@ const RequestScreen = ({navigation}) => {
     const [requestList, setRequestList] = useState([])
 
     useEffect(() => {
-      console.log(user.id)
       axios.get(`${API_URL}/requests/getRequest`,{
         params: {
           id : user.id
@@ -31,7 +30,6 @@ const RequestScreen = ({navigation}) => {
       })
       .then(res => {
         if(res.data && Array.isArray(res.data)){
-          console.log(res.data)
           setRequestList(res.data)
         }
       })
@@ -59,8 +57,9 @@ const RequestScreen = ({navigation}) => {
             
         </Text>
 
-        <Text style={[styles.historyTitle, {marginTop: 50}]}>My Request List</Text>
-                <View>
+        <Text style={[styles.historyTitle]}>My Request List</Text>
+        <View style={{flex:1, maxHeight: 670}}>
+                <ScrollView>
                   {requestList.map((item, i) => (
                   <View key= {i} style={styles.card}>
                     <Text style={styles.name}>{item.time}</Text>
@@ -73,10 +72,12 @@ const RequestScreen = ({navigation}) => {
                     </View>
                   </View>
                   ))}
-                </View>
+                </ScrollView>
                 <View style={[styles.card, {alignItems: "center"}]}>
                     <Image source={require("../../assets/plus.png")} style={{width: 25, height: 25}}/>
                 </View>
+        </View>
+
 
     </SafeAreaView>
   )

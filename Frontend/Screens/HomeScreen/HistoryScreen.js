@@ -6,6 +6,7 @@ import logo from '../../assets/logo.png'
 import Constants from 'expo-constants'
 import { Context } from '../../Context/Context'
 import axios from 'axios'
+import { ScrollView } from 'react-native-gesture-handler'
 
 
 
@@ -16,10 +17,6 @@ const HistoryScreen = ({navigation}) => {
   const API_URL = Constants.expoConfig.extra.apiUrl
 
   const [historyList, setHistoryList] = useState([])
-
-  // const [date, setDate] = useState([])
-  // const [location, setLocation] = useState([])
-  // const [status, setStatus] = useState([])
 
   useEffect(()=>{
     axios.get(`${API_URL}/donationHistory/get`, {
@@ -50,9 +47,8 @@ const HistoryScreen = ({navigation}) => {
         </TouchableOpacity>
 
         <Text style={styles.historyTitle}>My Donation History</Text>
-
-
-        <View>
+        <View style={{flex: 1, maxHeight: 670}}>
+        <ScrollView style={{}}>
           {historyList.map((item, i) => (
             <View key = {i} style={styles.card}>
               <Text style={[styles.location, styles.name]}>Location: {item.location}</Text>
@@ -60,7 +56,10 @@ const HistoryScreen = ({navigation}) => {
               <Text>Status: {item.status}</Text>
             </View>
         ))}
+        </ScrollView>
         </View>
+
+
         
         
     </SafeAreaView>

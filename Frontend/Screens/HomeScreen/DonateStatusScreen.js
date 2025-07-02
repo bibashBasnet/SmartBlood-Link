@@ -11,7 +11,8 @@ import { Context } from '../../Context/Context'
 const DonateStatusScreen = ({navigation}) => {
    const {donate} = useContext(Context)
 
-    console.log("Donate status",donate.status)
+  //  console.log(JSON.stringify(donate))
+
       const showMenu = () => {
     navigation.dispatch(DrawerActions.openDrawer())
   }
@@ -41,7 +42,7 @@ const DonateStatusScreen = ({navigation}) => {
             <Text style={styles.infoText}>Address: {donate.address}</Text>
             <Text style={styles.infoText}>Email: {donate.email}</Text>
             <Text style={styles.infoText}>Phone No: {donate.phone}</Text>
-            <Text style={styles.infoText}>Phone No: {donate.bloodGroup}</Text>
+            <Text style={styles.infoText}>Blood Type: {donate.bloodGroup}</Text>
             <Text style={styles.infoText}>Emergency Contact No: {donate.emergencyContact}</Text>
           </View>
           <View>

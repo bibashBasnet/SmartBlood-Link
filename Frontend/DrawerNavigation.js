@@ -1,27 +1,25 @@
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import ProfileScreen from './Screens/HomeScreen/ProfileScreen';
-import DonateScreen from './Screens/HomeScreen/DonateScreen';
 import HistoryScreen from './Screens/HomeScreen/HistoryScreen';
 import RequestListScreen from './Screens/HomeScreen/RequestListScreen';
-import RequestScreen from './Screens/HomeScreen/RequestScreen';
 import HomeScreen from './Screens/HomeScreen/HomeScreen';
 import LogOut from './Screens/HomeScreen/LogOut';
-import { useRoute } from '@react-navigation/native';
-import DonateStatusScreen from './Screens/HomeScreen/DonateStatusScreen';
 import DonateNavigation from './StackNavigation/DonateNavigation';
+import ProfileNavigation from './StackNavigation/ProfileNavigation';
+import RequestNavigation from './StackNavigation/RequestNavigation';
+import RequestListNavigation from './StackNavigation/RequestListNavigation';
 
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigation = () => {
   return (
-      <Drawer.Navigator initialRouteName='Donate' >
+      <Drawer.Navigator initialRouteName='Profile' >
 
         <Drawer.Screen name='Home' component={HomeScreen} options={{headerShown: false}}/>
-        <Drawer.Screen name='Profile' component={ProfileScreen} options={{headerShown: false}}/>
+        <Drawer.Screen name='Profile' component={ProfileNavigation} options={{headerShown: false}}/>
         <Drawer.Screen name='Donate' component={DonateNavigation} options={{headerShown: false}}/>
         <Drawer.Screen name='History' component={HistoryScreen} options={{headerShown: false}}/>
-        <Drawer.Screen name='RequestList' component={RequestListScreen} options={{headerShown: false}} />
-        <Drawer.Screen name='Request' component={RequestScreen} options={{headerShown: false}}/>
+        <Drawer.Screen name='RequestList' component={RequestListNavigation} options={{headerShown: false}} />
+        <Drawer.Screen name='Request' component={RequestNavigation} options={{headerShown: false}}/>
         <Drawer.Screen name='Logout' component={LogOut} options={{headerShown: false}}/>
       </Drawer.Navigator>
   )
