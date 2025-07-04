@@ -7,7 +7,6 @@ import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import logo from '../../assets/logo.png'
 import { styles } from './../RegistrationScreen/RegistrationScreenStyle';
-
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { Context } from '../../Context/Context';
