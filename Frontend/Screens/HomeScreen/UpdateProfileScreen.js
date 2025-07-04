@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import logo from '../../assets/logo.png'
-import { styles } from './../RegistrationScreen/RegistrationScreenStyle';
+import { styles } from '../RegistrationScreen/RegistrationScreenStyle';
 import { Context } from '../../Context/Context';
 
 const UpdateProfileScreen = ({navigation}) => {

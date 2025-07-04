@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-    container: {
+  container: {
     flexGrow: 1,
     padding: 20,
     backgroundColor: '#f4f4f4',
@@ -11,14 +11,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
-   donateheaderContainer: {
+  donateheaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
     marginBottom: 10,
   },
-    menuButton: {
+  menuButton: {
     position: 'absolute',
     top: 40,
     left: 20,
@@ -111,4 +111,4 @@ export const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-})
+});

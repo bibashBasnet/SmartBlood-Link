@@ -208,4 +208,3 @@ const RegistrationScreen = ({navigation}) => {
 }
 
 export default RegistrationScreen;
-
