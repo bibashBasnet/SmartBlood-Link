@@ -6,7 +6,8 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import logo from '../../assets/logo.png';
+import * as ImagePicker from 'expo-image-picker';
+import logo from '../../assets/logo.png'
 
 import Constants from 'expo-constants';
 import axios from 'axios';
