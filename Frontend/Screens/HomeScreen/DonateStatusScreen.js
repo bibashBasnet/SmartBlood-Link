@@ -1,22 +1,47 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Image, View, TouchableOpacity, Text } from 'react-native'
 import { styles } from '../../Styles'
 import logo from '../../assets/logo.png'
 import { DrawerActions } from '@react-navigation/native'
 import { Context } from '../../Context/Context'
+import axios from 'axios'
+import Constants from 'expo-constants'
 
 
 
 
 const DonateStatusScreen = ({navigation}) => {
-   const {donate} = useContext(Context)
 
-  //  console.log(JSON.stringify(donate))
+  const API_URL = Constants.expoConfig.extra.apiUrl
 
-      const showMenu = () => {
+   const {donate, setIsForm, setDonate} = useContext(Context)
+  const showMenu = () => {
     navigation.dispatch(DrawerActions.openDrawer())
   }
 
+  useEffect(() => {
+    setIsForm(false)
+  }, [])
+    const handlePress= () => {
+    navigation.navigate("Map")
+  }
+
+  const handlePressCancel = async () => {
+    try{
+      const res = await axios.delete(`${API_URL}/donate/delete`, {
+        params: {
+          createdBy: donate.createdBy
+        }
+      })
+      if(res){
+        setDonate(null);
+        alert(res.data)
+        navigation.replace("DonateScreen")
+      }
+    }catch(e){
+      console.log(e.message)
+    }
+  }
  
 
   return (
@@ -36,22 +61,27 @@ const DonateStatusScreen = ({navigation}) => {
     
           <View style={[styles.LoginForm, {marginTop: 50}]}>
             <View>
-            <Text style={styles.infoText}>Name: {donate.name}</Text>
-            <Text style={styles.infoText}>Age: {donate.age}</Text>
-            <Text style={styles.infoText}>Gender: {donate.gender}</Text>
-            <Text style={styles.infoText}>Address: {donate.address}</Text>
-            <Text style={styles.infoText}>Email: {donate.email}</Text>
-            <Text style={styles.infoText}>Phone No: {donate.phone}</Text>
-            <Text style={styles.infoText}>Blood Type: {donate.bloodGroup}</Text>
-            <Text style={styles.infoText}>Emergency Contact No: {donate.emergencyContact}</Text>
+            <Text style={styles.infoText}>Name: {donate?.name}</Text>
+            <Text style={styles.infoText}>Age: {donate?.age}</Text>
+            <Text style={styles.infoText}>Gender: {donate?.gender}</Text>
+            <Text style={styles.infoText}>Address: {donate?.address}</Text>
+            <Text style={styles.infoText}>Email: {donate?.email}</Text>
+            <Text style={styles.infoText}>Phone No: {donate?.phone}</Text>
+            <Text style={styles.infoText}>Blood Type: {donate?.bloodGroup}</Text>
+            <Text style={styles.infoText}>Emergency Contact No: {donate?.emergencyContact}</Text>
           </View>
           <View>
-            <Text style={styles.infoText}>Weight: {donate.weight}</Text>
-            <Text style={styles.infoText}>Last Donation Date: {donate.lastDonationDate}</Text>
-            <Text style={styles.infoText}>Allergies: {donate.allergies}</Text>
+            <Text style={styles.infoText}>Weight: {donate?.weight}</Text>
+            <Text style={styles.infoText}>Last Donation Date: {donate?.lastDonationDate}</Text>
+            <Text style={styles.infoText}>Allergies: {donate?.allergies}</Text>
           </View>
-          <Text style={styles.infoText}>Preferred Time: {donate.preferredDate}</Text>
-          <Text style={styles.infoText}>Status: {donate.status}</Text>
+          <Text style={styles.infoText}>Preferred Time: {donate?.preferredDate}</Text>
+          <Text style={styles.infoText}>Status: {donate?.status}</Text>
+          <Text style={styles.infoText}>Requested BloodBank: {donate?.bloodBankName}</Text>
+          <TouchableOpacity style={styles.button} onPress={handlePress}><Text style={styles.buttonText}>Map</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handlePressCancel}><Text style={styles.buttonText}>Cancel</Text></TouchableOpacity>
+
+
 
             
           </View>

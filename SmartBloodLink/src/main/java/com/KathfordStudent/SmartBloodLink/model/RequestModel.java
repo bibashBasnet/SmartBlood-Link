@@ -15,7 +15,7 @@ public class RequestModel {
     private String createdBy;
 
     private LocalDate time;
-
+    private int amount;
     private String name;
     private String location;
     private String type;
@@ -29,7 +29,7 @@ public class RequestModel {
     }
 
      public RequestModel(String id, String createdBy, LocalDate time, String name, String location,
-                        String type, String phone, String email, String status) {
+                        String type, String phone,int amount, String email, String status) {
         this.id = id;
         this.createdBy = createdBy;
         this.time = time;
@@ -39,6 +39,7 @@ public class RequestModel {
         this.phone = phone;
         this.email = email;
         this.status = status;
+        this.amount = amount;
     }
 
     // Getters and Setters
@@ -49,6 +50,13 @@ public class RequestModel {
 
     public void setId(String id) {
         this.id = id;
+    }
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 
     public String getCreatedBy() {

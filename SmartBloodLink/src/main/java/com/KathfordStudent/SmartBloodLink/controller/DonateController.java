@@ -1,9 +1,14 @@
 package com.KathfordStudent.SmartBloodLink.controller;
 
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.support.Repositories;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +33,18 @@ public class DonateController {
         }
         else{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot be Created");
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> delete(@RequestParam String createdBy){
+        Optional<DonateModel> donate = donateRepository.findByCreatedBy(createdBy);
+        if(!donate.isEmpty()){
+            donateRepository.delete(donate.get());
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("The Appointment is cancelled");
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The Appointment doesnot exist");
         }
     }
 

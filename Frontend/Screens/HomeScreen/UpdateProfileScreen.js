@@ -5,24 +5,28 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import logo from '../../assets/logo.png'
-import { styles } from './../RegistrationScreen/RegistrationScreenStyle';
+import { styles } from '../RegistrationScreen/RegistrationScreenStyle';
 import { Context } from '../../Context/Context';
+import axios from 'axios';
+import Constants from 'expo-constants'
+
 
 const UpdateProfileScreen = ({navigation}) => {
+  const API_URL = Constants.expoConfig.extra.apiUrl;
   const {user, setUser} = useContext(Context);
 
       const [name, setName] = useState(user.name);
       const [email, setEmail] = useState(user.email);
-      const [phone, setPhone] = useState('9864537289');
-      const [password, setPassword] = useState('test123');
-      const [bloodGroup, setBloodGroup] = useState('A+');
-      const [userType, setUserType] = useState('0');
-      const [username, setUsername] = useState('test')
-      const [age, setAge] = useState('34')
-      const [gender, setGender] = useState('Male')
+      const [phone, setPhone] = useState(user.phone);
+      const [bloodGroup, setBloodGroup] = useState(user.bloodType);
+      const [age, setAge] = useState(`${user.age}`)
+      const [gender, setGender] = useState(user.gender)
+
     
+      const addressPart = user.address.split(",")
+
       const [address, setAddress] = useState({
-        province: 'Bagmati Province', district: 'dang', ward: '5', municipality: 'ghorahi',
+        province: addressPart[0] , district: addressPart[1], ward: addressPart[2], municipality: addressPart[3],
       });
 
         const provinces = [
@@ -38,7 +42,23 @@ const UpdateProfileScreen = ({navigation}) => {
   const [driverLicenses, setDriverLicenses] = useState([]);
 
   const handlerUpdate =()=>{
+    const payload = {
+      name, 
+      email,
+      phone,
+      bloodGroup,
+      age: parseInt(age),
+      gender,
+      address: `${address.province},${address.district},${address.ward},${address.municipality}`
+    }
 
+    axios.patch(`${API_URL}/users/updateUser/${user.id}`, payload)
+    .then(res => {
+      Alert.alert("Success", "Profile Has been updated")
+      setUser(res.data)
+      navigation.goBack()
+    })
+    .catch(err => {Alert.alert("Error", "Profile has not been updated")})
   }
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -62,10 +82,7 @@ const UpdateProfileScreen = ({navigation}) => {
           {['Male', 'Female', 'Other'].map((gender) => (
             <Picker.Item key={gender} label={gender} value={gender} />
           ))}
-        </Picker>
-        <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} keyboardType="default" />
-        <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
-      
+        </Picker>      
       
         <Text style={styles.label}>Blood Group</Text>
         <Picker selectedValue={bloodGroup} style={styles.picker} onValueChange={setBloodGroup}>
@@ -73,13 +90,6 @@ const UpdateProfileScreen = ({navigation}) => {
           {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map((group) => (
             <Picker.Item key={group} label={group} value={group} />
           ))}
-        </Picker>
-      
-        <Text style={styles.label}>User Type</Text>
-        <Picker selectedValue={userType} style={styles.picker} onValueChange={setUserType}>
-          <Picker.Item label="Select User Type" value="" />
-          <Picker.Item label="Normal User" value = "0" />
-          <Picker.Item label="Driver" value= "1" />
         </Picker>
 
         {/* Permanent Address */}
@@ -104,22 +114,6 @@ const UpdateProfileScreen = ({navigation}) => {
             onChangeText={(text) => setAddress({ ...address, [field]: text })}
           />
         ))}
-      
-        {/* Driver License Upload */}
-        {userType === 1 && (
-          <>
-            <Text style={styles.sectionTitle}>Driver License (max 2 images)</Text>
-            <TouchableOpacity style={styles.uploadButton} onPress={() => pickImages(setDriverLicenses, driverLicenses)}>
-              <Text>Upload Driver License Images</Text>
-            </TouchableOpacity>
-            <View style={styles.imagePreviewContainer}>
-              {driverLicenses.map((uri, i) => (
-                <Image key={i} source={{ uri }} style={styles.imagePreview} />
-              ))}
-            </View>
-          </>
-        )}
-      
         <TouchableOpacity style={styles.button} onPress={handlerUpdate}>
           <Text style={styles.buttonText}>Update</Text>
         </TouchableOpacity>

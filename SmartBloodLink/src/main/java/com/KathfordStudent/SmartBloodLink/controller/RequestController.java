@@ -34,8 +34,8 @@ public class RequestController {
     }
 
     @PostMapping("/create")
-    public RequestModel createRequest(@RequestBody RequestModel request){
-        return requestRepository.save(request);
+    public ResponseEntity<?> createRequest(@RequestBody RequestModel request){
+        return ResponseEntity.ok(requestRepository.save(request));
     }
 
     @DeleteMapping("/delete/{id}")

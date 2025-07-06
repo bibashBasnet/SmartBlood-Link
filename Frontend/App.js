@@ -9,11 +9,20 @@ export default function App() {
 
   const [user, setUser] = useState(null);
   const [donate, setDonate] = useState(null);
+  const [donateForm, setDonateForm] = useState(null);
+  const [bloodBank, setBloodBank] = useState(null)
+  const [isForm, setIsForm] = useState(null)
+  const [coordinate, setCoordinate] = useState({
+    latitude: 27.6949,
+    longitude: 85.2899,
+  });
 
   const stack = createNativeStackNavigator();
 
   return (
-    <Context.Provider value={{user, setUser, donate, setDonate}}>
+    <Context.Provider value={{
+      user, setUser, donate, setDonate, bloodBank, setBloodBank, isForm, setIsForm, coordinate, setCoordinate
+    }}>
       <SafeAreaProvider>
       <NavigationContainer>
         <StackNavigator/>

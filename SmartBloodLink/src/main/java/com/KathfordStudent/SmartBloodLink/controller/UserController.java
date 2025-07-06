@@ -8,15 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.KathfordStudent.SmartBloodLink.dto.LoginRequest;
 import com.KathfordStudent.SmartBloodLink.dto.LoginResponse;
+import com.KathfordStudent.SmartBloodLink.dto.UserUpdateDTO;
 import com.KathfordStudent.SmartBloodLink.model.UserModel;
 import com.KathfordStudent.SmartBloodLink.repository.UserRepository;
 
@@ -68,17 +69,28 @@ public class UserController {
         
     }
 
-    @PutMapping("/updateUser/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UserModel user){
-        if(!userRepository.existsById(id)){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exits");
+    @PatchMapping("/updateUser/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UserUpdateDTO dto) {
+        Optional<UserModel> optionalUser = userRepository.findById(id);
+        if (!optionalUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
-        else{
-            user.setId(id);
-            return ResponseEntity.ok(userRepository.save(user));
-        }
-        
+
+        UserModel user = optionalUser.get();
+
+        if (dto.getName() != null) user.setName(dto.getName());
+        if (dto.getEmail() != null) user.setEmail(dto.getEmail());
+        if (dto.getPhone() != null) user.setPhone(dto.getPhone());
+        if (dto.getAge() != null) user.setAge(dto.getAge());
+        if (dto.getGender() != null) user.setGender(dto.getGender());
+        if (dto.getBloodType() != null) user.setBloodType(dto.getBloodType());
+        if (dto.getAddress() != null) user.setAddress(dto.getAddress());
+
+        userRepository.save(user);
+        return ResponseEntity.ok(user);
     }
+
+
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){

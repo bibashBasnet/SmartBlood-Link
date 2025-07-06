@@ -28,6 +28,13 @@ const RequestListScreen = ({ navigation }) => {
     setSelectedIndex(selectedIndex === i ? null : i);
   };
 
+  const handleChange = (id, change) => {
+    axios.patch(`${API_URL}/requestList/updateRequestStatus/${id}`, { status: change })
+    .then(res => console.log("Updated", res.data))
+    .catch(err => console.error(err));
+
+  }
+
   const showMenu = () => {
     navigation.dispatch(DrawerActions.openDrawer());
   };
@@ -69,11 +76,8 @@ const RequestListScreen = ({ navigation }) => {
 </Text>
 
 <View style={styles.historyListButtonContainer}>
-  <TouchableOpacity style={[styles.historyListButton, styles.historyListAcceptButton]}>
+  <TouchableOpacity style={[styles.historyListButton, styles.historyListAcceptButton]} onPress={() => handleChange(item.id, "Accepted")}>
     <Text style={styles.historyListButtonText}>Accept</Text>
-  </TouchableOpacity>
-  <TouchableOpacity style={[styles.historyListButton, styles.historyListRejectButton]}>
-    <Text style={styles.historyListButtonText}>Reject</Text>
   </TouchableOpacity>
 </View>
 

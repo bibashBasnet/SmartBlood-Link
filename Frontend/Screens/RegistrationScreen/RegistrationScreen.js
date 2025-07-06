@@ -14,6 +14,9 @@ const API_URL = Constants.expoConfig.extra.apiUrl;
 
 
 const RegistrationScreen = ({navigation}) => {
+
+  const [showPassword, setShowPassword] = useState(false)
+
   const [name, setName] = useState('test');
   const [email, setEmail] = useState('test32@gmail.com');
   const [phone, setPhone] = useState('9864537289');
@@ -143,7 +146,18 @@ const RegistrationScreen = ({navigation}) => {
           ))}
         </Picker>
         <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} keyboardType="default" />
-        <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+        <View style = {styles.inputContainer}>
+          <TextInput style={[styles.input]} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry = {!showPassword} />
+          <TouchableOpacity
+            style={styles.toggleButton}
+            onPress={() => setShowPassword(!showPassword)}
+          >
+            <Text style={styles.toggleText}>
+              {showPassword ? 'Hide' : 'Show'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
 
 
         <Text style={styles.label}>Blood Group</Text>
@@ -208,4 +222,3 @@ const RegistrationScreen = ({navigation}) => {
 }
 
 export default RegistrationScreen;
-

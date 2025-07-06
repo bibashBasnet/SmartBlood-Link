@@ -24,10 +24,12 @@ const API_URL = Constants.expoConfig.extra.apiUrl;
 
 const LoginScreen = ({ navigation }) => {
 
+  const [showPassword, setShowPassword] = useState(false)
+
   const {setUser} = useContext(Context);
 
-  const [username, setUsername] = useState('bibash');
-  const [password, setPassword] = useState('bibash123');
+  const [username, setUsername] = useState('test');
+  const [password, setPassword] = useState('test123');
 
 const handleLogin = () => {
   if (!username.trim() || !password.trim()) {
@@ -84,17 +86,16 @@ const handleLogin = () => {
             />
           </View>
 
-          <View style={styles.LoginInputContainer}>
-            <Text style={styles.LoginLabel}>Password</Text>
-            <TextInput
-              style={styles.LoginInput}
-              placeholder="Enter your password"
-              keyboardType='default'
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoCapitalize="none"
-            />
+          <View style = {styles.LoginInputContainer}>
+            <TextInput style={[styles.LoginInput]} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry = {!showPassword} />
+            <TouchableOpacity
+              style={styles.toggleButton}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Text style={styles.toggleText}>
+                {showPassword ? 'Hide' : 'Show'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity style={styles.LoginButton} onPress={handleLogin}>

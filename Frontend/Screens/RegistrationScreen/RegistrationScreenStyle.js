@@ -1,24 +1,41 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-    container: {
+  container: {
     flexGrow: 1,
     padding: 20,
     backgroundColor: '#f4f4f4',
+  },
+  inputContainer: {
+    position: 'relative',
+    marginBottom: 15,
+  },
+
+  toggleButton: {
+    position: 'absolute',
+    right: 15,
+    top: 12,
+    padding: 5,
+    zIndex: 1,
+  },
+
+  toggleText: {
+    color: '#007BFF',
+    fontWeight: 'bold',
   },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
   },
-   donateheaderContainer: {
+  donateheaderContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
     marginBottom: 10,
   },
-    menuButton: {
+  menuButton: {
     position: 'absolute',
     top: 40,
     left: 20,
@@ -48,14 +65,16 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     color: '#e53935',
   },
-  input: {
-    backgroundColor: '#fff',
-    padding: 12,
-    marginBottom: 15,
-    borderRadius: 8,
-    borderColor: '#ccc',
-    borderWidth: 1,
-  },
+input: {
+  backgroundColor: '#fff',
+  padding: 12,
+  paddingRight: 60, // leave space for "Show" button
+  borderRadius: 8,
+  borderColor: '#ccc',
+  borderWidth: 1,
+  marginBottom: 15
+},
+
   label: {
     fontWeight: '600',
     marginBottom: 5,
@@ -111,4 +130,4 @@ export const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-})
+});

@@ -15,7 +15,7 @@ public class DonateModel {
     private String phone;
     private String email;
     private String address;
-    private int weight;
+    private double weight;
     private String medicalHistory;
     private String lastDonationDate;
     private String preferredDate;
@@ -23,11 +23,15 @@ public class DonateModel {
     private String emergencyContact;
     private String status;
     private String createdBy;
+    private String bloodBankName;
+    private double latitude;
+    private double longitude;
 
 
     public DonateModel(String id, String name, int age, String gender, String bloodGroup, String phone, String email,
-                       String address, int weight, String medicalHistory, String lastDonationDate,
-                       String preferredDate, String allergies, String emergencyContact, String status, String createdBy) {
+                       String address, double weight, String medicalHistory, String lastDonationDate,
+                       String preferredDate, String allergies, String emergencyContact, String status, String createdBy, String bloodBankName,
+                       double latitude, double longitude) {
         this.id = id;
         this.name = name;
         this.age = age;
@@ -44,6 +48,9 @@ public class DonateModel {
         this.emergencyContact = emergencyContact;
         this.status = status;
         this.createdBy = createdBy;
+        this.bloodBankName = bloodBankName;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public DonateModel() {
@@ -74,8 +81,8 @@ public class DonateModel {
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
-    public int getWeight() { return weight; }
-    public void setWeight(int weight) { this.weight = weight; }
+    public double getWeight() { return weight; }
+    public void setWeight(double weight) { this.weight = weight; }
 
     public String getMedicalHistory() { return medicalHistory; }
     public void setMedicalHistory(String medicalHistory) { this.medicalHistory = medicalHistory; }
@@ -97,4 +104,14 @@ public class DonateModel {
 
     public String getCreatedBy() { return createdBy; }
     public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+
+    public String getBloodBankName() { return bloodBankName; }
+    public void setBloodBankName(String bloodBankName) { this.bloodBankName = bloodBankName; }
+
+    public double getLongitude(){return longitude;}
+    public void setLongitude(double longitude){this.longitude = longitude;}
+
+    public double getLatitude(){return latitude;}
+    public void setLatitude(double latitude){this.latitude = latitude;}
+
 }

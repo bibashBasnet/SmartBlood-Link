@@ -277,6 +277,18 @@ buttonText: {
     paddingHorizontal: 24,
     paddingTop: 60,
   },
+    toggleButton: {
+    position: 'absolute',
+    right: 15,
+    top: 12,
+    padding: 5,
+    zIndex: 1,
+  },
+
+  toggleText: {
+    color: '#007BFF',
+    fontWeight: 'bold',
+  },
   LoginHeader: {
     alignItems: 'center',
     marginBottom: 30,
