@@ -1,17 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Image, SafeAreaView, Text, TouchableOpacity, View, Alert, ScrollView } from 'react-native';
 import { DrawerActions } from '@react-navigation/native';
 import logo from '../../assets/logo.png';
 import { styles } from '../../Styles';
 import Constants from 'expo-constants';
 import axios from 'axios';
+import { Context } from '../../Context/Context';
 
 const RequestListScreen = ({ navigation }) => {
   const API_URL = Constants.expoConfig.extra.apiUrl;
   const [requestList, setRequestList] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const {setIsForm} = useContext(Context)
+  useEffect(() => {
+    setIsForm(false)
+  }, [])
 
   useEffect(() => {
+
     axios
       .get(`${API_URL}/requestList/get`)
       .then((res) => {
@@ -69,19 +75,17 @@ const RequestListScreen = ({ navigation }) => {
               {selectedIndex === i && (
                 <View style={{ marginTop: 10 }}>
                   <Text style={styles.historyListLabel}>
-  Phone No: <Text style={styles.historyListValue}>{item.phone}</Text>
-</Text>
-<Text style={styles.historyListLabel}>
-  Email: <Text style={styles.historyListValue}>{item.email}</Text>
-</Text>
+                    Phone No: <Text style={styles.historyListValue}>{item.phone}</Text>
+                  </Text>
+                  <Text style={styles.historyListLabel}>
+                    Email: <Text style={styles.historyListValue}>{item.email}</Text>
+                  </Text>
 
-<View style={styles.historyListButtonContainer}>
-  <TouchableOpacity style={[styles.historyListButton, styles.historyListAcceptButton]} onPress={() => handleChange(item.id, "Accepted")}>
-    <Text style={styles.historyListButtonText}>Accept</Text>
-  </TouchableOpacity>
-</View>
-
-                  
+                  <View style={styles.historyListButtonContainer}>
+                    <TouchableOpacity style={[styles.historyListButton, styles.historyListAcceptButton]} onPress={() => handleChange(item.id, "Accepted")}>
+                      <Text style={styles.historyListButtonText}>Accept</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
             </View>

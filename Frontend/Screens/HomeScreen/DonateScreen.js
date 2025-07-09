@@ -100,7 +100,7 @@ export default function BloodDonationForm({ navigation }) {
 
 
   const handlePress= () => {
-    navigation.navigate("Map")
+    navigation.navigate("Map", {from: "Donate"})
   }
 
   if (!trigger) {

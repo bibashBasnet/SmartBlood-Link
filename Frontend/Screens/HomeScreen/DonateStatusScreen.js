@@ -14,7 +14,7 @@ const DonateStatusScreen = ({navigation}) => {
 
   const API_URL = Constants.expoConfig.extra.apiUrl
 
-   const {donate, setIsForm, setDonate} = useContext(Context)
+   const {donate, setIsForm, setDonate, setCoordinate} = useContext(Context)
   const showMenu = () => {
     navigation.dispatch(DrawerActions.openDrawer())
   }
@@ -23,7 +23,7 @@ const DonateStatusScreen = ({navigation}) => {
     setIsForm(false)
   }, [])
     const handlePress= () => {
-    navigation.navigate("Map")
+    navigation.navigate("Map", {from: 'Donate'})
   }
 
   const handlePressCancel = async () => {
@@ -35,6 +35,10 @@ const DonateStatusScreen = ({navigation}) => {
       })
       if(res){
         setDonate(null);
+        setCoordinate({
+          latitude: 27.6949,
+          longitude: 85.2899
+        })
         alert(res.data)
         navigation.replace("DonateScreen")
       }
@@ -59,7 +63,7 @@ const DonateStatusScreen = ({navigation}) => {
         <Text style={styles.historyTitle}>My Donation Request</Text>
           
     
-          <View style={[styles.LoginForm, {marginTop: 50}]}>
+          <View style={[styles.LoginForm, {marginTop: -20}]}>
             <View>
             <Text style={styles.infoText}>Name: {donate?.name}</Text>
             <Text style={styles.infoText}>Age: {donate?.age}</Text>

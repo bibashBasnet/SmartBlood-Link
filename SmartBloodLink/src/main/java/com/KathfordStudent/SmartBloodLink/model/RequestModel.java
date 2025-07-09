@@ -22,14 +22,22 @@ public class RequestModel {
     private String phone;
     private String email;
     private String status;
+    private Boolean isFresh;
+    private Boolean isDelivery;
+    private double latitude;
+    private double  longitude;
+    private String hospital;
 
     public RequestModel() {
         this.time = LocalDate.now();
         this.status = "Pending";
+        this.hospital = "";
+        longitude = 0;
+        latitude = 0;
     }
 
      public RequestModel(String id, String createdBy, LocalDate time, String name, String location,
-                        String type, String phone,int amount, String email, String status) {
+                        String type, String phone,int amount,String hospital, String email, String status, Boolean isFresh, Boolean isDelivery, double latitude, double longitude) {
         this.id = id;
         this.createdBy = createdBy;
         this.time = time;
@@ -40,6 +48,11 @@ public class RequestModel {
         this.email = email;
         this.status = status;
         this.amount = amount;
+        this.isFresh = isFresh;
+        this.isDelivery = isDelivery;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.hospital = hospital;
     }
 
     // Getters and Setters
@@ -121,6 +134,45 @@ public class RequestModel {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+     public Boolean getIsFresh() {
+        return isFresh;
+    }
+
+    public void setIsFresh(Boolean isFresh) {
+        this.isFresh = isFresh;
+    }
+
+    public Boolean getIsDelivery() {
+        return isDelivery;
+    }
+
+    public void setIsDelivery(Boolean isDelivery) {
+        this.isDelivery = isDelivery;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+    
+    public String getHospital(){
+        return hospital;
+    }
+    public void setHospital(String hospital){
+        this.hospital = hospital;
     }
 
 }

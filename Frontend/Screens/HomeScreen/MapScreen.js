@@ -14,22 +14,39 @@ import Constants from "expo-constants";
 import axios from "axios"; // ✅ Add this at the top
 import { SafeAreaView } from "react-native-safe-area-context";
 import logo from '../../assets/logo.png'
-import { DrawerActions } from "@react-navigation/native";
+import { DrawerActions, useRoute } from "@react-navigation/native";
 import { Context } from "../../Context/Context";
 
 export default function MapScreen({navigation}) {
 
-  const {bloodBank, setBloodBank, isForm,  coordinate, setCoordinate} = useContext(Context)
+  const route = useRoute()
+  const from = route.params?.from
+
+  const {bloodBank, setBloodBank, isForm,  coordinate, setCoordinate, requestCoord, setRequestCoord} = useContext(Context)
   const mapRef = useRef(null);
   const API_URL = Constants.expoConfig.extra.apiUrl;
   const [zoomLevel, setZoomLevel] = useState(0.05); // smaller = more zoom
   const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [coord, setCoord] = useState({
+    latitude : null,
+    longitude: null
+  })
+  useEffect(() => {
+    if(from === 'Donate')
+      setCoord(coordinate);
+    if(from === 'Request')
+      setCoord(requestCoord)
+  }, [])
 
   useEffect(() =>{
-    fetchNearbyBloodBanks(coordinate.latitude ,coordinate.longitude)
-  }, [coordinate])
+    if(coord.latitude && coord.longitude){
+      console.log("Coordinates: ", JSON.stringify(coord, null, 2))
+      fetchNearbyBloodBanks(coord.latitude ,coord.longitude)
+    }
+
+  }, [coord])
 
 const fetchNearbyBloodBanks = async (lat, lng) => {
 
@@ -71,7 +88,11 @@ const fetchNearbyBloodBanks = async (lat, lng) => {
   const handlePress = async (e) => {
     if(!isForm) return;
     const {latitude, longitude} = e.nativeEvent.coordinate;
-    setCoordinate({latitude, longitude})
+    setCoord({latitude, longitude})
+    if(from === 'Donate')
+      setCoordinate({latitude, longitude})
+    else if(from === 'Request')
+      setRequestCoord({latitude, longitude})
     }
 
     const handleSubmit = async () => {
@@ -81,15 +102,21 @@ const fetchNearbyBloodBanks = async (lat, lng) => {
           console.log("Permission to access location was denied");
           return;
         }
-        fetchNearbyBloodBanks(coordinate.latitude, coordinate.longitude)
-        navigation.navigate("DonateScreen")
+        fetchNearbyBloodBanks(coord.latitude, coord.longitude)
+        if(from === 'Donate')
+          navigation.navigate("DonateScreen")
+        if(from === 'Request')
+          navigation.navigate("BloodRequestForm")
       }
       if(!isForm){
-        navigation.navigate("DonateStatusScreen")
+        if(from === 'Donate')
+          navigation.navigate("DonateStatusScreen")
+        if(from === 'Request')
+          navigation.navigate('RequestScreen')
       }
     }
 
-  if (loading || !coordinate) {
+  if (loading || !coord.latitude || !coord.longitude) {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" />
@@ -119,15 +146,15 @@ return (
       style={styles.map}
       onPress={(e) => {handlePress(e)}}
       initialRegion={{
-        latitude: coordinate.latitude,
-        longitude: coordinate.longitude,
+        latitude: coord.latitude,
+        longitude: coord.longitude,
         latitudeDelta: zoomLevel,
         longitudeDelta: zoomLevel,
       }}
     >
       {/* Your location */}
       <Marker
-        coordinate={coordinate}
+        coordinate={coord}
         title="You"
         pinColor="blue"
       />

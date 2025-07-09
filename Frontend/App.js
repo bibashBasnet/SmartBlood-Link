@@ -16,12 +16,17 @@ export default function App() {
     latitude: 27.6949,
     longitude: 85.2899,
   });
+  const [requestCoord, setRequestCoord] = useState({
+    latitude: 27.6949,
+    longitude: 85.2899,
+  })
 
   const stack = createNativeStackNavigator();
 
   return (
     <Context.Provider value={{
-      user, setUser, donate, setDonate, bloodBank, setBloodBank, isForm, setIsForm, coordinate, setCoordinate
+      user, setUser, donate, setDonate, bloodBank, setBloodBank, isForm, setIsForm, coordinate, setCoordinate,
+      requestCoord, setRequestCoord
     }}>
       <SafeAreaProvider>
       <NavigationContainer>

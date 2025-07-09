@@ -1,24 +1,44 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, TextInput, ScrollView, Button, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Constants from 'expo-constants'
 import axios from 'axios';
 import { Context } from '../../Context/Context';
+import RadioGroup from 'react-native-radio-buttons-group';
 
 const BloodRequestForm = ({navigation}) => {
-  const {user} = useContext(Context)
+  const {user, setIsForm, requestCoord} = useContext(Context)
   const API_URL = Constants.expoConfig.extra.apiUrl;
+
+  useEffect(() => {
+      setIsForm(true)
+    }, []);
+
   const [form, setForm] = useState({
-    patientName: '',
-    contact: '',
-    bloodGroup: '',
-    province: '',
-    district: '',
-    municipality: '',
-    unitsRequired: '',
-    reason: '',
-    createdBy: ''
+    patientName: 'Bibash',
+    contact: '98674857354',
+    bloodGroup: 'A+',
+    province: 'Bagmati Province',
+    district: 'dang',
+    municipality: 'ghorah',
+    unitsRequired: '5',
+    reason: 'accident',
+    email: 'bibash3@gmail.com',
+    hospital: 'Sahid memorial',
   });
+
+    const Freshoptions = [
+      { id: '1', label: 'Yes', value: 'yes' },
+      { id: '2', label: 'No', value: 'no' },
+    ];
+    const Deliveryoptions = [
+      { id: '1', label: 'Yes', value: 'yes' },
+      { id: '2', label: 'No', value: 'no' },
+    ];
+
+    const [selectedFreshId, setSelectedFreshId] = useState()
+    const [selectedDeliveryId, setSelectedDeliveryId] = useState()
+
 
   // Blood group dropdown state
   const [bloodGroupOpen, setBloodGroupOpen] = useState(false);
@@ -49,11 +69,18 @@ const BloodRequestForm = ({navigation}) => {
     setForm({ ...form, [field]: value });
   };
 
+  const selectedFreshValue = Freshoptions.find(opt => opt.id === selectedFreshId)?.value;
+  const selectedDeliveryValue = Deliveryoptions.find(opt => opt.id === selectedDeliveryId)?.value;
+
+  const isFresh = selectedFreshValue === 'yes';
+  const isDelivery = selectedDeliveryValue === 'yes';
+
 const handleSubmit = () => {
+
   if (
     !form.patientName || !form.contact || !form.bloodGroup ||
     !form.province || !form.district || !form.municipality ||
-    !form.unitsRequired
+    !form.unitsRequired || !form.email
   ) {
     Alert.alert('Error', 'Please fill in all required fields');
     return;
@@ -68,17 +95,23 @@ const handleSubmit = () => {
   const requestData = {
     name: form.patientName,
     phone: form.contact,
-    email: '', // Add email input if needed
+    email: form.email,
     type: form.bloodGroup,
     location: `${form.province}, ${form.district}, ${form.municipality}`,
     amount: units,
-    createdBy: user.id, // You can use user.id if logged-in user is available
+    createdBy: user.id,
+    isFresh,            // ✅ now reliable
+    isDelivery,
+    latitude: requestCoord?.latitude ?? null,
+    longitude: requestCoord?.longitude ?? null,
+    hospital: form.hospital
   };
 
   axios.post(`${API_URL}/requests/create`, requestData)
     .then(res => {
       Alert.alert('Success', 'Blood request submitted successfully!');
-      navigation.navigate("RequestScreen")
+      navigation.navigate("RequestScreen");
+
       setForm({
         patientName: '',
         contact: '',
@@ -88,13 +121,22 @@ const handleSubmit = () => {
         municipality: '',
         unitsRequired: '',
         reason: '',
-        createdBy: ''
+        email: '',
+        hospital: ''
       });
+      setSelectedFreshId(null);
+      setSelectedDeliveryId(null);
     })
     .catch(e => {
       Alert.alert('Error', e?.response?.data?.message || 'Submission failed');
     });
 };
+
+
+
+  const handlePress= () => {
+    navigation.navigate("Map", {from: "Request"})
+  }
 
 
 
@@ -119,6 +161,13 @@ const handleSubmit = () => {
         keyboardType="phone-pad" 
         value={form.contact}
         onChangeText={text => handleChange('contact', text)} 
+      />
+      <Text style={styles.label}>Email</Text>
+      <TextInput 
+        style={styles.input} 
+        placeholder="Enter email" 
+        value={form.email}
+        onChangeText={text => handleChange('email', text)} 
       />
 
       {/* Blood Group Dropdown */}
@@ -149,7 +198,6 @@ const handleSubmit = () => {
         value={form.unitsRequired}
         onChangeText={text => handleChange('unitsRequired', text)} 
       />
-
       {/* Location Section */}
       <Text style={styles.subtitle}>Location Information</Text>
       
@@ -189,6 +237,46 @@ const handleSubmit = () => {
         value={form.municipality}
         onChangeText={text => handleChange('municipality', text)} 
       />
+
+      <Text style={styles.label}>Do you need fresh Blood?</Text>
+      <RadioGroup
+        radioButtons={Freshoptions}
+        selectedId ={selectedFreshId}
+        onPress={setSelectedFreshId}
+        layout="row" 
+        containerStyle={{ marginVertical: 10 }} 
+        labelStyle={{ marginRight: 20, fontSize: 16 }}
+      />
+      {isFresh && (
+        <>
+          <Text style={styles.label}>Hospital Name:</Text>
+          <TextInput 
+            style={styles.input} 
+            placeholder="Enter Hospital Name" 
+            value={form.hospital}
+            onChangeText={text => handleChange('hospital', text)} 
+          />
+
+        </>
+      )}
+      {!isFresh && (
+        <>
+          <Text style={styles.label}>Do you need Delivery Service?</Text>
+          <RadioGroup
+            radioButtons={Deliveryoptions}
+            selectedId={selectedDeliveryId}
+            onPress={setSelectedDeliveryId}
+            layout="row" 
+            containerStyle={{ marginVertical: 10 }} 
+            labelStyle={{ marginRight: 20, fontSize: 16 }}
+          />
+          <TouchableOpacity style={styles.submitButton} onPress={handlePress}>
+            <Text style={styles.submitButtonText}>Your Location</Text>
+          </TouchableOpacity>
+          
+        </>
+      )}
+
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Submit Blood Request</Text>

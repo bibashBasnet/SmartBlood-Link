@@ -30,7 +30,7 @@ const HomeScreen = ({navigation}) => {
         <Text style={styles.text}>Your Donation Can Make A Difference.</Text>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Donate',{screen: "DonateScreen"})}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Donate")}>
       <Text style={styles.buttonText}>Donate Now</Text>
       </TouchableOpacity>
 
