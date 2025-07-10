@@ -76,4 +76,4 @@ src/main/resources/application.properties
 ## VS Code
 .vscode/
 
-*.CorsConfig.java
+CorsConfig.java
