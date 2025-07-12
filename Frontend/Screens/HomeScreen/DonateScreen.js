@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, Image, Alert,
-  Button
+  ScrollView, Image, Alert, KeyboardAvoidingView,
+  Platform, Keyboard, TouchableWithoutFeedback
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
-import logo from '../../assets/logo.png'
+import logo from '../../assets/logo.png';
 
 import Constants from 'expo-constants';
 import axios from 'axios';
@@ -19,10 +19,10 @@ const API_URL = Constants.expoConfig.extra.apiUrl;
 export default function BloodDonationForm({ navigation }) {
   const [checking, setChecking] = useState(true);
   const { donate, setDonate, user, bloodBank, setIsForm, coordinate } = useContext(Context);
-  const [trigger, setTrigger] = useState(false)
+  const [trigger, setTrigger] = useState(false);
 
   useEffect(() => {
-    setIsForm(true)
+    setIsForm(true);
   }, []);
 
   useEffect(() => {
@@ -98,197 +98,145 @@ export default function BloodDonationForm({ navigation }) {
     navigation.dispatch(DrawerActions.openDrawer());
   };
 
-
-  const handlePress= () => {
-    navigation.navigate("Map", {from: "Donate"})
-  }
+  const handlePress = () => {
+    navigation.navigate("Map");
+  };
 
   if (!trigger) {
     return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Image source={logo} style={styles.logo} />
-        <Text style={styles.title}>Smart BloodLink Nepal</Text>
-        <Text style={styles.subtitle}>Blood Donation Form</Text>
-      </View>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView
+            style={styles.container}
+            contentContainerStyle={{ paddingBottom: 80 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.headerContainer}>
+              <Image source={logo} style={styles.logo} />
+              <Text style={styles.title}>Smart BloodLink Nepal</Text>
+              <Text style={styles.subtitle}>Blood Donation Form</Text>
+            </View>
 
-      <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
-        <Image source={require('../../assets/list.png')} style={styles.menuIcon} />
-      </TouchableOpacity>
-    
-      <ScrollView style={styles.formContainer}>
-        <Text style={styles.sectionTitle}>Personal Information</Text>
-        
-        <Text style={styles.label}>Full Name *</Text>
-        <TextInput 
-          style={styles.input} 
-          value={fullName} 
-          onChangeText={setFullName} 
-          placeholder="Enter full name" 
-        />
+            <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
+              <Image source={require('../../assets/list.png')} style={styles.menuIcon} />
+            </TouchableOpacity>
 
-        <Text style={styles.label}>Age or Date of Birth *</Text>
-        <TextInput
-          style={styles.input}
-          value={ageOrDOB}
-          onChangeText={setAgeOrDOB}
-          placeholder="Enter age or leave empty to pick DOB"
-          keyboardType="numeric"
-        />
-        <TouchableOpacity style={styles.dateButton} onPress={() => setShowDOBPicker(true)}>
-          <Text style={styles.dateText}>Pick Date of Birth</Text>
-        </TouchableOpacity>
-        {showDOBPicker && (
-          <DateTimePicker
-            value={dob}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowDOBPicker(false);
-              if (selectedDate) setDOB(selectedDate);
-            }}
-            maximumDate={new Date()}
-          />
-        )}
+            <View style={styles.formContainer}>
+              {/* Personal Info */}
+              <Text style={styles.sectionTitle}>Personal Information</Text>
+              <Text style={styles.label}>Full Name *</Text>
+              <TextInput style={styles.input} value={fullName} onChangeText={setFullName} placeholder="Enter full name" />
+              <Text style={styles.label}>Age or Date of Birth *</Text>
+              <TextInput style={styles.input} value={ageOrDOB} onChangeText={setAgeOrDOB} placeholder="Enter age" keyboardType="numeric" />
+              <TouchableOpacity style={styles.dateButton} onPress={() => setShowDOBPicker(true)}>
+                <Text style={styles.dateText}>Pick Date of Birth</Text>
+              </TouchableOpacity>
+              {showDOBPicker && (
+                <DateTimePicker
+                  value={dob}
+                  mode="date"
+                  display="default"
+                  onChange={(e, d) => {
+                    setShowDOBPicker(false);
+                    if (d) setDOB(d);
+                  }}
+                  maximumDate={new Date()}
+                />
+              )}
+              <Text style={styles.label}>Gender *</Text>
+              <View style={styles.pickerContainer}>
+                <Picker selectedValue={gender} onValueChange={setGender} style={styles.picker}>
+                  <Picker.Item label="Select Gender" value="" />
+                  <Picker.Item label="Male" value="Male" />
+                  <Picker.Item label="Female" value="Female" />
+                  <Picker.Item label="Other" value="Other" />
+                </Picker>
+              </View>
 
-        <Text style={styles.label}>Gender *</Text>
-        <View style={styles.pickerContainer}>
-          <Picker selectedValue={gender} onValueChange={setGender} style={styles.picker}>
-            <Picker.Item label="Select Gender" value="" />
-            <Picker.Item label="Male" value="Male" />
-            <Picker.Item label="Female" value="Female" />
-            <Picker.Item label="Other" value="Other" />
-          </Picker>
-        </View>
+              <Text style={styles.label}>Blood Group *</Text>
+              <View style={styles.pickerContainer}>
+                <Picker selectedValue={bloodGroup} onValueChange={setBloodGroup} style={styles.picker}>
+                  <Picker.Item label="Select Blood Group" value="" />
+                  <Picker.Item label="A+" value="A+" />
+                  <Picker.Item label="A-" value="A-" />
+                  <Picker.Item label="B+" value="B+" />
+                  <Picker.Item label="B-" value="B-" />
+                  <Picker.Item label="AB+" value="AB+" />
+                  <Picker.Item label="AB-" value="AB-" />
+                  <Picker.Item label="O+" value="O+" />
+                  <Picker.Item label="O-" value="O-" />
+                </Picker>
+              </View>
 
-        <Text style={styles.label}>Blood Group *</Text>
-        <View style={styles.pickerContainer}>
-          <Picker selectedValue={bloodGroup} onValueChange={setBloodGroup} style={styles.picker}>
-            <Picker.Item label="Select Blood Group" value="" />
-            <Picker.Item label="A+" value="A+" />
-            <Picker.Item label="A-" value="A-" />
-            <Picker.Item label="B+" value="B+" />
-            <Picker.Item label="B-" value="B-" />
-            <Picker.Item label="AB+" value="AB+" />
-            <Picker.Item label="AB-" value="AB-" />
-            <Picker.Item label="O+" value="O+" />
-            <Picker.Item label="O-" value="O-" />
-          </Picker>
-        </View>
+              {/* Contact Info */}
+              <Text style={styles.sectionTitle}>Contact Information</Text>
+              <Text style={styles.label}>Contact Number *</Text>
+              <TextInput style={styles.input} value={contactNumber} onChangeText={setContactNumber} keyboardType="phone-pad" />
+              <Text style={styles.label}>Email Address *</Text>
+              <TextInput style={styles.input} value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+              <Text style={styles.label}>Address or Location *</Text>
+              <TextInput style={styles.input} value={address} onChangeText={setAddress} />
+              <TouchableOpacity style={styles.submitButton} onPress={handlePress}>
+                <Text style={styles.submitButtonText}>Your Location</Text>
+              </TouchableOpacity>
 
-        <Text style={styles.sectionTitle}>Contact Information</Text>
+              {/* Health Info */}
+              <Text style={styles.sectionTitle}>Health Information</Text>
+              <Text style={styles.label}>Weight (kg) *</Text>
+              <TextInput style={styles.input} value={weight} onChangeText={setWeight} keyboardType="numeric" />
+              <Text style={styles.label}>Health Status / Medical History *</Text>
+              <TextInput style={[styles.input, styles.textArea]} value={healthStatus} onChangeText={setHealthStatus} multiline numberOfLines={4} />
+              <Text style={styles.label}>Last Donation Date</Text>
+              <TouchableOpacity style={styles.dateButton} onPress={() => setShowLastDonationPicker(true)}>
+                <Text style={styles.dateText}>{lastDonationDate.toDateString()}</Text>
+              </TouchableOpacity>
+              {showLastDonationPicker && (
+                <DateTimePicker
+                  value={lastDonationDate}
+                  mode="date"
+                  display="default"
+                  onChange={(e, d) => {
+                    setShowLastDonationPicker(false);
+                    if (d) setLastDonationDate(d);
+                  }}
+                  maximumDate={new Date()}
+                />
+              )}
+              <Text style={styles.label}>Preferred Donation Date</Text>
+              <TouchableOpacity style={styles.dateButton} onPress={() => setShowPreferredDonationPicker(true)}>
+                <Text style={styles.dateText}>{preferredDonationDate.toDateString()}</Text>
+              </TouchableOpacity>
+              {showPreferredDonationPicker && (
+                <DateTimePicker
+                  value={preferredDonationDate}
+                  mode="date"
+                  display="default"
+                  onChange={(e, d) => {
+                    setShowPreferredDonationPicker(false);
+                    if (d) setPreferredDonationDate(d);
+                  }}
+                  minimumDate={new Date()}
+                />
+              )}
 
-        <Text style={styles.label}>Contact Number *</Text>
-        <TextInput
-          style={styles.input}
-          value={contactNumber}
-          onChangeText={setContactNumber}
-          placeholder="Enter contact number"
-          keyboardType="phone-pad"
-        />
+              <Text style={styles.label}>Allergies or Medication</Text>
+              <TextInput style={[styles.input, styles.textArea]} value={allergies} onChangeText={setAllergies} multiline numberOfLines={4} />
+              <Text style={styles.label}>Emergency Contact</Text>
+              <TextInput style={styles.input} value={emergencyContact} onChangeText={setEmergencyContact} keyboardType="phone-pad" />
 
-        <Text style={styles.label}>Email Address *</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="Enter email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-
-        <Text style={styles.label}>Address or Location (City, State) *</Text>
-        <TextInput
-          style={styles.input}
-          value={address}
-          onChangeText={setAddress}
-          placeholder="Enter address or location"
-        />
-        <TouchableOpacity style={styles.submitButton} onPress={handlePress}><Text style={styles.submitButtonText}>Your Location</Text></TouchableOpacity>
-
-        <Text style={styles.sectionTitle}>Health Information</Text>
-
-        <Text style={styles.label}>Weight (kg) *</Text>
-        <TextInput
-          style={styles.input}
-          value={weight}
-          onChangeText={setWeight}
-          placeholder="Enter weight"
-          keyboardType="numeric"
-        />
-
-        <Text style={styles.label}>Health Status / Medical History *</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          value={healthStatus}
-          onChangeText={setHealthStatus}
-          placeholder="Any recent illness or chronic diseases"
-          multiline
-          numberOfLines={4}
-        />
-
-        <Text style={styles.label}>Last Donation Date (if any)</Text>
-        <TouchableOpacity style={styles.dateButton} onPress={() => setShowLastDonationPicker(true)}>
-          <Text style={styles.dateText}>{lastDonationDate.toDateString()}</Text>
-        </TouchableOpacity>
-        {showLastDonationPicker && (
-          <DateTimePicker
-            value={lastDonationDate}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowLastDonationPicker(false);
-              if (selectedDate) setLastDonationDate(selectedDate);
-            }}
-            maximumDate={new Date()}
-          />
-        )}
-
-        <Text style={styles.label}>Preferred Donation Date and Time</Text>
-        <TouchableOpacity style={styles.dateButton} onPress={() => setShowPreferredDonationPicker(true)}>
-          <Text style={styles.dateText}>{preferredDonationDate.toDateString()}</Text>
-        </TouchableOpacity>
-        {showPreferredDonationPicker && (
-          <DateTimePicker
-            value={preferredDonationDate}
-            mode="date"
-            display="default"
-            onChange={(event, selectedDate) => {
-              setShowPreferredDonationPicker(false);
-              if (selectedDate) setPreferredDonationDate(selectedDate);
-            }}
-            minimumDate={new Date()}
-          />
-        )}
-
-        <Text style={styles.label}>Any Allergies or Medication</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          value={allergies}
-          onChangeText={setAllergies}
-          placeholder="List any allergies or medication"
-          multiline
-          numberOfLines={4}
-        />
-
-        <Text style={styles.label}>Emergency Contact Information (optional)</Text>
-        <TextInput
-          style={styles.input}
-          value={emergencyContact}
-          onChangeText={setEmergencyContact}
-          placeholder="Emergency contact number"
-          keyboardType="phone-pad"
-        />
-
-        <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
-          <Text style={styles.submitButtonText}>Submit Donation Request</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </ScrollView>
-  );
+              <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
+                <Text style={styles.submitButtonText}>Submit Donation Request</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    );
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
