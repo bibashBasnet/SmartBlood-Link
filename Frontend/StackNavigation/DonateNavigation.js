@@ -22,6 +22,7 @@ useEffect(() => {
       const res = await axios.get(`${API_URL}/donate/get`, {
         params: { createdBy: user.id }
       });
+      console.log("Response data = ", JSON.stringify(res.data, null, 2))
 
       if (res.data) {
         setDonate(res.data);
