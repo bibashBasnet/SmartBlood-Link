@@ -6,13 +6,11 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import * as ImagePicker from 'expo-image-picker';
 import logo from '../../assets/logo.png'
-
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { Context } from '../../Context/Context';
-import { DrawerActions } from '@react-navigation/native';
+import { CommonActions, DrawerActions } from '@react-navigation/native';
 
 const API_URL = Constants.expoConfig.extra.apiUrl;
 
@@ -47,7 +45,7 @@ export default function BloodDonationForm({ navigation }) {
   const [preferredDonationDate, setPreferredDonationDate] = useState(new Date());
   const [showPreferredDonationPicker, setShowPreferredDonationPicker] = useState(false);
   const [allergies, setAllergies] = useState('None');
-  const [emergencyContact, setEmergencyContact] = useState('90000000000000');
+  const [emergencyContact, setEmergencyContact] = useState('9867504938');
   const [createdBy, setCreatedBy] = useState(user.id);
 
   useEffect(() => {
@@ -62,6 +60,29 @@ export default function BloodDonationForm({ navigation }) {
   }, [user]);
 
   const onSubmit = async () => {
+
+  const emailRegex = /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+  const phoneRegex = /^(98|97)\d{8}$/;
+
+  if (!fullName ||!weight || !healthStatus ||  !ageOrDOB ||!gender || !email || !contactNumber || !address || !bloodGroup || !gender) {
+    Alert.alert('Validation Error', 'Please fill all required fields.');
+    return;
+  }
+
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Validation Error', 'Enter a valid email address.');
+      return;
+    }
+
+    if (!phoneRegex.test(contactNumber.trim())) {
+      Alert.alert('Validation Error', 'Enter a valid 10-digit Nepali phone number.');
+      return;
+    }
+    if (!phoneRegex.test(emergencyContact.trim())) {
+      Alert.alert('Validation Error', 'Enter a valid 10-digit Nepali phone number.');
+      return;
+    }
+
     const payload = {
       name: fullName,
       age: ageOrDOB,
@@ -88,7 +109,12 @@ export default function BloodDonationForm({ navigation }) {
         params: { createdBy: user.id }
       });
       setDonate(res.data);
-      navigation.replace("DonateStatusScreen");
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: "DonateStatusScreen"}]
+        })
+      )
     } catch (e) {
       Alert.alert("Error", e?.response?.data?.message || e.message || "Something went wrong");
     }

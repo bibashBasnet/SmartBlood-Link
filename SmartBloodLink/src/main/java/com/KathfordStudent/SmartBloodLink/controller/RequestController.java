@@ -1,14 +1,17 @@
 package com.KathfordStudent.SmartBloodLink.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,9 +46,36 @@ public class RequestController {
         requestRepository.deleteById(id);
     }
 
-    @PutMapping("/update/{id}")
-    public RequestModel updateRequest(@PathVariable String id, @RequestBody RequestModel request){
-        request.setId(id);
-        return requestRepository.save(request);
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody String acceptedBy) {
+        Optional<RequestModel> optionalRequest = requestRepository.findById(id);
+        if (!optionalRequest.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Request not found");
+        }
+
+        RequestModel request = optionalRequest.get();
+
+        request.setAcceptedBy(acceptedBy);
+
+        requestRepository.save(request);
+        return ResponseEntity.ok(request);
+    }
+
+    @GetMapping("/getRequestList/{location}")
+    public ResponseEntity<?> getRequestList(@PathVariable String location){
+        List<RequestModel> list = requestRepository.findAll();
+        List<RequestModel> responseList = new ArrayList<>();
+        for(RequestModel request : list){
+            String []requestLocation = request.getLocation().split("\\s*,\\s*");
+            boolean locationMatches = false;
+            if (requestLocation.length > 1) {
+                locationMatches = requestLocation[1].equalsIgnoreCase(location);
+            }
+            if(locationMatches && request.getIsFresh() == true){
+                responseList.add(request);
+            }
+
+        }
+        return ResponseEntity.ok(responseList);
     }
 }

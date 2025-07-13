@@ -14,15 +14,22 @@ import axios from "axios";
 import Constants from "expo-constants";
 import { Context } from "../../Context/Context";
 import { ScrollView } from "react-native-gesture-handler";
+import { moderateScale, scale, verticalScale } from "../../utils/responsive";
 
 const RequestScreen = ({ navigation }) => {
   const [requestList, setRequestList] = useState([]);
-  const { user, setIsForm } = useContext(Context);
+  const { user, setIsForm, setCoordinate, coordinate } = useContext(Context);
   const API_URL = Constants.expoConfig.extra.apiUrl;
   const [selectedIndex, setSelectedIndex] = useState(null);
 
-  const handlePress = () => {
+  const handlePress = (item) => {
     setIsForm(false);
+    console.log("From request screen" + JSON.stringify(item, null, 2))
+    setCoordinate({
+      latitude: item.latitude,
+      longitude: item.longitude
+    })
+    console.log("From request screen" + JSON.stringify(coordinate, null, 2))
     navigation.navigate("Map", { from: "Request" });
   };
   useEffect(() => {
@@ -56,7 +63,6 @@ const RequestScreen = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.headerContainer}>
-        <Image source={logo} style={styles.logo} />
         <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
       </View>
 
@@ -97,10 +103,10 @@ const RequestScreen = ({ navigation }) => {
                   )}
                   {!item.isFresh && (
                     <TouchableOpacity
-                      style={styles.submitButton}
-                      onPress={handlePress}
+                      style={localStyles.mapbutton}
+                      onPress={()=>handlePress(item)}
                     >
-                      <Text style={styles.submitButtonText}>Map</Text>
+                      <Text style={localStyles.mapbuttonText}>Map</Text>
                     </TouchableOpacity>
                   )}
                 </>
@@ -127,15 +133,31 @@ const RequestScreen = ({ navigation }) => {
 const localStyles = StyleSheet.create({
   fab: {
     position: "absolute",
-    bottom: 60,
-    right: 30,
+    bottom: verticalScale(40),
+    right: scale(30),
     backgroundColor: "#e53935",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: scale(60),
+    height: verticalScale(60),
+    borderRadius: moderateScale(30),
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
+  },
+    mapbutton: {
+    backgroundColor: '#e53935',
+    paddingVertical: verticalScale(12),
+    paddingHorizontal: scale(24),
+    borderRadius: moderateScale(8),
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: scale(100),
+    height: verticalScale(40)
+  },
+  mapbuttonText: {
+    color: '#ffffff',
+    fontSize: moderateScale(10),
+    fontWeight: 'bold',
+    alignItems: "center"
   },
 });
 

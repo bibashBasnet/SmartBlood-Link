@@ -9,6 +9,7 @@ import { styles } from '../RegistrationScreen/RegistrationScreenStyle';
 import { Context } from '../../Context/Context';
 import axios from 'axios';
 import Constants from 'expo-constants'
+import { scale, verticalScale } from '../../utils/responsive';
 
 
 const UpdateProfileScreen = ({navigation}) => {
@@ -65,12 +66,11 @@ const UpdateProfileScreen = ({navigation}) => {
 
       {/* Logo and Title */}
       <View style={styles.headerContainer}>
-        <Image source={logo} style={styles.logo} />
-        <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
+        <Text style={[styles.organizationName, {marginLeft: scale(50)}]}>Smart BloodLink Nepal</Text>
       </View>
       <Text style={styles.title}>Update Information</Text>
 
-      <ScrollView style={{flex: 1, maxHeight: 700}}>
+      <ScrollView style={{flex: 1, maxHeight: verticalScale(650)}}>
         <TextInput style={styles.input} placeholder="Full Name" value={name} onChangeText={setName} />
         <TextInput style={styles.input} placeholder="Age" value={age} onChangeText={setAge}/>
         <TextInput style={styles.input} placeholder="Phone Number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />

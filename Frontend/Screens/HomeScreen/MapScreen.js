@@ -14,8 +14,10 @@ import Constants from "expo-constants";
 import axios from "axios"; // ✅ Add this at the top
 import { SafeAreaView } from "react-native-safe-area-context";
 import logo from '../../assets/logo.png'
-import { DrawerActions, useRoute } from "@react-navigation/native";
+import { DrawerActions, useRoute, CommonActions } from "@react-navigation/native";
 import { Context } from "../../Context/Context";
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
+
 
 export default function MapScreen({navigation}) {
 
@@ -30,23 +32,18 @@ export default function MapScreen({navigation}) {
   const [loading, setLoading] = useState(false);
 
   const [coord, setCoord] = useState({
-    latitude : null,
-    longitude: null
+    latitude: coordinate.latitude,
+    longitude: coordinate.longitude
   })
-  useEffect(() => {
-    if(from === 'Donate')
-      setCoord(coordinate);
-    if(from === 'Request')
-      setCoord(requestCoord)
-  }, [])
 
   useEffect(() =>{
+
+    console.log("From Map: " + JSON.stringify(coord, null, 2))
     if(coord.latitude && coord.longitude){
-      console.log("Coordinates: ", JSON.stringify(coord, null, 2))
       fetchNearbyBloodBanks(coord.latitude ,coord.longitude)
     }
 
-  }, [coord])
+  }, [])
 
 const fetchNearbyBloodBanks = async (lat, lng) => {
 
@@ -103,16 +100,40 @@ const fetchNearbyBloodBanks = async (lat, lng) => {
           return;
         }
         fetchNearbyBloodBanks(coord.latitude, coord.longitude)
-        if(from === 'Donate')
-          navigation.navigate("DonateScreen")
-        if(from === 'Request')
-          navigation.navigate("BloodRequestForm")
+        if(from === 'Donate'){
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{name: "DonateScreen"}]
+            })
+          )
+        }
+        if(from === 'Request'){
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{name: "BloodRequestForm"}]
+            })
+          )          
+        }
       }
       if(!isForm){
-        if(from === 'Donate')
-          navigation.navigate("DonateStatusScreen")
-        if(from === 'Request')
-          navigation.navigate('RequestScreen')
+        if(from === 'Donate'){
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{name: "DonateStatusScreen"}]
+            })
+          )        
+        }
+        if(from === 'Request'){
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{name: "RequestScreen"}]
+            })
+          )    
+        }
       }
     }
 
@@ -133,7 +154,6 @@ return (
   <SafeAreaView style={styles.container}>
 
     <View style={styles.headerContainer}>
-      <Image source={logo} style={styles.logo} />
       <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
     </View>
     
@@ -182,6 +202,7 @@ return (
 );
 
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -191,84 +212,87 @@ const styles = StyleSheet.create({
   map: {
     alignItems: 'center',
     flex: 1,
-    width: "95%",
-    maxHeight: 670,
-    marginLeft: 10,
-    borderWidth: 2,
-    borderColor: 'red'
+    width: '95%',
+    maxHeight: verticalScale(600),
+    maxWidth: scale(350),
+    marginLeft: scale(10),
+    marginTop: verticalScale(40),
   },
-
   loader: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   list: {
     flex: 1,
-    padding: 10,
+    padding: scale(10),
   },
   card: {
-    backgroundColor: "#fff",
-    padding: 12,
-    marginVertical: 6,
-    borderRadius: 8,
+    backgroundColor: '#fff',
+    padding: scale(12),
+    marginVertical: verticalScale(6),
+    borderRadius: moderateScale(8),
     elevation: 2,
   },
   name: {
-    fontWeight: "bold",
-    fontSize: 16,
+    fontWeight: 'bold',
+    fontSize: moderateScale(16),
   },
-    headerContainer: {
+  headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: verticalScale(20),
+    marginBottom: verticalScale(10),
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: scale(40),
+    height: scale(40),
     resizeMode: 'contain',
-    marginRight: 10,
+    marginRight: scale(10),
   },
-    menuButton: {
+  menuButton: {
     position: 'absolute',
-    top: 40,
-    left: 20,
-    padding: 10,
+    top: verticalScale(40),
+    left: scale(20),
+    padding: scale(10),
+    marginTop: verticalScale(40)
   },
   menuIcon: {
-    width: 28,
-    height: 28,
+    width: scale(28),
+    height: scale(28),
     tintColor: '#e53935',
   },
-    organizationName: {
-    fontSize: 22,
+  organizationName: {
+    fontSize: moderateScale(22),
     fontWeight: 'bold',
     color: '#e53935',
   },
-    submitButton: {
+  submitButton: {
     backgroundColor: '#d32f2f',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    marginTop: 20,
-    marginBottom: 30,
+    paddingVertical: verticalScale(15),
+    paddingHorizontal: scale(30),
+    borderRadius: moderateScale(25),
+    marginTop: verticalScale(20),
+    marginBottom: verticalScale(30),
     shadowColor: '#b71c1c',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: verticalScale(4),
     },
     shadowOpacity: 0.3,
-    shadowRadius: 5,
+    shadowRadius: moderateScale(5),
     elevation: 5,
   },
   submitButtonText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: moderateScale(18),
     fontWeight: 'bold',
     textAlign: 'center',
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: scale(1),
   },
+  
 });
+
+

@@ -12,6 +12,8 @@ export default function App() {
   const [donateForm, setDonateForm] = useState(null);
   const [bloodBank, setBloodBank] = useState(null)
   const [isForm, setIsForm] = useState(null)
+  const [selectedFreshId, setSelectedFreshId] = useState("1")
+  const [selectedDeliveryId, setSelectedDeliveryId] = useState("0")
   const [coordinate, setCoordinate] = useState({
     latitude: 27.6949,
     longitude: 85.2899,
@@ -26,7 +28,7 @@ export default function App() {
   return (
     <Context.Provider value={{
       user, setUser, donate, setDonate, bloodBank, setBloodBank, isForm, setIsForm, coordinate, setCoordinate,
-      requestCoord, setRequestCoord
+      requestCoord, setRequestCoord, selectedFreshId, setSelectedFreshId, selectedDeliveryId, setSelectedDeliveryId
     }}>
       <SafeAreaProvider>
       <NavigationContainer>

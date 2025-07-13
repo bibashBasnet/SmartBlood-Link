@@ -6,23 +6,37 @@ import { styles } from '../../Styles';
 import Constants from 'expo-constants';
 import axios from 'axios';
 import { Context } from '../../Context/Context';
+import { useDrawerStatus } from '@react-navigation/drawer';
 
 const RequestListScreen = ({ navigation }) => {
   const API_URL = Constants.expoConfig.extra.apiUrl;
   const [requestList, setRequestList] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const {setIsForm} = useContext(Context)
+  const {setIsForm, user} = useContext(Context)
+  const [isSelected, setSelected] = useState(false)
+  const [displayList, setDisplayList] = useState([])
+
+  const handlePress = (item) => {
+    setSelected(true)
+    setSelected(item)
+  }
+  useEffect(() => {
+
+  }, [isSelected])
   useEffect(() => {
     setIsForm(false)
   }, [])
 
   useEffect(() => {
-
+    const address = user.address.split(",")
+    const locationParam = address[1].trim()
+    console.log(locationParam)
     axios
-      .get(`${API_URL}/requestList/get`)
+      .get(`${API_URL}/requests/getRequestList/${locationParam}`)
       .then((res) => {
         if (res.data && Array.isArray(res.data)) {
           setRequestList(res.data);
+          setDisplayList(res.data)
         }
       })
       .catch((e) => {
@@ -48,7 +62,6 @@ const RequestListScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
-        <Image source={logo} style={styles.logo} />
         <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
       </View>
 
@@ -60,16 +73,16 @@ const RequestListScreen = ({ navigation }) => {
 
       <View style={{flex: 1, marginHorizontal: 10, maxHeight: 670}}>
       <ScrollView>
-        {requestList.map((item, i) => (
+        {displayList.map((item, i) => (
           <TouchableOpacity key={i} onPress={() => showDetail(i)}>
             <View style={styles.card}>
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.date}>{item.time}</Text>
               <View style={styles.detailsRow}>
                 <View style={styles.bloodTypeBox}>
-                  <Text style={styles.bloodTypeText}>{item.bloodType}</Text>
+                  <Text style={styles.bloodTypeText}>{item.type}</Text>
                 </View>
-                <Text style={styles.place}>{item.address}</Text>
+                <Text style={styles.place}>{item.location}</Text>
               </View>
 
               {selectedIndex === i && (
@@ -80,10 +93,13 @@ const RequestListScreen = ({ navigation }) => {
                   <Text style={styles.historyListLabel}>
                     Email: <Text style={styles.historyListValue}>{item.email}</Text>
                   </Text>
+                  <Text style={styles.historyListLabel}>
+                    Hsospital Name: <Text style={styles.historyListValue}>{item.hospital}</Text>
+                  </Text>
 
                   <View style={styles.historyListButtonContainer}>
                     <TouchableOpacity style={[styles.historyListButton, styles.historyListAcceptButton]} onPress={() => handleChange(item.id, "Accepted")}>
-                      <Text style={styles.historyListButtonText}>Accept</Text>
+                      <Text style={styles.historyListButtonText} onPress={() => handlePress(item)}>Accept</Text>
                     </TouchableOpacity>
                   </View>
                 </View>

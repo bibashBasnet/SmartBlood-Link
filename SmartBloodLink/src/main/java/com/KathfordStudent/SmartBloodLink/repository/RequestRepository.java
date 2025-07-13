@@ -12,4 +12,5 @@ public interface RequestRepository extends MongoRepository<RequestModel, String>
     Optional<RequestModel> findById(String id);
     void deleteById(String id);
     List<RequestModel> findAllByCreatedBy(String id);
+    List<RequestModel> findByLocation(String location);
 }

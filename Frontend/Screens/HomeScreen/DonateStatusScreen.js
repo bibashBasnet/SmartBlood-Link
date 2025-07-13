@@ -6,6 +6,7 @@ import { DrawerActions } from '@react-navigation/native'
 import { Context } from '../../Context/Context'
 import axios from 'axios'
 import Constants from 'expo-constants'
+import { ScrollView } from 'react-native-gesture-handler'
 
 
 
@@ -23,6 +24,10 @@ const DonateStatusScreen = ({navigation}) => {
     setIsForm(false)
   }, [])
     const handlePress= () => {
+      setCoordinate({
+        latitude: donate.latitude,
+        longitude: donate.longitude
+      })
     navigation.navigate("Map", {from: 'Donate'})
   }
 
@@ -52,7 +57,6 @@ const DonateStatusScreen = ({navigation}) => {
     <View style={styles.container}>
     
           <View style={styles.headerContainer}>
-              <Image source={logo} style={styles.logo} />
               <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
             </View>
     
@@ -63,7 +67,7 @@ const DonateStatusScreen = ({navigation}) => {
         <Text style={styles.historyTitle}>My Donation Request</Text>
           
     
-          <View style={[styles.LoginForm, {marginTop: -20}]}>
+          <ScrollView style={[styles.LoginForm, {marginTop: -20}]} contentContainerStyle={{ paddingBottom: 40 }}>
             <View>
             <Text style={styles.infoText}>Name: {donate?.name}</Text>
             <Text style={styles.infoText}>Age: {donate?.age}</Text>
@@ -88,7 +92,7 @@ const DonateStatusScreen = ({navigation}) => {
 
 
             
-          </View>
+          </ScrollView>
     
         </View>
   )

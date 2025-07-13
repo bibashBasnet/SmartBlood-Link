@@ -95,7 +95,6 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest){
         Optional<UserModel> user = userRepository.findByUsername(loginRequest.getUsername());
-        System.out.println("Login controller");
 
         if(user.isPresent()){
             UserModel userDetail = user.get();

@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 @Document(collection = "requests")
 public class RequestModel {
 
@@ -25,34 +24,51 @@ public class RequestModel {
     private Boolean isFresh;
     private Boolean isDelivery;
     private double latitude;
-    private double  longitude;
+    private double longitude;
     private String hospital;
+    private String acceptedBy;  // Who accepted the request
 
     public RequestModel() {
         this.time = LocalDate.now();
         this.status = "Pending";
         this.hospital = "";
-        longitude = 0;
-        latitude = 0;
+        this.longitude = 0;
+        this.latitude = 0;
+        this.acceptedBy = "";
     }
 
-     public RequestModel(String id, String createdBy, LocalDate time, String name, String location,
-                        String type, String phone,int amount,String hospital, String email, String status, Boolean isFresh, Boolean isDelivery, double latitude, double longitude) {
+    public RequestModel(String id,
+                        String createdBy,
+                        LocalDate time,
+                        int amount,
+                        String name,
+                        String location,
+                        String type,
+                        String phone,
+                        String email,
+                        String status,
+                        Boolean isFresh,
+                        Boolean isDelivery,
+                        double latitude,
+                        double longitude,
+                        String hospital,
+                        String acceptedBy) {
         this.id = id;
         this.createdBy = createdBy;
         this.time = time;
+        this.amount = amount;
         this.name = name;
         this.location = location;
         this.type = type;
         this.phone = phone;
         this.email = email;
         this.status = status;
-        this.amount = amount;
         this.isFresh = isFresh;
         this.isDelivery = isDelivery;
         this.latitude = latitude;
         this.longitude = longitude;
         this.hospital = hospital;
+        this.acceptedBy = acceptedBy;
     }
 
     // Getters and Setters
@@ -63,13 +79,6 @@ public class RequestModel {
 
     public void setId(String id) {
         this.id = id;
-    }
-    public int getAmount() {
-        return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
     }
 
     public String getCreatedBy() {
@@ -86,6 +95,14 @@ public class RequestModel {
 
     public void setTime(LocalDate time) {
         this.time = time;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 
     public String getName() {
@@ -128,7 +145,7 @@ public class RequestModel {
         this.email = email;
     }
 
-        public String getStatus() {
+    public String getStatus() {
         return status;
     }
 
@@ -136,7 +153,7 @@ public class RequestModel {
         this.status = status;
     }
 
-     public Boolean getIsFresh() {
+    public Boolean getIsFresh() {
         return isFresh;
     }
 
@@ -167,12 +184,20 @@ public class RequestModel {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-    
-    public String getHospital(){
+
+    public String getHospital() {
         return hospital;
     }
-    public void setHospital(String hospital){
+
+    public void setHospital(String hospital) {
         this.hospital = hospital;
     }
 
+    public String getAcceptedBy() {
+        return acceptedBy;
+    }
+
+    public void setAcceptedBy(String acceptedBy) {
+        this.acceptedBy = acceptedBy;
+    }
 }

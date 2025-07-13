@@ -44,7 +44,6 @@ const ProfileScreen = ({ navigation }) => {
 
       {/* Header */}
       <View style={styles.headerContainer}>
-        <Image source={logo} style={styles.logo} />
         <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
       </View>
 

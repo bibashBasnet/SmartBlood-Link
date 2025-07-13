@@ -5,9 +5,10 @@ import Constants from 'expo-constants'
 import axios from 'axios';
 import { Context } from '../../Context/Context';
 import RadioGroup from 'react-native-radio-buttons-group';
+import { verticalScale } from '../../utils/responsive';
 
 const BloodRequestForm = ({navigation}) => {
-  const {user, setIsForm, requestCoord} = useContext(Context)
+  const {user, setIsForm, requestCoord, selectedFreshId, setSelectedFreshId, selectedDeliveryId, setSelectedDeliveryId, setCoordinate} = useContext(Context)
   const API_URL = Constants.expoConfig.extra.apiUrl;
 
   useEffect(() => {
@@ -35,9 +36,6 @@ const BloodRequestForm = ({navigation}) => {
       { id: '1', label: 'Yes', value: 'yes' },
       { id: '2', label: 'No', value: 'no' },
     ];
-
-    const [selectedFreshId, setSelectedFreshId] = useState()
-    const [selectedDeliveryId, setSelectedDeliveryId] = useState()
 
 
   // Blood group dropdown state
@@ -76,6 +74,15 @@ const BloodRequestForm = ({navigation}) => {
   const isDelivery = selectedDeliveryValue === 'yes';
 
 const handleSubmit = () => {
+  const emailRegex = /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+  const phoneRegex = /^(98|97)\d{8}$/;
+
+    console.log('Email to validate:', form.email);
+  console.log('Pattern test result:', emailRegex.test(form.email));
+    if (!emailRegex.test(form.email.trim())) {
+    Alert.alert('Validation Error', 'Enter a valid email address.');
+    return;
+  }
 
   if (
     !form.patientName || !form.contact || !form.bloodGroup ||
@@ -83,6 +90,12 @@ const handleSubmit = () => {
     !form.unitsRequired || !form.email
   ) {
     Alert.alert('Error', 'Please fill in all required fields');
+    return;
+  }
+
+
+  if (!phoneRegex.test(form.contact.trim())) {
+    Alert.alert('Validation Error', 'Enter a valid 10-digit Nepali phone number.');
     return;
   }
 
@@ -124,8 +137,8 @@ const handleSubmit = () => {
         email: '',
         hospital: ''
       });
-      setSelectedFreshId(null);
-      setSelectedDeliveryId(null);
+      setSelectedFreshId('1');
+      setSelectedDeliveryId('0');
     })
     .catch(e => {
       Alert.alert('Error', e?.response?.data?.message || 'Submission failed');
@@ -135,6 +148,10 @@ const handleSubmit = () => {
 
 
   const handlePress= () => {
+  setCoordinate({
+    latitude: 27.6949,
+    longitude: 85.2899,
+  });
     navigation.navigate("Map", {from: "Request"})
   }
 
@@ -143,7 +160,7 @@ const handleSubmit = () => {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Blood Request Form</Text>
-
+      <ScrollView style= {{maxHeight: verticalScale(655)}}>
       {/* Patient Name */}
       <Text style={styles.label}>Patient Name *</Text>
       <TextInput 
@@ -281,6 +298,7 @@ const handleSubmit = () => {
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>Submit Blood Request</Text>
       </TouchableOpacity>
+      </ScrollView>
     </ScrollView>
   );
 };
