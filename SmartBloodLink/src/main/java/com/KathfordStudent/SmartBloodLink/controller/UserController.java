@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,17 +32,6 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @GetMapping("/getUserById/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable String id){
-        if(userRepository.existsById(id)){
-            return ResponseEntity.ok(userRepository.findById(id));
-        }
-        else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Not found");
-        }
-        
-    }
-
     @PostMapping("/createUser")
     public ResponseEntity<?> createUser(@RequestBody UserModel user){
         if(userRepository.existsByName(user.getUsername())){
@@ -53,7 +43,8 @@ public class UserController {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Driver Licence picture is missing");
                 }
             }
-            return ResponseEntity.ok(userRepository.save(user));
+            userRepository.save(user);
+            return ResponseEntity.ok("User has been created.");
         }
     }
 
@@ -99,17 +90,24 @@ public class UserController {
         if(user.isPresent()){
             UserModel userDetail = user.get();
             if(userDetail.getPassword().equals(loginRequest.getPassword())){
-                LoginResponse response = new LoginResponse(
-                    userDetail.getId(),
-                    userDetail.getName(),
-                    userDetail.getEmail(),
-                    userDetail.getPhone(),
-                    userDetail.getBloodType(),
-                    userDetail.getAge(),
-                    userDetail.getGender(),
-                    userDetail.getAddress()
-                );
-                return ResponseEntity.ok(response);
+                if(userDetail.isVerified() == true){
+                    LoginResponse response = new LoginResponse(
+                        userDetail.getId(),
+                        userDetail.getName(),
+                        userDetail.getEmail(),
+                        userDetail.getPhone(),
+                        userDetail.getBloodType(),
+                        userDetail.getAge(),
+                        userDetail.getGender(),
+                        userDetail.getAddress(),
+                        userDetail.getUserType()
+                    );
+                    return ResponseEntity.ok(response);
+                }
+                else{
+                    return ResponseEntity.status(401).body("Account is not verified");
+                }
+                
             }
             else{
                 return ResponseEntity.status(401).body("Incorrect Password");

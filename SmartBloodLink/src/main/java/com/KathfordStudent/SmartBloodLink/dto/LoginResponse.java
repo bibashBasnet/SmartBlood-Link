@@ -9,8 +9,10 @@ public class LoginResponse {
     private String bloodType;
     private String gender;
     private String address;
+    private int userType;
 
-    public LoginResponse(String id, String name, String email, String phone, String bloodType, int age, String gender, String address) {
+    public LoginResponse(String id, String name, String email, String phone,
+     String bloodType, int age, String gender, String address, int userType) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -19,6 +21,7 @@ public class LoginResponse {
         this.age = age;
         this.address = address;
         this.gender = gender;
+        this.userType = userType;
     }
 
     public String getId() { return id; }
@@ -29,4 +32,5 @@ public class LoginResponse {
     public String getBloodType() { return bloodType; }
     public String getGender() {return gender;}
     public String getAddress() {return address;}
+    public int getUserType(){return userType;}
 }

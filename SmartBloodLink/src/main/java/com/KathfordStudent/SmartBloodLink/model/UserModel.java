@@ -18,7 +18,7 @@ public class UserModel {
     private String bloodType;
     private String username;
     private String password;
-    private int userType;
+    private int userType; //1 for delivery person and 0 for normal user
     private String profileUrl = "";
     private List<String> driverLicenceUrl;
     private String address;
