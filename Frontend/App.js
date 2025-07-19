@@ -11,7 +11,6 @@ export default function App() {
     const loadUser = async () => {
       const token = await AsyncStorage.getItem("token");
       const user = await AsyncStorage.getItem("userInfo");
-      console.log("Get token = " + token);
       if (token && user) {
         setUser(JSON.parse(user));
       }

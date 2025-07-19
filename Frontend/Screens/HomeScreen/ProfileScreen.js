@@ -1,32 +1,39 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Image, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { DrawerActions, useRoute } from '@react-navigation/native';
-import { styles } from '../../Styles';
-import logo from '../../assets/logo.png';
-import { Context } from '../../Context/Context';
+import React, { useContext, useEffect, useState } from "react";
+import {
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { DrawerActions, useRoute } from "@react-navigation/native";
+import { styles } from "../../Styles";
+import logo from "../../assets/logo.png";
+import { Context } from "../../Context/Context";
 
 const ProfileScreen = ({ navigation }) => {
+  const { user } = useContext(Context);
 
-  const {user} = useContext(Context);
-
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [type, setType] = useState('-');
-  const [gender, setGender] = useState('');
-  const [phone, setPhone] = useState('9800000000');
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [type, setType] = useState("-");
+  const [gender, setGender] = useState("");
+  const [phone, setPhone] = useState("9800000000");
   const [age, setAge] = useState();
-  const [email, setEmail] = useState('');
-
+  const [email, setEmail] = useState("");
+  const [profileUrl, setProfileUrl] = useState("");
 
   useEffect(() => {
     if (user) {
       setName(user.name);
-      setAddress(user.address || 'Unknown');
-      setType(user.bloodType || '-');
-      setGender(user.gender || 'N/A');
-      setPhone(user.phone || 'N/A');
-      setAge(user.age || '-');
-      setEmail(user.email || 'N/A');
+      setAddress(user.address || "Unknown");
+      setType(user.bloodType || "-");
+      setGender(user.gender || "N/A");
+      setPhone(user.phone || "N/A");
+      setAge(user.age || "-");
+      setEmail(user.email || "N/A");
+      setProfileUrl(user.profileUrl || "");
     }
   }, [user]);
 
@@ -36,10 +43,12 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-
       {/* Menu Button */}
       <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
-        <Image source={require('../../assets/list.png')} style={styles.menuIcon} />
+        <Image
+          source={require("../../assets/list.png")}
+          style={styles.menuIcon}
+        />
       </TouchableOpacity>
 
       {/* Header */}
@@ -51,7 +60,9 @@ const ProfileScreen = ({ navigation }) => {
       <View style={styles.profileImageContainer}>
         {/* Placeholder for profile image */}
         <Image
-          // source={require('../../assets/profile.png')} // or a default avatar
+          source={
+            profileUrl ? { uri: profileUrl } : require("../../assets/logo.png")
+          }
           style={styles.profileImage}
         />
       </View>
@@ -68,14 +79,16 @@ const ProfileScreen = ({ navigation }) => {
       </View>
 
       {/* Edit Button */}
-      <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate("UpdateProfileScreen")}}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => {
+          navigation.navigate("UpdateProfileScreen");
+        }}
+      >
         <Text style={styles.buttonText}>Edit Profile</Text>
       </TouchableOpacity>
-
     </SafeAreaView>
   );
 };
 
-
-
-export default ProfileScreen
+export default ProfileScreen;

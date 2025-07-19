@@ -10,9 +10,10 @@ public class LoginResponse {
     private String gender;
     private String address;
     private int userType;
+    private String profileUrl;
 
     public LoginResponse(String id, String name, String email, String phone,
-     String bloodType, int age, String gender, String address, int userType) {
+     String bloodType, int age, String gender, String address, int userType, String profileUrl) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -22,6 +23,7 @@ public class LoginResponse {
         this.address = address;
         this.gender = gender;
         this.userType = userType;
+        this.profileUrl = profileUrl;
     }
 
     public String getId() { return id; }
@@ -33,4 +35,5 @@ public class LoginResponse {
     public String getGender() {return gender;}
     public String getAddress() {return address;}
     public int getUserType(){return userType;}
+    public String getProfileUrl(){return profileUrl;}
 }

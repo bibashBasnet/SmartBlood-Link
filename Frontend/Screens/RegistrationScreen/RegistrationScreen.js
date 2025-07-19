@@ -10,6 +10,7 @@ import { styles } from './RegistrationScreenStyle';
 
 import Constants from 'expo-constants';
 import axios from 'axios';
+import { verticalScale } from '../../utils/responsive';
 const API_URL = Constants.expoConfig.extra.apiUrl;
 
 
@@ -25,7 +26,6 @@ const RegistrationScreen = ({navigation}) => {
   const [userType, setUserType] = useState('0');
   const [username, setUsername] = useState('test')
   const [age, setAge] = useState('34')
-  const [profileUrl, setProfileUrl] = useState('')
   const [gender, setGender] = useState('Male')
 
   const [address, setAddress] = useState({
@@ -33,6 +33,7 @@ const RegistrationScreen = ({navigation}) => {
   });
 
   const [driverLicenses, setDriverLicenses] = useState([]);
+  const [userProfile, setUserProfile] = useState(null)
 
   const provinces = [
     'Province 1',
@@ -47,7 +48,7 @@ const RegistrationScreen = ({navigation}) => {
 
   const pickImages = async (setter, existingImages) => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.IMAGE,
       quality: 1,
       allowsEditing: true,
     });
@@ -63,6 +64,27 @@ const RegistrationScreen = ({navigation}) => {
       }
     }
   };
+
+  const pickProfileImage = async () => {
+    console.log("Pick image function called");
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'We need media permissions to upload images.');
+    }
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+      allowsEditing: true,
+    });
+
+    if (!result.canceled) {
+      const uri = result.assets[0]?.uri;
+      if (uri) {
+        setUserProfile(uri); // Only one image
+      }
+    }
+  };
+
 
  const handleRegister = async () => {
     const emailRegex = /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
@@ -93,24 +115,44 @@ const RegistrationScreen = ({navigation}) => {
       return;
     }
 
-  const payload = {
-    name,
-    email,
-    phone,
-    age,
-    gender,
-    bloodType: bloodGroup,
-    username,
-    password,
-    userType: parseInt(userType),
-    profile_url: profileUrl,
-    address: `${address.province}, ${address.district}, ${address.ward}, ${address.municipality}`,
-    ...(userType === 1 && { driverLicenses })
-  };
+    const formData = new FormData()
+    formData.append('name', name)
+    formData.append('email', email)
+    formData.append('phone', phone)
+    formData.append('age', age)
+    formData.append('gender', gender)
+    formData.append('bloodType', bloodGroup)
+    formData.append('username', username)
+    formData.append('password', password)
+    formData.append('userType', parseInt(userType))
+    formData.append('address', `${address.province}, ${address.district}, ${address.ward}, ${address.municipality}`)
+    if(userProfile){
+      const filename = userProfile.split('/').pop()
+      formData.append('profileImage', {
+        uri: userProfile,
+        name: filename,
+        type: 'image/jpeg' 
+      })
+    }
+    // if(parseInt(userType) === 1){
+    //   driverLicenses.forEach((url, index) => {
+    //     const filename = url.split('/').pop()
+    //     formData.append('driverLicenses', {
+    //       uri,
+    //       name: filename,
+    //       type: 'image/jpeg'
+    //     })
+    //   })
+    // }
+
 
 
   try {
-      const res = await axios.post(`${API_URL}/users/createUser`, payload);
+      const res = await axios.post(`${API_URL}/users/createUser`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       if (res.status === 200) {
         navigation.navigate("LandingPage");
       } else {
@@ -132,7 +174,7 @@ const RegistrationScreen = ({navigation}) => {
       </View>
       <Text style={styles.title}>Registration Form</Text>
 
-      <ScrollView style={{flex: 1, maxHeight: 700}}>
+      <ScrollView style={{flex: 1, maxHeight: verticalScale(650)}}>
         <TextInput style={styles.input} placeholder="Full Name" value={name} onChangeText={setName} />
         <TextInput style={styles.input} placeholder="Age" value={age} onChangeText={setAge}/>
         <TextInput style={styles.input} placeholder="Phone Number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
@@ -198,8 +240,21 @@ const RegistrationScreen = ({navigation}) => {
           />
         ))}
 
+        {/* User Profile file upload */}
+          <>
+            <Text style={styles.sectionTitle}>Profile picture</Text>
+            <TouchableOpacity style={styles.uploadButton} onPress={pickProfileImage}>
+              <Text>Upload Profile picture</Text>
+            </TouchableOpacity>
+            <View style={styles.imagePreviewContainer}>
+              {userProfile && (
+                <Image source={{uri: userProfile}} style={styles.imagePreview}/>
+              )}
+            </View>
+          </>
+
         {/* Driver License Upload */}
-        {userType === 1 && (
+        {userType === '1' && (
           <>
             <Text style={styles.sectionTitle}>Driver License (max 2 images)</Text>
             <TouchableOpacity style={styles.uploadButton} onPress={() => pickImages(setDriverLicenses, driverLicenses)}>

@@ -116,9 +116,9 @@ export const styles = StyleSheet.create({
     elevation: 5,
   },
   profileImage: {
-    width: scale(100),
-    height: scale(100),
-    borderRadius: moderateScale(50),
+    width: scale(140),
+    height: scale(140),
+    borderRadius: moderateScale(70),
     resizeMode: 'cover',
   },
   infoContainer: {
