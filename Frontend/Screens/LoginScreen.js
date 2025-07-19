@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import '@react-native-async-storage/async-storage'
 import {
   View,
   Text,
@@ -14,6 +15,7 @@ import { styles } from "../Styles";
 
 import Constants from "expo-constants";
 import { Context } from "../Context/Context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_URL = Constants.expoConfig.extra.apiUrl;
 
@@ -25,20 +27,23 @@ const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState("test");
   const [password, setPassword] = useState("test123");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
       alert("Please enter both username and password.");
       return;
     }
 
-    axios
+    await axios
       .post(`${API_URL}/users/login`, {
         username: username.trim(),
         password: password.trim(),
       })
-      .then((res) => {
+      .then(async (res) => {
         if (res.status === 200 && res.data) {
-          const user = res.data;
+          const {token, user} = res.data;
+          await AsyncStorage.setItem('token', token)
+          await AsyncStorage.setItem('userInfo', JSON.stringify(user))
+          console.log("Set token = " + token)
           setUser(user);
           navigation.navigate("Main");
         } else {

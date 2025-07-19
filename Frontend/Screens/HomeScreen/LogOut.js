@@ -1,12 +1,20 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
+
+
 const LogOut = ({ navigation }) => {
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem("authToken")
+    await AsyncStorage.removeItem("userInfo")
+    navigation.navigate("LandingPage")
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Are you sure you want to log out?</Text>
 
-      <TouchableOpacity style={styles.buttonYes} onPress={() => navigation.navigate('LandingPage')}>
+      <TouchableOpacity style={styles.buttonYes} onPress={handleLogout}>
         <Text style={styles.buttonTextYes}>Yes</Text>
       </TouchableOpacity>
 

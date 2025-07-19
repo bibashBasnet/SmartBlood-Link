@@ -6,19 +6,22 @@ import LoginScreen from './Screens/LoginScreen';
 import LandingScreen from './Screens/LandingScreen';
 import DonateNavigation from './StackNavigation/DonateNavigation';
 import BloodRequestForm from './Screens/HomeScreen/BloodRequestForm';
+import { useContext, useState } from 'react';
+import { Context } from './Context/Context';
 
-const stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator();
 
 const stackNavigator = () => {
+  const {user} = useContext(Context)
   return (
-    <stack.Navigator initialRouteName='LandingPage'>
-      <stack.Screen name='Registration' component={RegistrationScreen} options={{headerShown: false}}/>
-      <stack.Screen name='Main' component={DrawerNavigation} options={{headerShown: false}}/>
-      <stack.Screen name='Login' component={LoginScreen} options={{headerShown: false}}/>
-      <stack.Screen name="BloodRequestForm" component={BloodRequestForm} options={{ headerShown: false }}/>
-      <stack.Screen name='LandingPage' component={LandingScreen} options={{headerShown: false}}/>
-      <stack.Screen name='donate' component={DonateNavigation} options={{headerShown:false}}/>
-    </stack.Navigator>
+    <Stack.Navigator initialRouteName={user? "Main": "LandingPage"}>
+      <Stack.Screen name='Registration' component={RegistrationScreen} options={{headerShown: false}}/>
+      <Stack.Screen name='Main' component={DrawerNavigation} options={{headerShown: false}}/>
+      <Stack.Screen name='Login' component={LoginScreen} options={{headerShown: false}}/>
+      <Stack.Screen name="BloodRequestForm" component={BloodRequestForm} options={{ headerShown: false }}/>
+      <Stack.Screen name='LandingPage' component={LandingScreen} options={{headerShown: false}}/>
+      <Stack.Screen name='donate' component={DonateNavigation} options={{headerShown:false}}/>
+    </Stack.Navigator>
   )
 }
 

@@ -1,6 +1,7 @@
 package com.KathfordStudent.SmartBloodLink.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,13 @@ import com.KathfordStudent.SmartBloodLink.dto.LoginResponse;
 import com.KathfordStudent.SmartBloodLink.dto.UserUpdateDTO;
 import com.KathfordStudent.SmartBloodLink.model.UserModel;
 import com.KathfordStudent.SmartBloodLink.repository.UserRepository;
+import com.KathfordStudent.SmartBloodLink.util.JwtUtil;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
     @Autowired UserRepository userRepository;
+    @Autowired JwtUtil jwtUtil;
 
     @GetMapping
     public List<UserModel> getAllUser(){
@@ -91,6 +94,7 @@ public class UserController {
             UserModel userDetail = user.get();
             if(userDetail.getPassword().equals(loginRequest.getPassword())){
                 if(userDetail.isVerified() == true){
+                    String token = jwtUtil.generateToken(userDetail.getId());
                     LoginResponse response = new LoginResponse(
                         userDetail.getId(),
                         userDetail.getName(),
@@ -102,7 +106,10 @@ public class UserController {
                         userDetail.getAddress(),
                         userDetail.getUserType()
                     );
-                    return ResponseEntity.ok(response);
+                    return ResponseEntity.ok().body(Map.of(
+                        "token", token,
+                        "user", response
+                    ));
                 }
                 else{
                     return ResponseEntity.status(401).body("Account is not verified");
