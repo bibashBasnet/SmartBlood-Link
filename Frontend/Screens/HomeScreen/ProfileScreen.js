@@ -34,6 +34,7 @@ const ProfileScreen = ({ navigation }) => {
       setAge(user.age || "-");
       setEmail(user.email || "N/A");
       setProfileUrl(user.profileUrl || "");
+      console.log("Profile url = " + profileUrl)
     }
   }, [user]);
 

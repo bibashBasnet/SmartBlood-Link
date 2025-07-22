@@ -7,10 +7,28 @@ import ProfileNavigation from './StackNavigation/ProfileNavigation';
 import RequestListNavigation from './StackNavigation/RequestListNavigation';
 import RequestNavigation from './StackNavigation/RequestNavigation'
 import MapScreen from './Screens/HomeScreen/MapScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import Delivery from './Screens/HomeScreen/Delivery';
+import DeliveryHistory from './Screens/HomeScreen/DeliveryHistory';
 
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigation = () => {
+  
+  const [isUser, setIsUser] = useState(true);
+
+  useEffect(() => {
+    const checkUserType = async () => {
+      const userString = await AsyncStorage.getItem("userInfo")
+      if(userString){
+        user = JSON.parse(userString)
+          if(parseInt(user.userType) === 1)
+            setIsUser(false)
+      }
+    }
+    checkUserType();
+  },[isUser])
   return (
       <Drawer.Navigator initialRouteName='Home' >
 
@@ -20,6 +38,12 @@ const DrawerNavigation = () => {
         <Drawer.Screen name='History' component={HistoryScreen} options={{headerShown: false}}/>
         <Drawer.Screen name='RequestList' component={RequestListNavigation} options={{headerShown: false}} />
         <Drawer.Screen name='Request' component={RequestNavigation} options={{headerShown: false}}/>
+        {!isUser && (
+          <>
+            <Drawer.Screen name='Delivery' component={Delivery} options={{headerShown: false}}/>
+            <Drawer.Screen name='DeliveryStatus' component={DeliveryHistory} options={{headerShown: false}}/>
+          </>  
+        )}
         <Drawer.Screen name='Logout' component={LogOut} options={{headerShown: false}}/>
       </Drawer.Navigator>
   )
