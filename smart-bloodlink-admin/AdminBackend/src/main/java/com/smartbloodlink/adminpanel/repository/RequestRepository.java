@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface RequestRepository extends MongoRepository<RequestModel, String> {
     List<RequestModel> findByStatus(String status);
+    List<RequestModel> findAll();
     long count();
 
 }
