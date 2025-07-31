@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import BloodRequests from "./pages/BloodRequests";
 import MainLayout from "./layout/MainLayout";
+import Map from "./pages/Map";
 
 function App() {
   return (
@@ -33,6 +34,11 @@ function App() {
           </MainLayout>
         }
       />
+      <Route path="/map" element={
+        <MainLayout>
+          <Map/>
+        </MainLayout>
+      }/>
     </Routes>
   );
 }

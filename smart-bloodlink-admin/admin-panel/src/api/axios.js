@@ -26,3 +26,8 @@ export async function putRequest(endpoint, data) {
   });
   return await response.json();
 }
+
+export async function getRequestCoordinate(endpoint) {
+  const response = await fetch(`${BASE_URL}${endpoint}`);
+  return await response.json();
+}

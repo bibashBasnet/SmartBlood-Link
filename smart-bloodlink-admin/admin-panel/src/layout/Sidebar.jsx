@@ -8,6 +8,7 @@ export default function Sidebar() {
         <Link to="/dashboard">Dashboard</Link>
         <Link to="/users">Users</Link>
         <Link to="/requests">Blood Requests</Link>
+        <Link to="/map">Map</Link>
       </nav>
     </div>
   );
