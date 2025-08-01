@@ -5,9 +5,14 @@ export default function BloodRequests() {
   const [requests, setRequests] = useState([]);
 
   const fetchRequests = async () => {
-    const data = await getRequest("/requests");
-    setRequests(data);
-  };
+  const data = await getRequest("/requests");
+
+  console.log("Fetched data:", data);
+  data.forEach((r, i) => console.log(`Request[${i}] fresh:`, r.fresh, "Type:", typeof r.fresh));
+
+  const filteredData = data.filter((r) => r.fresh === false);
+  setRequests(filteredData);
+};
 
   useEffect(() => {
     fetchRequests();

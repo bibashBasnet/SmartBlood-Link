@@ -1,3 +1,4 @@
+// Users.jsx
 import { useEffect, useState } from "react";
 import { getRequest, putRequest } from "../api/axios";
 
@@ -11,7 +12,7 @@ export default function Users() {
       const data = await getRequest("/users/userType/0");
       const mapped = data.map((user) => ({
         ...user,
-        id: user._id || user.id, // fallback if already mapped
+        id: user._id || user.id,
       }));
       setUsers(mapped);
     } catch (err) {
@@ -30,12 +31,16 @@ export default function Users() {
     }
   };
 
-  const unverifyUser = async (id) => {
-    try {
-      await putRequest(`/users/${id}/unverify`, {});
-      fetchUsers();
-    } catch (err) {
-      console.error("Error unverifying user:", err);
+  const deleteUser = async (id) => {
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      try {
+        await fetch(`http://localhost:8080/api/users/${id}`, {
+          method: "DELETE",
+        });
+        fetchUsers();
+      } catch (err) {
+        console.error("Error deleting user:", err);
+      }
     }
   };
 
@@ -67,23 +72,9 @@ export default function Users() {
                 <td>{user.bloodType}</td>
                 <td>{user.phone}</td>
                 <td>{user.email}</td>
-                <td>{user.isVerified ? "Yes" : "No"}</td>
+                <td>{user.verified ? "Yes" : "No"}</td>
                 <td>
-                  {user.isVerified ? (
-                    <button
-                      onClick={() => unverifyUser(user.id)}
-                      style={{
-                        backgroundColor: "#e74c3c",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        padding: "6px 12px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Unverify
-                    </button>
-                  ) : (
+                  {!user.verified && (
                     <button
                       onClick={() => verifyUser(user.id)}
                       style={{
@@ -92,12 +83,27 @@ export default function Users() {
                         border: "none",
                         borderRadius: "4px",
                         padding: "6px 12px",
+                        marginRight: "8px",
                         cursor: "pointer",
                       }}
                     >
                       Verify
                     </button>
                   )}
+
+                  <button
+                    onClick={() => deleteUser(user.id)}
+                    style={{
+                      backgroundColor: "#e74c3c",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      padding: "6px 12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

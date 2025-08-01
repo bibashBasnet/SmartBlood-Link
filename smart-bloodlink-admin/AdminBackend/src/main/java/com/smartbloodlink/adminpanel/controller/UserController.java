@@ -52,12 +52,12 @@ public class UserController {
         return userRepository.save(user);
     }
 
-    @PutMapping("/{id}/unverify")
-    public UserModel unverifyUser(@PathVariable String id) {
-        UserModel user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setVerified(false);
-        return userRepository.save(user);
+    @DeleteMapping("/{id}")
+    public Map<String, String> deleteUser(@PathVariable String id) {
+        userRepository.deleteById(id);
+        Map<String, String> res = new HashMap<>();
+        res.put("message", "User deleted successfully.");
+        return res;
     }
 
     @GetMapping
