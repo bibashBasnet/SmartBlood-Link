@@ -5,6 +5,7 @@ import Users from "./pages/Users";
 import BloodRequests from "./pages/BloodRequests";
 import MainLayout from "./layout/MainLayout";
 import Map from "./pages/Map";
+import DonationRequests from "./pages/DonationRequests";
 
 function App() {
   return (
@@ -23,6 +24,14 @@ function App() {
         element={
           <MainLayout>
             <Users />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/donations"
+        element={
+          <MainLayout>
+            <DonationRequests />
           </MainLayout>
         }
       />

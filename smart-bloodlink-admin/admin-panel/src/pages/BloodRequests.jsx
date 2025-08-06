@@ -10,7 +10,8 @@ export default function BloodRequests() {
   console.log("Fetched data:", data);
   data.forEach((r, i) => console.log(`Request[${i}] fresh:`, r.fresh, "Type:", typeof r.fresh));
 
-  const filteredData = data.filter((r) => r.fresh === false);
+  const filteredData = data.filter(
+    (r) => r.fresh === false && r.status.toLowerCase() === "pending");
   setRequests(filteredData);
 };
 
@@ -18,10 +19,17 @@ export default function BloodRequests() {
     fetchRequests();
   }, []);
 
-  const handleAction = async (id, action) => {
+ const handleAction = async (id, action) => {
+  try {
     await putRequest(`/requests/${id}/${action}`, {});
-    fetchRequests(); // refresh
-  };
+    setRequests((prevRequests) =>
+      prevRequests.filter((req) => req.id !== id)
+    );
+  } catch (error) {
+    console.error("Error updating request:", error);
+  }
+};
+
 
   return (
     <div className="page-content">
@@ -47,7 +55,11 @@ export default function BloodRequests() {
               <td>{r.status}</td>
               <td>
                 {r.status.toLowerCase() === "pending" ? (
-                  <>
+                  <div  style={{
+                        display: "flex",
+                        gap: "10px", // space between buttons
+                        alignItems: "center",
+                        }}>
                     <button
                       className="verify-btn"
                       onClick={() => handleAction(r.id, "approve")}
@@ -68,7 +80,7 @@ export default function BloodRequests() {
                     >
                       Reject
                     </button>
-                  </>
+                  </div>
                 ) : (
                   <span>—</span>
                 )}
