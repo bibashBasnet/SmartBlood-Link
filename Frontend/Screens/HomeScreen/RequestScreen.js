@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import {
   Image,
   SafeAreaView,
@@ -6,14 +12,18 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
+  ScrollView,
+  AppState, // 👈 add
 } from "react-native";
-import { DrawerActions } from "@react-navigation/native";
-import logo from "../../assets/logo.png";
+import {
+  DrawerActions,
+  useFocusEffect,
+  useIsFocused,
+} from "@react-navigation/native"; // 👈 add
 import { styles } from "../../Styles";
 import axios from "axios";
 import Constants from "expo-constants";
 import { Context } from "../../Context/Context";
-import { ScrollView } from "react-native-gesture-handler";
 import { moderateScale, scale, verticalScale } from "../../utils/responsive";
 
 const RequestScreen = ({ navigation }) => {
@@ -22,41 +32,54 @@ const RequestScreen = ({ navigation }) => {
   const API_URL = Constants.expoConfig.extra.apiUrl;
   const [selectedIndex, setSelectedIndex] = useState(null);
 
+  const isFocused = useIsFocused(); // 👈 track if this screen is focused
+  const appState = useRef(AppState.currentState); // 👈 track app foreground/background
+
   const handlePress = (item) => {
     setIsForm(false);
-    console.log("From request screen" + JSON.stringify(item, null, 2))
-    setCoordinate({
-      latitude: item.latitude,
-      longitude: item.longitude
-    })
-    console.log("From request screen" + JSON.stringify(coordinate, null, 2))
+    setCoordinate({ latitude: item.latitude, longitude: item.longitude });
     navigation.navigate("Map", { from: "Request" });
   };
+
   useEffect(() => {
     setIsForm(false);
-  }, []);
+  }, [setIsForm]);
 
-  useEffect(() => {
-    axios
-      .get(`${API_URL}/requests/getRequest`, {
+  // ---- Centralized fetch
+  const load = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_URL}/requests/getRequest`, {
         params: { id: user.id },
-      })
-      .then((res) => {
-        if (res.data && Array.isArray(res.data)) {
-          setRequestList(res.data);
-        }
-      })
-      .catch((e) => {
-        alert("RequestScreen: " + e.message);
       });
-  }, []);
+      if (Array.isArray(res.data)) setRequestList(res.data);
+    } catch (e) {
+      alert("RequestScreen: " + e.message);
+    }
+  }, [API_URL, user?.id]);
 
-  const showMenu = () => {
-    navigation.dispatch(DrawerActions.toggleDrawer());
-  };
+  // ---- Refetch whenever this screen gains focus (navigate back to it)
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
+
+  // ---- Refetch when app returns to foreground while this screen is focused
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (nextState) => {
+      const wasBackground = appState.current.match(/inactive|background/);
+      appState.current = nextState;
+      if (wasBackground && nextState === "active" && isFocused) {
+        load();
+      }
+    });
+    return () => sub.remove();
+  }, [isFocused, load]);
+
+  const showMenu = () => navigation.dispatch(DrawerActions.toggleDrawer());
 
   const showDetail = (i) => {
-    setSelectedIndex(selectedIndex === i ? null : i);
+    setSelectedIndex((prev) => (prev === i ? null : i));
   };
 
   return (
@@ -96,15 +119,14 @@ const RequestScreen = ({ navigation }) => {
                   <Text style={styles.name}>Phone No: {item.phone}</Text>
                   <Text style={styles.name}>Email: {item.email}</Text>
                   <Text style={styles.name}>Required Unit: {item.amount}</Text>
-                  {item.isFresh && (
+                  {item.isFresh ? (
                     <Text style={styles.name}>
                       Hospital Name: {item.hospital}
                     </Text>
-                  )}
-                  {!item.isFresh && (
+                  ) : (
                     <TouchableOpacity
                       style={localStyles.mapbutton}
-                      onPress={()=>handlePress(item)}
+                      onPress={() => handlePress(item)}
                     >
                       <Text style={localStyles.mapbuttonText}>Map</Text>
                     </TouchableOpacity>
@@ -143,21 +165,21 @@ const localStyles = StyleSheet.create({
     alignItems: "center",
     elevation: 5,
   },
-    mapbutton: {
-    backgroundColor: '#e53935',
+  mapbutton: {
+    backgroundColor: "#e53935",
     paddingVertical: verticalScale(12),
     paddingHorizontal: scale(24),
     borderRadius: moderateScale(8),
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     width: scale(100),
-    height: verticalScale(40)
+    height: verticalScale(40),
   },
   mapbuttonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: moderateScale(10),
-    fontWeight: 'bold',
-    alignItems: "center"
+    fontWeight: "bold",
+    alignItems: "center",
   },
 });
 

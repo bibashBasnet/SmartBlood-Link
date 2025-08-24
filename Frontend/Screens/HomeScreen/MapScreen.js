@@ -8,23 +8,33 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, UrlTile } from "react-native-maps";
 import * as Location from "expo-location";
 import Constants from "expo-constants";
 import axios from "axios"; // ✅ Add this at the top
 import { SafeAreaView } from "react-native-safe-area-context";
-import logo from '../../assets/logo.png'
-import { DrawerActions, useRoute, CommonActions } from "@react-navigation/native";
+import logo from "../../assets/logo.png";
+import {
+  DrawerActions,
+  useRoute,
+  CommonActions,
+} from "@react-navigation/native";
 import { Context } from "../../Context/Context";
-import { scale, verticalScale, moderateScale } from '../../utils/responsive';
+import { scale, verticalScale, moderateScale } from "../../utils/responsive";
 
+export default function MapScreen({ navigation }) {
+  const route = useRoute();
+  const from = route.params?.from;
 
-export default function MapScreen({navigation}) {
-
-  const route = useRoute()
-  const from = route.params?.from
-
-  const {bloodBank, setBloodBank, isForm,  coordinate, setCoordinate, requestCoord, setRequestCoord} = useContext(Context)
+  const {
+    bloodBank,
+    setBloodBank,
+    isForm,
+    coordinate,
+    setCoordinate,
+    requestCoord,
+    setRequestCoord,
+  } = useContext(Context);
   const mapRef = useRef(null);
   const API_URL = Constants.expoConfig.extra.apiUrl;
   const [zoomLevel, setZoomLevel] = useState(0.05); // smaller = more zoom
@@ -33,109 +43,104 @@ export default function MapScreen({navigation}) {
 
   const [coord, setCoord] = useState({
     latitude: coordinate.latitude,
-    longitude: coordinate.longitude
-  })
+    longitude: coordinate.longitude,
+  });
 
-  useEffect(() =>{
-
-    console.log("From Map: " + JSON.stringify(coord, null, 2))
-    if(coord.latitude && coord.longitude){
-      fetchNearbyBloodBanks(coord.latitude ,coord.longitude)
+  useEffect(() => {
+    console.log("From Map: " + JSON.stringify(coord, null, 2));
+    if (coord.latitude && coord.longitude) {
+      fetchNearbyBloodBanks(coord.latitude, coord.longitude);
     }
+  }, []);
 
-  }, [])
-
-const fetchNearbyBloodBanks = async (lat, lng) => {
-
-  try {
-    const response = await axios.get(`${API_URL}/geoFiltering/nearby`, {
-      params: {
-        lat,
-        lng,
-        radius: 10,
-      },
-    });
-
-    const bankData = response.data;
-    bankData.sort((a, b) => a.distance - b.distance)
-    setBanks(bankData);
-    setBloodBank(bankData[0].name)
-    // Fit map to show all banks + user location
-    if (mapRef.current && bankData.length > 0) {
-      const allCoords = [
-        { latitude: lat, longitude: lng }, // user's location
-        ...bankData.map((bank) => ({
-          latitude: bank.latitude,
-          longitude: bank.longitude,
-        })),
-      ];
-
-      mapRef.current.fitToCoordinates(allCoords, {
-        edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
-        animated: true,
+  const fetchNearbyBloodBanks = async (lat, lng) => {
+    try {
+      const response = await axios.get(`${API_URL}/geoFiltering/nearby`, {
+        params: {
+          lat,
+          lng,
+          radius: 10,
+        },
       });
+
+      const bankData = response.data;
+      bankData.sort((a, b) => a.distance - b.distance);
+      setBanks(bankData);
+      setBloodBank(bankData[0].name);
+      // Fit map to show all banks + user location
+      if (mapRef.current && bankData.length > 0) {
+        const allCoords = [
+          { latitude: lat, longitude: lng }, // user's location
+          ...bankData.map((bank) => ({
+            latitude: bank.latitude,
+            longitude: bank.longitude,
+          })),
+        ];
+
+        mapRef.current.fitToCoordinates(allCoords, {
+          edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+          animated: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching blood banks:", error.message);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Error fetching blood banks:", error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handlePress = async (e) => {
-    if(!isForm) return;
-    const {latitude, longitude} = e.nativeEvent.coordinate;
-    setCoord({latitude, longitude})
-    if(from === 'Donate')
-      setCoordinate({latitude, longitude})
-    else if(from === 'Request')
-      setRequestCoord({latitude, longitude})
-    }
+    if (!isForm) return;
+    const { latitude, longitude } = e.nativeEvent.coordinate;
+    setCoord({ latitude, longitude });
+    if (from === "Donate") setCoordinate({ latitude, longitude });
+    else if (from === "Request") setRequestCoord({ latitude, longitude });
+  };
 
-    const handleSubmit = async () => {
-      if(isForm){
-        let {status} = await Location.requestForegroundPermissionsAsync();
-        if(status !== "granted"){
-          console.log("Permission to access location was denied");
-          return;
-        }
-        fetchNearbyBloodBanks(coord.latitude, coord.longitude)
-        if(from === 'Donate'){
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{name: "DonateScreen"}]
-            })
-          )
-        }
-        if(from === 'Request'){
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{name: "BloodRequestForm"}]
-            })
-          )          
-        }
+  const handleSubmit = async () => {
+    if (isForm) {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        return;
       }
-      if(!isForm){
-        if(from === 'Donate'){
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{name: "DonateStatusScreen"}]
-            })
-          )        
-        }
-        if(from === 'Request'){
-          navigation.dispatch(
-            CommonActions.reset({
-              index: 0,
-              routes: [{name: "RequestScreen"}]
-            })
-          )    
-        }
+      fetchNearbyBloodBanks(coord.latitude, coord.longitude);
+      if (from === "Donate") {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "DonateScreen" }],
+          })
+        );
+      }
+      if (from === "Request") {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "BloodRequestForm" }],
+          })
+        );
       }
     }
+    if (!isForm) {
+      if (from === "Donate") {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "DonateStatusScreen" }],
+          })
+        );
+      }
+      if (from === "Request") {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "RequestScreen" }],
+          })
+        );
+      }
+    }
+  };
 
   if (loading || !coord.latitude || !coord.longitude) {
     return (
@@ -145,74 +150,96 @@ const fetchNearbyBloodBanks = async (lat, lng) => {
       </View>
     );
   }
-    const showMenu = () => {
-      navigation.dispatch(DrawerActions.openDrawer())
-    }
+  const showMenu = () => {
+    navigation.dispatch(DrawerActions.openDrawer());
+  };
 
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
+      </View>
 
-return (
-  <SafeAreaView style={styles.container}>
-
-    <View style={styles.headerContainer}>
-      <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
-    </View>
-    
-    <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
-      <Image source={require('../../assets/list.png')} style={styles.menuIcon} />
-    </TouchableOpacity>
-
-    <MapView
-    ref={mapRef}
-      style={styles.map}
-      onPress={(e) => {handlePress(e)}}
-      initialRegion={{
-        latitude: coord.latitude,
-        longitude: coord.longitude,
-        latitudeDelta: zoomLevel,
-        longitudeDelta: zoomLevel,
-      }}
-    >
-      {/* Your location */}
-      <Marker
-        coordinate={coord}
-        title="You"
-        pinColor="blue"
-      />
-      
-      {!isForm && 
-      banks.map((bank, i) => (
-          <Marker
-          key={bank.id}
-          coordinate={{
-            latitude: parseFloat(bank.latitude),
-            longitude: parseFloat(bank.longitude),
-          }}
-          pinColor={
-            i == 0 ? "green" : "red"
-          }
-          title={bank.name}
-          description={`${bank.locationText} (${bank.distance.toFixed(2)} km)`}
+      <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
+        <Image
+          source={require("../../assets/list.png")}
+          style={styles.menuIcon}
         />
-        ))} 
+      </TouchableOpacity>
 
-    </MapView>
+      <MapView
+        ref={mapRef}
+        style={styles.map}
+        onPress={(e) => {
+          handlePress(e);
+        }}
+        mapType="none"
+        initialRegion={{
+          latitude: coord.latitude,
+          longitude: coord.longitude,
+          latitudeDelta: zoomLevel,
+          longitudeDelta: zoomLevel,
+        }}
+      >
+        {/* OpenStreetMap raster tiles */}
+        <UrlTile
+          urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maximumZ={19}
+          flipY={false}
+          zIndex={-1}
+          tileSize={256}
+        />
+        {/* Your location */}
+        <Marker coordinate={coord} title="You" pinColor="blue" />
 
-    <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}><Text style={styles.submitButtonText}>Done</Text></TouchableOpacity>
-  </SafeAreaView>
-);
+        {!isForm &&
+          banks.map((bank, i) => (
+            <Marker
+              key={bank.id}
+              coordinate={{
+                latitude: parseFloat(bank.latitude),
+                longitude: parseFloat(bank.longitude),
+              }}
+              pinColor={i == 0 ? "green" : "red"}
+              title={bank.name}
+              description={`${bank.locationText} (${bank.distance.toFixed(
+                2
+              )} km)`}
+            />
+          ))}
+      </MapView>
 
+      <View
+        style={{
+          position: "absolute",
+          right: 10,
+          bottom: 10,
+          backgroundColor: "rgba(255,255,255,0.85)",
+          paddingHorizontal: 6,
+          paddingVertical: 2,
+          borderRadius: 4,
+        }}
+      >
+        <Text style={{ fontSize: 10 }}>© OpenStreetMap contributors</Text>
+      </View>
+
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <Text style={styles.submitButtonText}>Done</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f7f6f7',
+    backgroundColor: "#f7f6f7",
     paddingTop: 0,
   },
   map: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
-    width: '95%',
+    width: "95%",
     maxHeight: verticalScale(600),
     maxWidth: scale(350),
     marginLeft: scale(10),
@@ -220,62 +247,62 @@ const styles = StyleSheet.create({
   },
   loader: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   list: {
     flex: 1,
     padding: scale(10),
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: scale(12),
     marginVertical: verticalScale(6),
     borderRadius: moderateScale(8),
     elevation: 2,
   },
   name: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: moderateScale(16),
   },
   headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: verticalScale(20),
     marginBottom: verticalScale(10),
   },
   logo: {
     width: scale(40),
     height: scale(40),
-    resizeMode: 'contain',
+    resizeMode: "contain",
     marginRight: scale(10),
   },
   menuButton: {
-    position: 'absolute',
+    position: "absolute",
     top: verticalScale(40),
     left: scale(20),
     padding: scale(10),
-    marginTop: verticalScale(40)
+    marginTop: verticalScale(40),
   },
   menuIcon: {
     width: scale(28),
     height: scale(28),
-    tintColor: '#e53935',
+    tintColor: "#e53935",
   },
   organizationName: {
     fontSize: moderateScale(22),
-    fontWeight: 'bold',
-    color: '#e53935',
+    fontWeight: "bold",
+    color: "#e53935",
   },
   submitButton: {
-    backgroundColor: '#d32f2f',
+    backgroundColor: "#d32f2f",
     paddingVertical: verticalScale(15),
     paddingHorizontal: scale(30),
     borderRadius: moderateScale(25),
     marginTop: verticalScale(20),
     marginBottom: verticalScale(30),
-    shadowColor: '#b71c1c',
+    shadowColor: "#b71c1c",
     shadowOffset: {
       width: 0,
       height: verticalScale(4),
@@ -285,14 +312,11 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   submitButtonText: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: moderateScale(18),
-    fontWeight: 'bold',
-    textAlign: 'center',
-    textTransform: 'uppercase',
+    fontWeight: "bold",
+    textAlign: "center",
+    textTransform: "uppercase",
     letterSpacing: scale(1),
   },
-  
 });
-
-

@@ -318,7 +318,7 @@ export default function BloodDonationForm({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fef7f7',
+    backgroundColor: '#f7f6f7',
   },
   headerContainer: {
     marginTop: verticalScale(30),
@@ -345,9 +345,9 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     position: 'absolute',
-    top: verticalScale(50),
+    top: verticalScale(100),
     left: scale(20),
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f7f6f7',
     borderRadius: moderateScale(25),
     padding: scale(10),
     shadowColor: '#000',
