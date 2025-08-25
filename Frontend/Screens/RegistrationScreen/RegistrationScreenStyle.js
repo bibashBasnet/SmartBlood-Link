@@ -1,41 +1,51 @@
 import { StyleSheet } from "react-native";
-import { scale, verticalScale, moderateScale } from '../../utils/responsive';
+import { scale, verticalScale, moderateScale } from "../../utils/responsive";
 
 export const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#f7f6f7",
+    maxHeight: verticalScale(850),
+  },
+
+  content: {
+    padding: scale(20),
+    paddingBottom: verticalScale(40), // so last field isn't hidden
+  },
   container: {
     flexGrow: 1,
     padding: scale(20),
-    backgroundColor: '#f4f4f4',
+    backgroundColor: "#f7f6f7",
   },
   inputContainer: {
-    position: 'relative',
+    position: "relative",
     marginBottom: verticalScale(15),
   },
   toggleButton: {
-    position: 'absolute',
+    position: "absolute",
     right: scale(15),
     top: verticalScale(12),
     padding: scale(5),
     zIndex: 1,
   },
   toggleText: {
-    color: '#007BFF',
-    fontWeight: 'bold',
+    color: "#007BFF",
+    fontWeight: "bold",
   },
   headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: verticalScale(10),
   },
   donateheaderContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: verticalScale(20),
     marginBottom: verticalScale(10),
   },
   menuButton: {
-    position: 'absolute',
+    position: "absolute",
     top: verticalScale(40),
     left: scale(20),
     padding: scale(10),
@@ -43,50 +53,50 @@ export const styles = StyleSheet.create({
   menuIcon: {
     width: scale(28),
     height: scale(28),
-    tintColor: '#e53935',
+    tintColor: "#e53935",
   },
   logo: {
     width: scale(50),
     height: scale(50),
     borderRadius: moderateScale(25),
     marginRight: scale(10),
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   organizationName: {
     fontSize: moderateScale(24),
-    fontWeight: 'bold',
-    color: '#e53935',
+    fontWeight: "bold",
+    color: "#e53935",
   },
   title: {
     fontSize: moderateScale(20),
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: verticalScale(20),
-    alignSelf: 'center',
-    color: '#e53935',
+    alignSelf: "center",
+    color: "#e53935",
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: scale(12),
     paddingRight: scale(60),
     borderRadius: moderateScale(8),
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     marginBottom: verticalScale(15),
   },
   label: {
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: verticalScale(5),
     marginTop: verticalScale(10),
   },
   picker: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     marginBottom: verticalScale(15),
     borderRadius: moderateScale(8),
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
   },
   sectionTitle: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: moderateScale(16),
     marginTop: verticalScale(15),
     marginBottom: verticalScale(8),
@@ -96,18 +106,18 @@ export const styles = StyleSheet.create({
   },
   checkboxLabel: {
     fontSize: moderateScale(16),
-    color: '#333',
+    color: "#333",
   },
   uploadButton: {
-    backgroundColor: '#ddd',
+    backgroundColor: "#ddd",
     padding: scale(12),
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: moderateScale(8),
     marginBottom: verticalScale(10),
   },
   imagePreviewContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginBottom: verticalScale(15),
   },
   imagePreview: {
@@ -118,14 +128,14 @@ export const styles = StyleSheet.create({
     marginBottom: verticalScale(10),
   },
   button: {
-    backgroundColor: '#e53935',
+    backgroundColor: "#e53935",
     padding: scale(15),
     borderRadius: moderateScale(8),
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: verticalScale(15),
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
 });

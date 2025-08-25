@@ -13,7 +13,6 @@ const Stack = createNativeStackNavigator();
 
 const stackNavigator = () => {
   const {user} = useContext(Context)
-  console.log(JSON.stringify(user, null, 2))
   return (
     <Stack.Navigator initialRouteName={user? "Main": "LandingPage"}>
       <Stack.Screen name='Registration' component={RegistrationScreen} options={{headerShown: false}}/>

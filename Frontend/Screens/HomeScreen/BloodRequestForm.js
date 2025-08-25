@@ -28,6 +28,7 @@ const BloodRequestForm = ({ navigation }) => {
     selectedDeliveryId,
     setSelectedDeliveryId,
     setCoordinate,
+    bloodBank,
   } = useContext(Context);
   const API_URL = Constants.expoConfig.extra.apiUrl;
 
@@ -149,6 +150,7 @@ const BloodRequestForm = ({ navigation }) => {
       latitude: requestCoord?.latitude ?? null,
       longitude: requestCoord?.longitude ?? null,
       hospital: form.hospital,
+      bloodBank: bloodBank,
     };
 
     axios
@@ -200,7 +202,7 @@ const BloodRequestForm = ({ navigation }) => {
           style={styles.menuIcon}
         />
       </TouchableOpacity>
-      <ScrollView style={styles.formContainer}>
+      <View style={styles.formContainer}>
         {/* Patient Name */}
         <Text style={styles.label}>Patient Name *</Text>
         <TextInput
@@ -244,6 +246,8 @@ const BloodRequestForm = ({ navigation }) => {
           dropDownContainerStyle={styles.dropdownContainer}
           zIndex={3000}
           zIndexInverse={1000}
+          listMode="SCROLLVIEW"
+          dropDownDirection="AUTO"
         />
 
         {/* Number of Units Required */}
@@ -275,6 +279,8 @@ const BloodRequestForm = ({ navigation }) => {
           dropDownContainerStyle={styles.dropdownContainer}
           zIndex={2000}
           zIndexInverse={2000}
+          listMode="SCROLLVIEW"
+          dropDownDirection="AUTO"
         />
 
         {/* District */}
@@ -335,7 +341,7 @@ const BloodRequestForm = ({ navigation }) => {
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>Submit Blood Request</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </ScrollView>
   );
 };

@@ -26,6 +26,7 @@ public class RequestModel {
     private double latitude;
     private double longitude;
     private String hospital;
+    private String bloodBank;
     private String acceptedBy;  // Who accepted the request
 
     public RequestModel() {
@@ -52,7 +53,7 @@ public class RequestModel {
                         double latitude,
                         double longitude,
                         String hospital,
-                        String acceptedBy) {
+                        String acceptedBy, String bloodBank) {
         this.id = id;
         this.createdBy = createdBy;
         this.time = time;
@@ -69,6 +70,7 @@ public class RequestModel {
         this.longitude = longitude;
         this.hospital = hospital;
         this.acceptedBy = acceptedBy;
+        this.bloodBank = bloodBank;
     }
 
     // Getters and Setters
@@ -199,5 +201,12 @@ public class RequestModel {
 
     public void setAcceptedBy(String acceptedBy) {
         this.acceptedBy = acceptedBy;
+    }
+    public String getBloodBank() {
+        return bloodBank;
+    }
+
+    public void setBloodBank(String bloodBank) {
+        this.bloodBank = bloodBank;
     }
 }

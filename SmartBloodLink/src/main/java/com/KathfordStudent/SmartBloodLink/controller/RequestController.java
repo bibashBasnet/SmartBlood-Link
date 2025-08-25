@@ -45,6 +45,14 @@ public class RequestController {
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<RequestModel> getById(@PathVariable String id) {
+        return requestRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+
     @PostMapping("/create")
     public ResponseEntity<?> createRequest(@RequestBody RequestModel request){
         return ResponseEntity.ok(requestRepository.save(request));

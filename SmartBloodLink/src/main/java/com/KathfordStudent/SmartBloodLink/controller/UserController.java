@@ -50,7 +50,7 @@ public class UserController {
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity<?> createUser(@ModelAttribute signupDTO user, @RequestParam("profileImage") MultipartFile profileImage){
+    public ResponseEntity<?> createUser(@ModelAttribute signupDTO user, @RequestParam(value = "profileImage", required = false) MultipartFile profileImage){
         if(userRepository.existsByUsername(user.getUsername())){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User Already exist");
         }

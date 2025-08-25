@@ -62,7 +62,7 @@ const UpdateProfileScreen = ({navigation}) => {
     .catch(err => {Alert.alert("Error", "Profile has not been updated")})
   }
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={[styles.container, {marginTop: verticalScale(30)}]}>
 
       {/* Logo and Title */}
       <View style={styles.headerContainer}>

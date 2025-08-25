@@ -1,35 +1,37 @@
 import { useEffect, useState } from "react";
-import { getRequest, putRequest } from "../api/axios";
+import { getRequest, postDelivery, putRequest } from "../api/axios";
 
 export default function BloodRequests() {
   const [requests, setRequests] = useState([]);
 
   const fetchRequests = async () => {
-  const data = await getRequest("/requests");
+    const data = await getRequest("/requests");
 
-  console.log("Fetched data:", data);
-  data.forEach((r, i) => console.log(`Request[${i}] fresh:`, r.fresh, "Type:", typeof r.fresh));
+    console.log("Fetched data:", data);
+    data.forEach((r, i) =>
+      console.log(`Request[${i}] fresh:`, r.fresh, "Type:", typeof r.fresh)
+    );
 
-  const filteredData = data.filter(
-    (r) => r.fresh === false && r.status.toLowerCase() === "pending");
-  setRequests(filteredData);
-};
+    const filteredData = data.filter(
+      (r) => r.fresh === false && r.status.toLowerCase() === "pending"
+    );
+    setRequests(filteredData);
+  };
 
   useEffect(() => {
     fetchRequests();
   }, []);
 
- const handleAction = async (id, action) => {
-  try {
-    await putRequest(`/requests/${id}/${action}`, {});
-    setRequests((prevRequests) =>
-      prevRequests.filter((req) => req.id !== id)
-    );
-  } catch (error) {
-    console.error("Error updating request:", error);
-  }
-};
-
+  const handleAction = async (id, action) => {
+    try {
+      await putRequest(`/requests/${id}/${action}`, {});
+      setRequests((prevRequests) =>
+        prevRequests.filter((req) => req.id !== id)
+      );
+    } catch (error) {
+      console.error("Error updating request:", error);
+    }
+  };
 
   return (
     <div className="page-content">
@@ -55,11 +57,13 @@ export default function BloodRequests() {
               <td>{r.status}</td>
               <td>
                 {r.status.toLowerCase() === "pending" ? (
-                  <div  style={{
-                        display: "flex",
-                        gap: "10px", // space between buttons
-                        alignItems: "center",
-                        }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px", // space between buttons
+                      alignItems: "center",
+                    }}
+                  >
                     <button
                       className="verify-btn"
                       onClick={() => handleAction(r.id, "approve")}
