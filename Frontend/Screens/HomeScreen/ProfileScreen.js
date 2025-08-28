@@ -6,11 +6,12 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from "react-native";
-import { DrawerActions, useRoute } from "@react-navigation/native";
-import { styles } from "../../Styles";
-import logo from "../../assets/logo.png";
+import { DrawerActions } from "@react-navigation/native";
 import { Context } from "../../Context/Context";
+
+const { width } = Dimensions.get("window");
 
 const ProfileScreen = ({ navigation }) => {
   const { user } = useContext(Context);
@@ -34,7 +35,6 @@ const ProfileScreen = ({ navigation }) => {
       setAge(user.age || "-");
       setEmail(user.email || "N/A");
       setProfileUrl(user.profileUrl || "");
-      console.log("Profile url = " + profileUrl)
     }
   }, [user]);
 
@@ -43,53 +43,127 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={localStyles.container}>
+      {/* Header */}
+      <View style={localStyles.headerContainer}>
+        <Text style={localStyles.organizationName}>Smart BloodLink Nepal</Text>
+      </View>
+
       {/* Menu Button */}
-      <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
+      <TouchableOpacity style={localStyles.menuButton} onPress={showMenu}>
         <Image
           source={require("../../assets/list.png")}
-          style={styles.menuIcon}
+          style={localStyles.menuIcon}
         />
       </TouchableOpacity>
 
-      {/* Header */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
-      </View>
-
       {/* Profile Image */}
-      <View style={styles.profileImageContainer}>
-        {/* Placeholder for profile image */}
+      <View style={localStyles.profileImageContainer}>
         <Image
           source={
             profileUrl ? { uri: profileUrl } : require("../../assets/logo.png")
           }
-          style={styles.profileImage}
+          style={localStyles.profileImage}
         />
       </View>
 
-      {/* User Info */}
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>Name: {name}</Text>
-        <Text style={styles.infoText}>Phone: {phone}</Text>
-        <Text style={styles.infoText}>Address: {address}</Text>
-        <Text style={styles.infoText}>Gender: {gender}</Text>
-        <Text style={styles.infoText}>Age: {age}</Text>
-        <Text style={styles.infoText}>Email: {email}</Text>
-        <Text style={styles.infoText}>Blood Type: {type}</Text>
+      {/* User Info Card */}
+      <View style={localStyles.infoCard}>
+        <Text style={localStyles.infoText}>Name: {name}</Text>
+        <Text style={localStyles.infoText}>Phone: {phone}</Text>
+        <Text style={localStyles.infoText}>Address: {address}</Text>
+        <Text style={localStyles.infoText}>Gender: {gender}</Text>
+        <Text style={localStyles.infoText}>Age: {age}</Text>
+        <Text style={localStyles.infoText}>Email: {email}</Text>
+        <Text style={localStyles.infoText}>Blood Type: {type}</Text>
       </View>
 
       {/* Edit Button */}
       <TouchableOpacity
-        style={styles.button}
+        style={localStyles.button}
         onPress={() => {
           navigation.navigate("UpdateProfileScreen");
         }}
       >
-        <Text style={styles.buttonText}>Edit Profile</Text>
+        <Text style={localStyles.buttonText}>Edit Profile</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
 };
+
+const localStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f7f6f7", // White background
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 30,
+  },
+  menuButton: {
+    position: "absolute",
+    top: "6%",
+    left: 20,
+    padding: 8,
+  },
+  menuIcon: {
+    width: 24,
+    height: 24,
+    tintColor: "#fff",
+  },
+  headerContainer: {
+    paddingVertical: 15,
+    alignItems: "center",
+    backgroundColor: "#e53935",
+    borderRadius: 8,
+    marginTop: 10,
+    width: "100%",
+  },
+  organizationName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  profileImageContainer: {
+    marginTop: 30,
+    marginBottom: 20,
+    alignItems: "center",
+  },
+  profileImage: {
+    width: width * 0.35,
+    height: width * 0.35,
+    borderRadius: width * 0.175,
+    borderWidth: 3,
+    borderColor: "#e53935",
+    resizeMode: "cover",
+  },
+  infoCard: {
+    backgroundColor: "#fff",
+    width: "95%",
+    padding: 16,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    marginBottom: 20,
+  },
+  infoText: {
+    fontSize: 14,
+    marginVertical: 4,
+    color: "#333",
+  },
+  button: {
+    backgroundColor: "#e53935",
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: "center",
+    width: width * 0.9,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+});
 
 export default ProfileScreen;

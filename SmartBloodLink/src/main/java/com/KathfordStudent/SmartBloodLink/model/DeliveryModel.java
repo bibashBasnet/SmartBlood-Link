@@ -2,12 +2,19 @@ package com.KathfordStudent.SmartBloodLink.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Document(collection = "delivery")
 public class DeliveryModel {
     @Id
     private String id;
-    private String driver_id;
+
+    @Field("driver_id")
+    @JsonProperty("driver_id")
+    private String driverId;
+
     private String request_id;
 
     // --- Constructors ---
@@ -17,7 +24,7 @@ public class DeliveryModel {
 
     public DeliveryModel(String id, String driver_id, String request_id) {
         this.id = id;
-        this.driver_id = driver_id;
+        this.driverId = driver_id;
         this.request_id = request_id;
     }
 
@@ -31,11 +38,11 @@ public class DeliveryModel {
     }
 
     public String getDriver_id() {
-        return driver_id;
+        return driverId;
     }
 
     public void setDriver_id(String driver_id) {
-        this.driver_id = driver_id;
+        this.driverId = driver_id;
     }
 
     public String getRequest_id() {

@@ -5,21 +5,20 @@ export default function DonationRequests() {
   const [donations, setDonations] = useState([]);
 
   // Fetch all donation requests from backend
-const fetchDonations = async () => {
-  try {
-    const data = await getRequest("/donations");
+  const fetchDonations = async () => {
+    try {
+      const data = await getRequest("/donations");
 
-    // ✅ Only keep pending ones
-    const pendingDonations = data.filter(
-      (d) => d.status.toLowerCase() === "pending"
-    );
+      // ✅ Only keep pending ones
+      const pendingDonations = data.filter(
+        (d) => d.status.toLowerCase() === "pending" || "approved"
+      );
 
-    setDonations(pendingDonations);
-  } catch (error) {
-    console.error("Error fetching donations:", error);
-  }
-};
-
+      setDonations(pendingDonations);
+    } catch (error) {
+      console.error("Error fetching donations:", error);
+    }
+  };
 
   useEffect(() => {
     fetchDonations();
@@ -27,6 +26,11 @@ const fetchDonations = async () => {
 
   // Handle approve/reject actions
   const handleAction = async (id, status) => {
+    if(status === "Done"){
+      try{}catch(e){
+        console.error("Error updating the history")
+      }
+    }
     try {
       await putRequest(`/donations/${id}/status?status=${status}`, {});
       fetchDonations(); // Refresh list after update
@@ -79,7 +83,8 @@ const fetchDonations = async () => {
                         className="approve-btn"
                         onClick={() => handleAction(d.id, "Approved")}
                         style={{
-                          backgroundColor: "#3ce74aff",}}
+                          backgroundColor: "#3ce74aff",
+                        }}
                       >
                         Approve
                       </button>{" "}
@@ -100,7 +105,15 @@ const fetchDonations = async () => {
                       </button>
                     </>
                   ) : (
-                    <span>—</span>
+                    <button
+                      className="approve-btn"
+                      onClick={() => handleAction(d.id, "Done")}
+                      style={{
+                        backgroundColor: "#3ce74aff",
+                      }}
+                    >
+                      Done
+                    </button>
                   )}
                 </td>
               </tr>

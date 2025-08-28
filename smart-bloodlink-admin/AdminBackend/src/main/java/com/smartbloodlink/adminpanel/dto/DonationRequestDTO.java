@@ -1,6 +1,5 @@
 package com.smartbloodlink.adminpanel.dto;
 
-import java.time.LocalDate;
 
 public class DonationRequestDTO {
 
@@ -14,8 +13,8 @@ public class DonationRequestDTO {
     private String address;
     private double weight;
     private String medicalHistory;
-    private LocalDate lastDonationDate;   // Use Instant here too
-    private LocalDate preferredDate;
+    private String lastDonationDate;   
+    private String preferredDate;
     private String allergies;
     private String emergencyContact;
     private String status;
@@ -26,7 +25,7 @@ public class DonationRequestDTO {
 
     public DonationRequestDTO(String id, String name, int age, String gender, String bloodGroup,
                               String phone, String email, String address, double weight,
-                              String medicalHistory, LocalDate lastDonationDate, LocalDate preferredDate,
+                              String medicalHistory, String lastDonationDate, String preferredDate,
                               String allergies, String emergencyContact, String status, String createdBy,
                               String bloodBankName, double latitude, double longitude) {
         this.id = id;
@@ -62,8 +61,8 @@ public class DonationRequestDTO {
     public String getAddress() { return address; }
     public double getWeight() { return weight; }
     public String getMedicalHistory() { return medicalHistory; }
-    public LocalDate getLastDonationDate() { return lastDonationDate; }
-    public LocalDate getPreferredDate() { return preferredDate; }
+    public String getLastDonationDate() { return lastDonationDate; }
+    public String getPreferredDate() { return preferredDate; }
     public String getAllergies() { return allergies; }
     public String getEmergencyContact() { return emergencyContact; }
     public String getStatus() { return status; }

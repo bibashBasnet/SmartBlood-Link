@@ -43,6 +43,16 @@ public class DeliveryController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Delivery not found"));
     }
 
+    @GetMapping("/driver/{id}")
+    public List<DeliveryModel> getByDriverId(@PathVariable String id) {
+        List<DeliveryModel> deliveries = deliveryRepository.findByDriverId(id);
+        if (deliveries.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Delivery not found");
+        }
+        return deliveries;
+    }
+
+
     // PARTIAL UPDATE (PATCH)
     // Accepts JSON object with any subset of: driver_id, request_id
     @PatchMapping("/{id}")

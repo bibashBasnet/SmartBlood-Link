@@ -22,14 +22,25 @@ export default function BloodRequests() {
     fetchRequests();
   }, []);
 
-  const handleAction = async (id, action) => {
+  const handleAction = async (r, action) => {
     try {
-      await putRequest(`/requests/${id}/${action}`, {});
+      await putRequest(`/requests/${r.id}/${action}`, {});
       setRequests((prevRequests) =>
-        prevRequests.filter((req) => req.id !== id)
+        prevRequests.filter((req) => req.id !== r.id)
       );
     } catch (error) {
       console.error("Error updating request:", error);
+    }
+    console.log(r);
+    if (r.delivery == true) {
+      try {
+        await postDelivery(`/delivery`, {
+          request_id: r.id,
+          driver_id: "",
+        });
+      } catch (e) {
+        console.error("Error creating order: ", e);
+      }
     }
   };
 
@@ -66,7 +77,7 @@ export default function BloodRequests() {
                   >
                     <button
                       className="verify-btn"
-                      onClick={() => handleAction(r.id, "approve")}
+                      onClick={() => handleAction(r, "approve")}
                     >
                       Approve
                     </button>{" "}

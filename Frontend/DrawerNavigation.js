@@ -33,32 +33,32 @@ const DrawerNavigation = () => {
       <Drawer.Screen
         name="Home"
         component={HomeScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, unmountOnBlur: true }}
       />
       <Drawer.Screen
         name="Profile"
         component={ProfileNavigation}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, unmountOnBlur: true }}
       />
       <Drawer.Screen
         name="Donate"
         component={DonateNavigation}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, unmountOnBlur: true }}
       />
       <Drawer.Screen
         name="History"
         component={HistoryScreen}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, unmountOnBlur: true }}
       />
       <Drawer.Screen
         name="RequestList"
         component={RequestListNavigation}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, unmountOnBlur: true }}
       />
       <Drawer.Screen
         name="Request"
         component={RequestNavigation}
-        options={{ headerShown: false }}
+        options={{ headerShown: false, unmountOnBlur: true }}
       />
       {!isUser && (
         <>

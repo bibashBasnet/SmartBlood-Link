@@ -1,12 +1,21 @@
 package com.KathfordStudent.SmartBloodLink.model;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "requests")
 public class RequestModel {
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
 
     @Id
     private String id;
@@ -208,5 +217,21 @@ public class RequestModel {
 
     public void setBloodBank(String bloodBank) {
         this.bloodBank = bloodBank;
+    }
+
+         public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

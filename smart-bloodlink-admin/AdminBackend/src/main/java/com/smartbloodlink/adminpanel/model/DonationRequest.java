@@ -3,7 +3,6 @@ package com.smartbloodlink.adminpanel.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDate;
 
 @Document(collection = "donate")
 public class DonationRequest {
@@ -19,8 +18,8 @@ public class DonationRequest {
     private String address;
     private double weight;
     private String medicalHistory;
-    private LocalDate lastDonationDate;   // Changed from LocalDate
-    private LocalDate preferredDate;      // Changed from LocalDate
+    private String lastDonationDate;   // Changed from LocalDate
+    private String preferredDate;      // Changed from LocalDate
     private String allergies;
     private String emergencyContact;
     private String status;
@@ -60,11 +59,11 @@ public class DonationRequest {
     public String getMedicalHistory() { return medicalHistory; }
     public void setMedicalHistory(String medicalHistory) { this.medicalHistory = medicalHistory; }
 
-    public LocalDate getLastDonationDate() { return lastDonationDate; }
-    public void setLastDonationDate(LocalDate lastDonationDate) { this.lastDonationDate = lastDonationDate; }
+    public String getLastDonationDate() { return lastDonationDate; }
+    public void setLastDonationDate(String lastDonationDate) { this.lastDonationDate = lastDonationDate; }
 
-    public LocalDate getPreferredDate() { return preferredDate; }
-    public void setPreferredDate(LocalDate preferredDate) { this.preferredDate = preferredDate; }
+    public String getPreferredDate() { return preferredDate; }
+    public void setPreferredDate(String preferredDate) { this.preferredDate = preferredDate; }
 
     public String getAllergies() { return allergies; }
     public void setAllergies(String allergies) { this.allergies = allergies; }

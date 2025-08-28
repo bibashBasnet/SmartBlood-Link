@@ -8,28 +8,28 @@ import {
   Alert,
   ScrollView,
   RefreshControl,
+  StyleSheet,
+  Dimensions,
 } from "react-native";
 import { DrawerActions, useFocusEffect } from "@react-navigation/native";
-import { styles } from "../../Styles";
 import Constants from "expo-constants";
 import axios from "axios";
 import { Context } from "../../Context/Context";
+
+const { width } = Dimensions.get("window");
 
 const RequestListScreen = ({ navigation }) => {
   const API_URL = Constants.expoConfig.extra.apiUrl;
   const { setIsForm, user } = useContext(Context);
 
   const [requestList, setRequestList] = useState([]);
-  const [displayList, setDisplayList] = useState([]); // keeps the "full" list for normal mode
+  const [displayList, setDisplayList] = useState([]); // full list
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
-
-  // NEW: when set, we only show this accepted request
-  const [acceptedFilterId, setAcceptedFilterId] = useState(null);
+  const [acceptedFilterId, setAcceptedFilterId] = useState(null); // show-only accepted
 
   const getId = (it) => it?.id ?? it?._id;
 
-  // derive what's visible: either the accepted one or the normal list
   const visibleList = acceptedFilterId
     ? requestList.filter((r) => getId(r) === acceptedFilterId)
     : displayList;
@@ -75,22 +75,20 @@ const RequestListScreen = ({ navigation }) => {
     setSelectedIndex((prev) => (prev === i ? null : i));
   };
 
-  // ACCEPT -> set server fields, then show only that request (filter by id)
   const handleAccept = async (item) => {
     try {
       const id = getId(item);
       await axios.patch(`${API_URL}/requests/update/${id}`, {
         status: "Accepted",
-        acceptedBy: user.id, // or whatever you store (email/_id)
+        acceptedBy: user.id,
       });
-      setAcceptedFilterId(id); // show only this one
-      await load(); // refresh data from server
+      setAcceptedFilterId(id);
+      await load();
     } catch (err) {
       Alert.alert("Update failed", err.message);
     }
   };
 
-  // CANCEL -> revert status & acceptedBy, clear filter so full list shows
   const handleCancel = async (item) => {
     try {
       const id = getId(item);
@@ -98,7 +96,7 @@ const RequestListScreen = ({ navigation }) => {
         status: "Pending",
         acceptedBy: null,
       });
-      setAcceptedFilterId(null); // back to full list
+      setAcceptedFilterId(null);
       await load();
     } catch (err) {
       Alert.alert("Cancel failed", err.message);
@@ -108,24 +106,28 @@ const RequestListScreen = ({ navigation }) => {
   const showMenu = () => navigation.dispatch(DrawerActions.openDrawer());
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
+    <SafeAreaView style={localStyles.container}>
+      {/* Header with embedded menu button */}
+      <View style={localStyles.headerContainer}>
+        <TouchableOpacity
+          style={localStyles.menuButton}
+          onPress={showMenu}
+          hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+        >
+          <Image
+            source={require("../../assets/list.png")}
+            style={localStyles.menuIcon}
+          />
+        </TouchableOpacity>
+        <Text style={localStyles.organizationName}>Smart BloodLink Nepal</Text>
       </View>
 
-      <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
-        <Image
-          source={require("../../assets/list.png")}
-          style={styles.menuIcon}
-        />
-      </TouchableOpacity>
+      <Text style={localStyles.pageTitle}>Blood Request List</Text>
 
-      <Text style={[styles.historyTitle, { marginTop: 50 }]}>
-        Blood Request List
-      </Text>
-
-      <View style={{ flex: 1, marginHorizontal: 10, maxHeight: 670 }}>
+      <View style={{ flex: 1, width: "100%" }}>
         <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -136,64 +138,62 @@ const RequestListScreen = ({ navigation }) => {
               item?.status === "Accepted" && item?.acceptedBy === user.id;
 
             return (
-              <TouchableOpacity
-                key={`${id ?? i}`}
-                onPress={() => showDetail(i)}
-              >
-                <View style={styles.card}>
-                  <Text style={styles.name}>{item.name}</Text>
-                  <Text style={styles.date}>{item.time}</Text>
-                  <View style={styles.detailsRow}>
-                    <View style={styles.bloodTypeBox}>
-                      <Text style={styles.bloodTypeText}>{item.type}</Text>
+              <TouchableOpacity key={`${id ?? i}`} onPress={() => showDetail(i)}>
+                <View style={localStyles.card}>
+                  <View style={localStyles.cardHeaderRow}>
+                    <Text style={localStyles.cardName}>{item.name}</Text>
+                    <View
+                      style={[
+                        localStyles.badge,
+                        isAcceptedByMe
+                          ? localStyles.badgeAccepted
+                          : localStyles.badgePending,
+                      ]}
+                    >
+                      <Text style={localStyles.badgeText}>
+                        {item?.status ?? "Pending"}
+                      </Text>
                     </View>
-                    <Text style={styles.place}>{item.location}</Text>
+                  </View>
+
+                  <Text style={localStyles.cardSub}>{item.time}</Text>
+
+                  <View style={localStyles.detailsRow}>
+                    <View style={localStyles.bloodTypeBox}>
+                      <Text style={localStyles.bloodTypeText}>{item.type}</Text>
+                    </View>
+                    <Text style={localStyles.placeText}>{item.location}</Text>
                   </View>
 
                   {selectedIndex === i && (
-                    <View style={{ marginTop: 10 }}>
-                      <Text style={styles.historyListLabel}>
-                        Phone No:{" "}
-                        <Text style={styles.historyListValue}>
-                          {item.phone}
-                        </Text>
+                    <View style={{ marginTop: 12 }}>
+                      <Text style={localStyles.kv}>
+                        Phone: <Text style={localStyles.kvVal}>{item.phone}</Text>
                       </Text>
-                      <Text style={styles.historyListLabel}>
-                        Email:{" "}
-                        <Text style={styles.historyListValue}>
-                          {item.email}
-                        </Text>
+                      <Text style={localStyles.kv}>
+                        Email: <Text style={localStyles.kvVal}>{item.email}</Text>
                       </Text>
-                      <Text style={styles.historyListLabel}>
-                        Hospital Name:{" "}
-                        <Text style={styles.historyListValue}>
-                          {item.hospital}
-                        </Text>
+                      <Text style={localStyles.kv}>
+                        Hospital:{" "}
+                        <Text style={localStyles.kvVal}>{item.hospital}</Text>
                       </Text>
 
-                      <View style={styles.historyListButtonContainer}>
+                      <View style={localStyles.btnRow}>
                         {isAcceptedByMe ? (
                           <TouchableOpacity
-                            style={[
-                              styles.historyListButton,
-                              /* optionally a different style for cancel */
-                              styles.historyListAcceptButton,
-                            ]}
+                            style={[localStyles.btn, localStyles.btnOutline]}
                             onPress={() => handleCancel(item)}
                           >
-                            <Text style={styles.historyListButtonText}>
+                            <Text style={[localStyles.btnTextOutline]}>
                               Cancel
                             </Text>
                           </TouchableOpacity>
                         ) : (
                           <TouchableOpacity
-                            style={[
-                              styles.historyListButton,
-                              styles.historyListAcceptButton,
-                            ]}
+                            style={[localStyles.btn, localStyles.btnPrimary]}
                             onPress={() => handleAccept(item)}
                           >
-                            <Text style={styles.historyListButtonText}>
+                            <Text style={localStyles.btnTextPrimary}>
                               Accept
                             </Text>
                           </TouchableOpacity>
@@ -205,21 +205,173 @@ const RequestListScreen = ({ navigation }) => {
               </TouchableOpacity>
             );
           })}
-        </ScrollView>
 
-        {/* Optional: quick way to exit the filter without canceling */}
-        {acceptedFilterId && (
-          <View style={{ alignItems: "center", paddingVertical: 8 }}>
-            <TouchableOpacity onPress={() => setAcceptedFilterId(null)}>
-              <Text style={{ textDecorationLine: "underline" }}>
-                Show all requests
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          {acceptedFilterId && (
+            <View style={{ alignItems: "center", paddingTop: 6 }}>
+              <TouchableOpacity onPress={() => setAcceptedFilterId(null)}>
+                <Text style={localStyles.linkText}>Show all requests</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
 };
+
+const localStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f7f6f7", // requested background
+    alignItems: "center",
+    paddingVertical: 30,
+  },
+  headerContainer: {
+    position: "relative",
+    paddingVertical: 15,
+    alignItems: "center",
+    backgroundColor: "#e53935",
+    borderRadius: 8,
+    marginTop: 10,
+    width: "94%",
+  },
+  
+  menuButton: {
+    position: "absolute",
+    left: 12,
+    top: "100%",
+    transform: [{ translateY: -12 }],
+    zIndex: 2,
+  },
+  menuIcon: {
+    width: 24,
+    height: 24,
+    tintColor: "#fff",
+  },
+  organizationName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  pageTitle: {
+    marginTop: 14,
+    marginBottom: 6,
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#e53935",
+    textAlign: "center",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 12,
+    // subtle depth
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    // brand accent
+    borderLeftWidth: 4,
+    borderLeftColor: "#e53935",
+  },
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  cardName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#333",
+    maxWidth: width * 0.58,
+  },
+  cardSub: {
+    marginTop: 2,
+    color: "#666",
+    fontSize: 13,
+  },
+  detailsRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  bloodTypeBox: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: "#fdecec",
+  },
+  bloodTypeText: {
+    color: "#e53935",
+    fontWeight: "700",
+    fontSize: 12,
+  },
+  placeText: {
+    color: "#444",
+    fontSize: 14,
+    flexShrink: 1,
+  },
+  kv: {
+    color: "#444",
+    marginBottom: 4,
+  },
+  kvVal: {
+    color: "#111",
+    fontWeight: "600",
+  },
+  btnRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+    marginTop: 10,
+  },
+  btn: {
+    minWidth: 110,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnPrimary: {
+    backgroundColor: "#e53935",
+  },
+  btnTextPrimary: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+  btnOutline: {
+    borderWidth: 2,
+    borderColor: "#e53935",
+    backgroundColor: "#fff",
+  },
+  btnTextOutline: {
+    color: "#e53935",
+    fontWeight: "700",
+  },
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+  },
+  badgeAccepted: {
+    backgroundColor: "#fdecec",
+  },
+  badgePending: {
+    backgroundColor: "#f0f0f0",
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#e53935",
+  },
+  linkText: {
+    color: "#e53935",
+    textDecorationLine: "underline",
+    fontWeight: "600",
+  },
+});
 
 export default RequestListScreen;

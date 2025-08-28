@@ -1,5 +1,6 @@
 package com.smartbloodlink.adminpanel.model;
 
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,8 +18,10 @@ public class DonateModel {
     private String address;
     private double weight;
     private String medicalHistory;
+
     private String lastDonationDate;
     private String preferredDate;
+
     private String allergies;
     private String emergencyContact;
     private String status;

@@ -27,13 +27,13 @@ import Constants from "expo-constants";
 import { Context } from "../../Context/Context";
 import { moderateScale, scale, verticalScale } from "../../utils/responsive";
 
+// ...imports unchanged...
+
 const ACCEPTED_STATUS = "On The Way";
 
 const Delivery = ({ navigation }) => {
   const [requestList, setRequestList] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
-
-  // NEW: track the single accepted item to filter the list after Accept
   const [acceptedFilterId, setAcceptedFilterId] = useState(null);
 
   const { user, setIsForm, setCoordinate } = useContext(Context);
@@ -43,14 +43,13 @@ const Delivery = ({ navigation }) => {
   const appState = useRef(AppState.currentState);
   const mountedRef = useRef(true);
 
+  const getId = (it) => it?.id ?? it?._id;
+
   const handlePress = (item) => {
     setIsForm(false);
     setCoordinate({ latitude: item.latitude, longitude: item.longitude });
     navigation.navigate("Map", { from: "delivery" });
   };
-
-  // Accept -> set filter to only this order + update backend
-  const getId = (it) => it?.id ?? it?._id;
 
   const handleAccept = async (item) => {
     try {
@@ -59,21 +58,37 @@ const Delivery = ({ navigation }) => {
       if (!requestId) throw new Error("No request id on item");
       if (!deliveryId) throw new Error("No delivery id for this request");
 
-      // Instantly filter UI to *only* this order
       setAcceptedFilterId(requestId);
 
-      // 1) Update delivery → set driver_id
+      // 1) link driver to delivery
       await axios.patch(`${API_URL}/delivery/${deliveryId}`, {
         driver_id: user.id,
       });
 
-      // 2) Update request → set accepted status + acceptedBy
+      // 2) update request status
       await axios.patch(`${API_URL}/requests/update/${requestId}`, {
-        status: "On The Way",
+        status: ACCEPTED_STATUS,
         acceptedBy: user.id,
       });
 
-      await load(); // refresh (still filtered to this order)
+      await load();
+    } catch (err) {
+      Alert.alert("Update failed", err?.message || String(err));
+    }
+  };
+
+  const handleDone = async (item) => {
+    try {
+      const requestId = getId(item);
+      if (!requestId) throw new Error("No request id on item");
+
+      await axios.patch(`${API_URL}/requests/update/${requestId}`, {
+        status: "Done",
+      });
+
+      setRequestList((prev) => prev.filter((r) => getId(r) !== requestId));
+      setAcceptedFilterId(null);
+      await load();
     } catch (err) {
       Alert.alert("Update failed", err?.message || String(err));
     }
@@ -85,22 +100,19 @@ const Delivery = ({ navigation }) => {
       const deliveryId = item._deliveryId;
       if (!requestId) throw new Error("No request id on item");
 
-      // 1) Clear driver on delivery (if we know it)
       if (deliveryId) {
         await axios.patch(`${API_URL}/delivery/${deliveryId}`, {
           driver_id: "",
         });
       }
 
-      // 2) Revert request back to pending
+      // 🔁 revert to Pending
       await axios.patch(`${API_URL}/requests/update/${requestId}`, {
-        status: "Accepted",
+        status: "Pending",
         acceptedBy: "",
       });
 
-      // Show all orders again
       setAcceptedFilterId(null);
-
       await load();
     } catch (err) {
       Alert.alert("Cancel failed", err?.message || String(err));
@@ -114,64 +126,61 @@ const Delivery = ({ navigation }) => {
     };
   }, [setIsForm]);
 
-  // ---- Centralized fetch
   const load = useCallback(async () => {
     let isActive = true;
-
     try {
-      // 1) Fetch deliveries
       const { data: deliveries } = await axios.get(`${API_URL}/delivery`);
       if (!Array.isArray(deliveries) || deliveries.length === 0) {
         if (isActive) setRequestList([]);
         return;
       }
 
-      // 2) Fetch each linked request in parallel
       const results = await Promise.allSettled(
         deliveries.map((d) => axios.get(`${API_URL}/requests/${d.request_id}`))
       );
 
-      // 3) Normalize and attach the deliveryId to each request row
       const allRequests = results
         .map((res, idx) => {
           if (res.status !== "fulfilled") return null;
           let data = res.value?.data;
           if (Array.isArray(data)) data = data[0] ?? null;
           if (!data) return null;
+
+          const deliveryRow = deliveries[idx] || {};
+          const deliveryId = deliveryRow.id ?? deliveryRow._id; // 👈 robust id
+
           return {
             ...data,
-            _deliveryId: deliveries[idx]?.id, // 👈 link to delivery
-            _deliveryDriverId: deliveries[idx]?.driver_id,
+            _deliveryId: deliveryId,
+            _deliveryDriverId: deliveryRow?.driver_id,
           };
         })
         .filter(Boolean);
 
-      // 4) If user accepted one, show only that; else show all
+      const activeRequests = allRequests.filter(
+        (r) => String(r.status || "").toLowerCase() !== "done"
+      );
+
       const finalList = acceptedFilterId
-        ? allRequests.filter((r) => (r.id ?? r._id) === acceptedFilterId)
-        : allRequests;
+        ? activeRequests.filter((r) => (r.id ?? r._id) === acceptedFilterId)
+        : activeRequests;
 
-      // 5) Sort latest first
       finalList.sort((a, b) => new Date(b.time) - new Date(a.time));
-
       if (isActive) setRequestList(finalList);
     } catch (e) {
-      if (isActive) alert("RequestScreen: " + (e?.message || "Failed to load"));
+      if (isActive) alert("Delivery: " + (e?.message || "Failed to load"));
     }
-
     return () => {
       isActive = false;
     };
   }, [API_URL, acceptedFilterId]);
 
-  // Refetch on focus
   useFocusEffect(
     useCallback(() => {
       load();
     }, [load])
   );
 
-  // Refetch when app returns to foreground while focused
   useEffect(() => {
     const sub = AppState.addEventListener("change", (nextState) => {
       const wasBackground = appState.current.match(/inactive|background/);
@@ -187,67 +196,98 @@ const Delivery = ({ navigation }) => {
   const showDetail = (i) => setSelectedIndex((prev) => (prev === i ? null : i));
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
+    <SafeAreaView style={localStyles.container}>
+      {/* Header with embedded menu button */}
+      <View style={localStyles.headerContainer}>
+        <TouchableOpacity
+          style={localStyles.menuButton}
+          onPress={showMenu}
+          hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+        >
+          <Image
+            source={require("../../assets/list.png")}
+            style={localStyles.menuIcon}
+          />
+        </TouchableOpacity>
+        <Text style={localStyles.organizationName}>Smart BloodLink Nepal</Text>
       </View>
 
-      <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
-        <Image
-          source={require("../../assets/list.png")}
-          style={styles.menuIcon}
-        />
-      </TouchableOpacity>
-
-      <Text style={[styles.historyTitle, { marginTop: 50 }]}>
-        Delivery Orders
-      </Text>
+      <Text style={localStyles.title}>Delivery Orders</Text>
 
       {/* Request List */}
-      <ScrollView style={{ maxHeight: 600 }}>
+      <ScrollView
+        style={{ flex: 1, width: "100%" }}
+        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24 }}
+      >
         {requestList.map((item, i) => (
           <TouchableOpacity
             key={getId(item) ?? i}
             onPress={() => showDetail(i)}
           >
-            <View style={styles.card}>
-              <Text style={styles.name}>{item.time}</Text>
-              <Text style={styles.date}>{item.location}</Text>
-              <View style={styles.detailsRow}>
-                <View style={styles.bloodTypeBox}>
-                  <Text style={styles.bloodTypeText}>{item.type}</Text>
+            <View style={localStyles.card}>
+              <Text style={localStyles.cardTime}>{item.time}</Text>
+              <Text style={localStyles.cardPlace}>{item.location}</Text>
+
+              <View style={localStyles.detailsRow}>
+                <View style={localStyles.bloodTypeBox}>
+                  <Text style={localStyles.bloodTypeText}>{item.type}</Text>
                 </View>
-                <Text style={styles.name}>Status: {item.status}</Text>
+                <Text style={localStyles.statusText}>
+                  Status:{" "}
+                  <Text style={localStyles.statusStrong}>{item.status}</Text>
+                </Text>
               </View>
 
               {selectedIndex === i && (
                 <>
-                  <Text style={styles.name}>Phone No: {item.phone}</Text>
-                  <Text style={styles.name}>Email: {item.email}</Text>
-                  <Text style={styles.name}>Required Unit: {item.amount}</Text>
+                  <Text style={localStyles.kv}>
+                    Phone No:{" "}
+                    <Text style={localStyles.kvVal}>{item.phone}</Text>
+                  </Text>
+                  <Text style={localStyles.kv}>
+                    Email: <Text style={localStyles.kvVal}>{item.email}</Text>
+                  </Text>
+                  <Text style={localStyles.kv}>
+                    Required Unit:{" "}
+                    <Text style={localStyles.kvVal}>{item.amount}</Text>
+                  </Text>
 
                   <TouchableOpacity
-                    style={localStyles.mapbutton}
+                    style={[
+                      localStyles.mapbutton,
+                      { alignSelf: "center", marginTop: 6 },
+                    ]}
                     onPress={() => handlePress(item)}
                   >
                     <Text style={localStyles.mapbuttonText}>Map</Text>
                   </TouchableOpacity>
 
-                  {/* Accept when no filter; Cancel when filtered to this order */}
                   {acceptedFilterId && getId(item) === acceptedFilterId ? (
-                    <TouchableOpacity
-                      style={localStyles.mapbutton}
-                      onPress={() => handleCancel(item)}
-                    >
-                      <Text style={localStyles.mapbuttonText}>Cancel</Text>
-                    </TouchableOpacity>
+                    <View style={localStyles.btnRow}>
+                      <TouchableOpacity
+                        style={[localStyles.btn, localStyles.btnOutline]}
+                        onPress={() => handleCancel(item)}
+                      >
+                        <Text style={localStyles.btnTextOutline}>Cancel</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={[localStyles.btn, localStyles.btnPrimary]}
+                        onPress={() => handleDone(item)}
+                      >
+                        <Text style={localStyles.btnTextPrimary}>Done</Text>
+                      </TouchableOpacity>
+                    </View>
                   ) : (
                     <TouchableOpacity
-                      style={localStyles.mapbutton}
+                      style={[
+                        localStyles.btn,
+                        localStyles.btnPrimary,
+                        { alignSelf: "center" },
+                      ]}
                       onPress={() => handleAccept(item)}
                     >
-                      <Text style={localStyles.mapbuttonText}>Accept</Text>
+                      <Text style={localStyles.btnTextPrimary}>Accept</Text>
                     </TouchableOpacity>
                   )}
                 </>
@@ -258,7 +298,7 @@ const Delivery = ({ navigation }) => {
 
         {requestList.length === 0 && (
           <View style={{ padding: 16 }}>
-            <Text style={{ textAlign: "center" }}>
+            <Text style={{ textAlign: "center", color: "#666" }}>
               {acceptedFilterId
                 ? "This order is no longer available."
                 : "No deliveries found."}
@@ -271,6 +311,80 @@ const Delivery = ({ navigation }) => {
 };
 
 const localStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f7f6f7",
+    alignItems: "center",
+    paddingVertical: 30,
+  },
+  headerContainer: {
+    position: "relative",
+    paddingVertical: 15,
+    alignItems: "center",
+    backgroundColor: "#e53935",
+    borderRadius: 8,
+    marginTop: 10,
+    width: "94%",
+  },
+  menuButton: {
+    position: "absolute",
+    left: 12,
+    top: "100%",
+    transform: [{ translateY: -12 }],
+    zIndex: 2,
+  },
+  menuIcon: { width: 24, height: 24, tintColor: "#fff" },
+  organizationName: {
+    fontSize: moderateScale(18),
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  title: {
+    marginTop: 14,
+    marginBottom: 6,
+    fontSize: moderateScale(20),
+    fontWeight: "bold",
+    color: "#e53935",
+    textAlign: "center",
+    width: "100%",
+  },
+
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: verticalScale(12),
+    marginBottom: verticalScale(10),
+    borderLeftWidth: 4,
+    borderLeftColor: "#e53935",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  cardTime: { fontSize: moderateScale(14), color: "#333", fontWeight: "600" },
+  cardPlace: { marginTop: 2, fontSize: moderateScale(13), color: "#666" },
+  detailsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 8,
+  },
+  bloodTypeBox: {
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(6),
+    borderRadius: 6,
+    backgroundColor: "#fdecec",
+  },
+  bloodTypeText: {
+    color: "#e53935",
+    fontWeight: "700",
+    fontSize: moderateScale(12),
+  },
+  statusText: { color: "#444", fontSize: moderateScale(13) },
+  statusStrong: { color: "#111", fontWeight: "700" },
+  kv: { color: "#444", marginTop: 6, fontSize: moderateScale(13) },
+  kvVal: { color: "#111", fontWeight: "600" },
+
   mapbutton: {
     backgroundColor: "#e53935",
     paddingVertical: verticalScale(12),
@@ -278,27 +392,37 @@ const localStyles = StyleSheet.create({
     borderRadius: moderateScale(8),
     alignItems: "center",
     justifyContent: "center",
-    width: scale(100),
-    height: verticalScale(40),
-    marginTop: verticalScale(5),
-  },
-  cancelButton: {
-    backgroundColor: "#616161",
-    paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(24),
-    borderRadius: moderateScale(8),
-    alignItems: "center",
-    justifyContent: "center",
-    width: scale(100),
-    height: verticalScale(40),
-    marginTop: verticalScale(5),
+    minWidth: scale(110),
+    height: verticalScale(42),
   },
   mapbuttonText: {
     color: "#ffffff",
-    fontSize: moderateScale(10),
+    fontSize: moderateScale(12),
     fontWeight: "bold",
-    alignItems: "center",
   },
+
+  btnRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 10,
+  },
+  btn: {
+    flex: 1,
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(8),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  btnPrimary: { backgroundColor: "#e53935" },
+  btnTextPrimary: { color: "#fff", fontWeight: "700" },
+  btnOutline: {
+    borderWidth: 2,
+    borderColor: "#e53935",
+    backgroundColor: "#fff",
+  },
+  btnTextOutline: { color: "#e53935", fontWeight: "700" },
 });
 
 export default Delivery;
