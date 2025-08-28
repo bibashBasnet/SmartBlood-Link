@@ -28,7 +28,8 @@ public class MapController {
         for(RequestModel r : list){
             result.add(new MapDTO(
                 r.getLatitude(),
-                r.getLongitude()
+                r.getLongitude(),
+                r.getCreatedAt()
             ));
         }
         return  result;
@@ -40,7 +41,8 @@ public class MapController {
         for(DonateModel r : list){
             result.add(new MapDTO(
                 r.getLatitude(),
-                r.getLongitude()
+                r.getLongitude(),
+                r.getCreatedAt()
             ));
         }
         return  result;

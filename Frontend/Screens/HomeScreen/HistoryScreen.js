@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useCallback, useState } from "react";
 import {
   Image,
   SafeAreaView,
@@ -8,8 +8,14 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
-import { DrawerActions } from "@react-navigation/native";
+import {
+  DrawerActions,
+  useFocusEffect,
+  useIsFocused,
+} from "@react-navigation/native";
+import { useDrawerStatus } from "@react-navigation/drawer";
 import Constants from "expo-constants";
 import { Context } from "../../Context/Context";
 import axios from "axios";
@@ -23,31 +29,66 @@ const HistoryScreen = ({ navigation }) => {
 
   const [historyList, setHistoryList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const isFocused = useIsFocused();
+  const drawerStatus = useDrawerStatus(); // 'open' | 'closed'
 
   const showMenu = () => navigation.dispatch(DrawerActions.openDrawer());
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const res = await axios.get(`${API_URL}/donationHistory/get`, {
-          params: { id: user.id },
-        });
-        if (mounted && Array.isArray(res.data)) setHistoryList(res.data);
-      } catch (e) {
-        alert("History List " + (e?.message || "Failed to load"));
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
+  const load = useCallback(async () => {
+    if (!user?.id) return;
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_URL}/donate/get/${user.id}`);
+      const data = Array.isArray(res.data) ? res.data : [];
+      const doneList = data.filter(
+        (item) =>
+          String(item?.status || "")
+            .trim()
+            .toLowerCase() === "done"
+      );
+      doneList.sort((a, b) => {
+        const ta = Date.parse(a?.updatedAt) || 0;
+        const tb = Date.parse(b?.updatedAt) || 0;
+        return tb - ta; // newest first
+      });
+      setHistoryList(doneList);
+    } catch (e) {
+      alert("History List " + (e?.message || "Failed to load"));
+    } finally {
+      setLoading(false);
+    }
   }, [API_URL, user?.id]);
+
+  // Reload every time the screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      (async () => {
+        if (active) await load();
+      })();
+      return () => {
+        active = false;
+      };
+    }, [load])
+  );
+
+  // Optional: reload when drawer closes while this screen is visible
+  React.useEffect(() => {
+    if (isFocused && drawerStatus === "closed") {
+      load();
+    }
+  }, [drawerStatus, isFocused, load]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
 
   return (
     <SafeAreaView style={localStyles.container}>
-      {/* Header with visible menu button */}
       <View style={localStyles.headerContainer}>
         <Text style={localStyles.organizationName}>Smart BloodLink Nepal</Text>
       </View>
@@ -72,22 +113,25 @@ const HistoryScreen = ({ navigation }) => {
           </View>
         ) : historyList.length === 0 ? (
           <View style={localStyles.centerBox}>
-            <Text style={localStyles.muted}>No donation history found.</Text>
+            <Text style={localStyles.muted}>No completed donations yet.</Text>
           </View>
         ) : (
           <ScrollView
             style={localStyles.scroll}
             contentContainerStyle={{ paddingBottom: 24 }}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
           >
             {historyList.map((item, i) => (
-              <View key={i} style={localStyles.card}>
+              <View key={item._id ?? i} style={localStyles.card}>
                 <Text style={localStyles.cardTitle}>
-                  Location:{" "}
+                  Location:{item.bloodBankName}
                   <Text style={localStyles.cardTitleStrong}>
                     {item.location}
                   </Text>
                 </Text>
-                <Text style={localStyles.cardLine}>Time: {item.time}</Text>
+                <Text style={localStyles.cardLine}>Time: {new Date(item.updatedAt).toLocaleString()}</Text>
                 <Text style={localStyles.cardLine}>Status: {item.status}</Text>
               </View>
             ))}
@@ -101,7 +145,7 @@ const HistoryScreen = ({ navigation }) => {
 const localStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f7f6f7", // requested background
+    backgroundColor: "#f7f6f7",
     paddingHorizontal: 16,
     paddingVertical: 30,
   },
@@ -109,27 +153,14 @@ const localStyles = StyleSheet.create({
     position: "relative",
     paddingVertical: 15,
     alignItems: "center",
-    backgroundColor: "#e53935", // red header
+    backgroundColor: "#e53935",
     borderRadius: 8,
     marginTop: 10,
     width: "100%",
   },
-  menuButton: {
-    position: "absolute",
-    top: 45,
-    left: 20,
-    padding: 8,
-  },
-  menuIcon: {
-    width: 24,
-    height: 24,
-    tintColor: "#fff",
-  },
-  organizationName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-  },
+  menuButton: { position: "absolute", top: 45, left: 20, padding: 8 },
+  menuIcon: { width: 24, height: 24, tintColor: "#fff" },
+  organizationName: { fontSize: 18, fontWeight: "bold", color: "#fff" },
   title: {
     marginTop: 16,
     marginBottom: 8,
@@ -138,21 +169,17 @@ const localStyles = StyleSheet.create({
     fontWeight: "bold",
     color: "#e53935",
   },
-  scroll: {
-    marginTop: 6,
-  },
+  scroll: { marginTop: 6 },
   card: {
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 14,
     marginBottom: 12,
     width: "100%",
-    // subtle shadow/elevation
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
-    // red accent bar
     borderLeftWidth: 4,
     borderLeftColor: "#e53935",
   },
@@ -162,24 +189,10 @@ const localStyles = StyleSheet.create({
     color: "#333",
     marginBottom: 4,
   },
-  cardTitleStrong: {
-    color: "#e53935",
-    fontWeight: "700",
-  },
-  cardLine: {
-    fontSize: 14,
-    color: "#555",
-    marginBottom: 2,
-  },
-  centerBox: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  muted: {
-    marginTop: 8,
-    color: "#666",
-  },
+  cardTitleStrong: { color: "#e53935", fontWeight: "700" },
+  cardLine: { fontSize: 14, color: "#555", marginBottom: 2 },
+  centerBox: { flex: 1, alignItems: "center", justifyContent: "center" },
+  muted: { marginTop: 8, color: "#666" },
 });
 
 export default HistoryScreen;

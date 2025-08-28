@@ -1,18 +1,22 @@
 package com.smartbloodlink.adminpanel.dto;
 
+import java.time.Instant;
+
 public class MapDTO {
 
     private double latitude;
     private double longitude;
+    private Instant createdAt;
 
     // No-argument constructor
     public MapDTO() {
     }
 
     // Parameterized constructor
-    public MapDTO(double latitude, double longitude) {
+    public MapDTO(double latitude, double longitude, Instant createdAt) {
         this.latitude = latitude;
         this.longitude = longitude;
+        this.createdAt = createdAt;
     }
 
     // Getter and Setter for latitude
@@ -31,5 +35,13 @@ public class MapDTO {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public Instant getCreatedAt(){
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt){
+        this.createdAt = createdAt;
     }
 }

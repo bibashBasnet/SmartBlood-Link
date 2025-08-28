@@ -1,11 +1,22 @@
 package com.smartbloodlink.adminpanel.model;
 
 
+import java.time.Instant;
+
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "donate")
 public class DonateModel {
+
+    @CreatedDate
+    private Instant createdAt;
+
+    @LastModifiedDate
+    private Instant updatedAt;
+
     @Id
     private String id;
 
@@ -18,10 +29,8 @@ public class DonateModel {
     private String address;
     private double weight;
     private String medicalHistory;
-
     private String lastDonationDate;
     private String preferredDate;
-
     private String allergies;
     private String emergencyContact;
     private String status;
@@ -116,5 +125,21 @@ public class DonateModel {
 
     public double getLatitude(){return latitude;}
     public void setLatitude(double latitude){this.latitude = latitude;}
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
 }

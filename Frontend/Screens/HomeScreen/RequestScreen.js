@@ -2,8 +2,9 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useState,
+  useMemo,
   useRef,
+  useState,
 } from "react";
 import {
   Image,
@@ -14,6 +15,8 @@ import {
   StyleSheet,
   ScrollView,
   AppState,
+  RefreshControl,
+  Alert,
 } from "react-native";
 import {
   DrawerActions,
@@ -25,14 +28,47 @@ import Constants from "expo-constants";
 import { Context } from "../../Context/Context";
 import { moderateScale, scale, verticalScale } from "../../utils/responsive";
 
+// -------- helpers (JS only; no types) --------
+const statusRank = (s) => {
+  const k = String(s || "")
+    .trim()
+    .toLowerCase();
+  if (k === "pending") return 0;
+  if (k === "accepted" || k === "on the way") return 1;
+  if (k === "done" || k === "completed") return 2;
+  return 9;
+};
+const safeParse = (v) => {
+  const t = Date.parse(v);
+  return Number.isNaN(t) ? 0 : t;
+};
+const byStatusThenTime = (a, b) => {
+  const r = statusRank(a.status) - statusRank(b.status);
+  if (r !== 0) return r;
+  return safeParse(b.time) - safeParse(a.time); // newest first
+};
+const statusClass = (s) => {
+  const k = String(s || "")
+    .trim()
+    .toLowerCase();
+  if (k === "pending") return "pending";
+  if (k === "accepted" || k === "on the way") return "active";
+  if (k === "done" || k === "completed") return "done";
+  return "pending";
+};
+
 const RequestScreen = ({ navigation }) => {
   const [requestList, setRequestList] = useState([]);
+  const [selectedId, setSelectedId] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
   const { user, setIsForm, setCoordinate } = useContext(Context);
   const API_URL = Constants.expoConfig.extra.apiUrl;
-  const [selectedIndex, setSelectedIndex] = useState(null);
 
   const isFocused = useIsFocused();
   const appState = useRef(AppState.currentState);
+
+  const getId = (it) => it?.id ?? it?._id;
 
   const handlePress = (item) => {
     setIsForm(false);
@@ -49,15 +85,23 @@ const RequestScreen = ({ navigation }) => {
       const res = await axios.get(`${API_URL}/requests/getRequest`, {
         params: { id: user.id },
       });
-      if (Array.isArray(res.data)) setRequestList(res.data);
+      if (Array.isArray(res.data)) {
+        const sorted = [...res.data].sort(byStatusThenTime);
+        setRequestList(sorted);
+      } else {
+        setRequestList([]);
+      }
     } catch (e) {
-      alert("RequestScreen: " + e.message);
+      Alert.alert("RequestScreen", e?.message || "Failed to load");
     }
   }, [API_URL, user?.id]);
 
   useFocusEffect(
     useCallback(() => {
-      load();
+      (async () => {
+        await load();
+        setSelectedId(null);
+      })();
     }, [load])
   );
 
@@ -67,13 +111,28 @@ const RequestScreen = ({ navigation }) => {
       appState.current = nextState;
       if (wasBackground && nextState === "active" && isFocused) {
         load();
+        setSelectedId(null);
       }
     });
     return () => sub.remove();
   }, [isFocused, load]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
   const showMenu = () => navigation.dispatch(DrawerActions.toggleDrawer());
-  const showDetail = (i) => setSelectedIndex((prev) => (prev === i ? null : i));
+  const toggleDetail = (item) => {
+    const id = getId(item);
+    setSelectedId((prev) => (prev === id ? null : id));
+  };
+
+  // Keep sorted at render time too
+  const listToRender = useMemo(() => {
+    return [...requestList].sort(byStatusThenTime);
+  }, [requestList]);
 
   return (
     <SafeAreaView style={localStyles.container}>
@@ -98,63 +157,96 @@ const RequestScreen = ({ navigation }) => {
       <ScrollView
         style={{ flex: 1, width: "100%" }}
         contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
-        {requestList.length === 0 ? (
+        {listToRender.length === 0 ? (
           <View style={localStyles.emptyBox}>
             <Text style={localStyles.emptyText}>No requests found.</Text>
           </View>
         ) : (
-          requestList.map((item, i) => (
-            <TouchableOpacity key={item._id ?? i} onPress={() => showDetail(i)}>
-              <View style={localStyles.card}>
-                <Text style={localStyles.cardTime}>{item.time}</Text>
-                <Text style={localStyles.cardPlace}>{item.location}</Text>
-
-                <View style={localStyles.detailsRow}>
-                  <View style={localStyles.bloodTypeBox}>
-                    <Text style={localStyles.bloodTypeText}>{item.type}</Text>
-                  </View>
-                  <Text style={localStyles.statusText}>
-                    Status:{" "}
-                    <Text style={localStyles.statusStrong}>{item.status}</Text>
-                  </Text>
-                </View>
-
-                {selectedIndex === i && (
-                  <>
-                    <Text style={localStyles.kv}>
-                      Required Unit:{" "}
-                      <Text style={localStyles.kvVal}>{item.amount}</Text>
-                    </Text>
-                    <Text style={localStyles.kv}>
-                      Phone No:{" "}
-                      <Text style={localStyles.kvVal}>{item.phone}</Text>
-                    </Text>
-                    <Text style={localStyles.kv}>
-                      Email: <Text style={localStyles.kvVal}>{item.email}</Text>
-                    </Text>
-
-                    {item.isFresh ? (
-                      <Text style={localStyles.kv}>
-                        Hospital Name:{" "}
-                        <Text style={localStyles.kvVal}>{item.hospital}</Text>
+          listToRender.map((item, i) => {
+            const id = getId(item);
+            const cls = statusClass(item.status);
+            return (
+              <TouchableOpacity
+                key={id ?? i}
+                onPress={() => toggleDetail(item)}
+              >
+                <View style={localStyles.card}>
+                  {/* Header row: time + status chip */}
+                  <View style={localStyles.cardHeaderRow}>
+                    <Text style={localStyles.cardTime}>{item.time}</Text>
+                    <View
+                      style={[
+                        localStyles.badge,
+                        cls === "pending"
+                          ? localStyles.badgePending
+                          : cls === "done"
+                          ? localStyles.badgeDone
+                          : localStyles.badgeActive,
+                      ]}
+                    >
+                      <Text style={localStyles.badgeText}>
+                        {item.status ?? "Pending"}
                       </Text>
-                    ) : (
-                      <TouchableOpacity
-                        style={[
-                          localStyles.mapbutton,
-                          { alignSelf: "center", marginTop: 8 },
-                        ]}
-                        onPress={() => handlePress(item)}
-                      >
-                        <Text style={localStyles.mapbuttonText}>Map</Text>
-                      </TouchableOpacity>
-                    )}
-                  </>
-                )}
-              </View>
-            </TouchableOpacity>
-          ))
+                    </View>
+                  </View>
+
+                  {/* Location */}
+                  <Text style={localStyles.cardPlace}>{item.location}</Text>
+
+                  {/* Quick facts */}
+                  <View style={localStyles.detailsRow}>
+                    <View style={localStyles.bloodTypeBox}>
+                      <Text style={localStyles.bloodTypeText}>
+                        {item.type ?? "--"}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Expanded details */}
+                  {selectedId === id && (
+                    <View style={{ marginTop: 8 }}>
+                      <Text style={localStyles.kv}>
+                        Required Unit:{" "}
+                        <Text style={localStyles.kvVal}>{item.amount}</Text>
+                      </Text>
+                      <Text style={localStyles.kv}>
+                        Phone No:{" "}
+                        <Text style={localStyles.kvVal}>{item.phone}</Text>
+                      </Text>
+                      <Text style={localStyles.kv}>
+                        Email:{" "}
+                        <Text style={localStyles.kvVal}>{item.email}</Text>
+                      </Text>
+
+                      {item.isFresh ? (
+                        <Text style={localStyles.kv}>
+                          Hospital Name:{" "}
+                          <Text style={localStyles.kvVal}>{item.hospital}</Text>
+                        </Text>
+                      ) : (
+                        <TouchableOpacity
+                          style={[
+                            localStyles.btn,
+                            localStyles.btnPrimary,
+                            { marginTop: 8, alignSelf: "flex-start" },
+                          ]}
+                          onPress={() => handlePress(item)}
+                        >
+                          <Text style={localStyles.btnTextPrimary}>
+                            Open Map
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })
         )}
       </ScrollView>
 
@@ -175,7 +267,7 @@ const RequestScreen = ({ navigation }) => {
 const localStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f7f6f7", // requested background
+    backgroundColor: "#f7f6f7",
     alignItems: "center",
     paddingVertical: 30,
   },
@@ -195,16 +287,13 @@ const localStyles = StyleSheet.create({
     transform: [{ translateY: -12 }],
     zIndex: 2,
   },
-  menuIcon: {
-    width: 24,
-    height: 24,
-    tintColor: "#fff",
-  },
+  menuIcon: { width: 24, height: 24, tintColor: "#fff" },
   organizationName: {
     fontSize: moderateScale(18),
     fontWeight: "bold",
     color: "#fff",
   },
+
   title: {
     marginTop: 14,
     marginBottom: 6,
@@ -214,6 +303,7 @@ const localStyles = StyleSheet.create({
     textAlign: "center",
     width: "100%",
   },
+
   card: {
     backgroundColor: "#fff",
     borderRadius: 10,
@@ -226,16 +316,15 @@ const localStyles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  cardTime: {
-    fontSize: moderateScale(14),
-    color: "#333",
-    fontWeight: "600",
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
   },
-  cardPlace: {
-    marginTop: 2,
-    fontSize: moderateScale(13),
-    color: "#666",
-  },
+  cardTime: { fontSize: moderateScale(14), color: "#333", fontWeight: "700" },
+  cardPlace: { marginTop: 2, fontSize: moderateScale(13), color: "#666" },
+
   detailsRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -253,23 +342,48 @@ const localStyles = StyleSheet.create({
     fontWeight: "700",
     fontSize: moderateScale(12),
   },
-  statusText: {
-    color: "#444",
+
+  badge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999 },
+  badgePending: { backgroundColor: "#f0f0f0" },
+  badgeActive: { backgroundColor: "#fdecec" },
+  badgeDone: { backgroundColor: "#e8f5e9" },
+  badgeText: {
+    fontSize: moderateScale(12),
+    fontWeight: "800",
+    color: "#e53935",
+  },
+
+  kv: { color: "#444", marginTop: 6, fontSize: moderateScale(13) },
+  kvVal: { color: "#111", fontWeight: "700" },
+
+  btn: {
+    minWidth: scale(110),
+    height: verticalScale(44),
+    borderRadius: moderateScale(10),
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: scale(14),
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+  btnPrimary: { backgroundColor: "#e53935" },
+  btnTextPrimary: {
+    color: "#fff",
+    fontWeight: "800",
     fontSize: moderateScale(13),
+    letterSpacing: 0.3,
   },
-  statusStrong: {
-    color: "#111",
-    fontWeight: "700",
+
+  emptyBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: verticalScale(80),
   },
-  kv: {
-    color: "#444",
-    marginTop: 6,
-    fontSize: moderateScale(13),
-  },
-  kvVal: {
-    color: "#111",
-    fontWeight: "600",
-  },
+  emptyText: { color: "#666", fontSize: moderateScale(14) },
+
   fab: {
     position: "absolute",
     bottom: verticalScale(40),
@@ -281,30 +395,6 @@ const localStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     elevation: 5,
-  },
-  mapbutton: {
-    backgroundColor: "#e53935",
-    paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(24),
-    borderRadius: moderateScale(8),
-    alignItems: "center",
-    justifyContent: "center",
-    width: scale(110),
-    height: verticalScale(42),
-  },
-  mapbuttonText: {
-    color: "#ffffff",
-    fontSize: moderateScale(12),
-    fontWeight: "bold",
-  },
-  emptyBox: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: verticalScale(80),
-  },
-  emptyText: {
-    color: "#666",
-    fontSize: moderateScale(14),
   },
 });
 

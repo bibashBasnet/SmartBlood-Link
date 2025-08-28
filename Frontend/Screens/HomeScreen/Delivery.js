@@ -200,9 +200,17 @@ const Delivery = ({ navigation }) => {
   const showMenu = () => navigation.dispatch(DrawerActions.toggleDrawer());
   const showDetail = (i) => setSelectedIndex((prev) => (prev === i ? null : i));
 
+  const statusBadgeStyle = (status) => {
+    const s = String(status || "").toLowerCase();
+    if (s === "pending") return [localStyles.badge, localStyles.badgePending];
+    if (s === "done") return [localStyles.badge, localStyles.badgeDone];
+    // treat anything else as “active/on the way/accepted”
+    return [localStyles.badge, localStyles.badgeActive];
+  };
+
   return (
     <SafeAreaView style={localStyles.container}>
-      {/* Header with embedded menu button */}
+      {/* Branded header with embedded menu button */}
       <View style={localStyles.headerContainer}>
         <TouchableOpacity
           style={localStyles.menuButton}
@@ -219,7 +227,7 @@ const Delivery = ({ navigation }) => {
 
       <Text style={localStyles.title}>Delivery Orders</Text>
 
-      {/* Request List */}
+      {/* List */}
       <View style={{ flex: 1, width: "100%" }}>
         <ScrollView
           style={{ flex: 1 }}
@@ -228,78 +236,101 @@ const Delivery = ({ navigation }) => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
-          {requestList.map((item, i) => (
-            <TouchableOpacity
-              key={getId(item) ?? i}
-              onPress={() => showDetail(i)}
-            >
-              <View style={localStyles.card}>
-                <Text style={localStyles.cardTime}>{item.time}</Text>
-                <Text style={localStyles.cardPlace}>{item.location}</Text>
-
-                <View style={localStyles.detailsRow}>
-                  <View style={localStyles.bloodTypeBox}>
-                    <Text style={localStyles.bloodTypeText}>{item.type}</Text>
+          {requestList.map((item, i) => {
+            const id = getId(item);
+            return (
+              <TouchableOpacity key={id ?? i} onPress={() => showDetail(i)}>
+                <View style={localStyles.card}>
+                  {/* Top row: when + status chip */}
+                  <View style={localStyles.cardHeaderRow}>
+                    <Text style={localStyles.cardTime}>{item.time ?? "—"}</Text>
+                    <View style={statusBadgeStyle(item.status)}>
+                      <Text style={localStyles.badgeText}>
+                        {item.status ?? "Pending"}
+                      </Text>
+                    </View>
                   </View>
-                  <Text style={localStyles.statusText}>
-                    Status:{" "}
-                    <Text style={localStyles.statusStrong}>{item.status}</Text>
+
+                  {/* Location */}
+                  <Text style={localStyles.cardPlace}>
+                    {item.location ?? "No location"}
                   </Text>
-                </View>
 
-                {selectedIndex === i && (
-                  <>
-                    <Text style={localStyles.kv}>
-                      Phone No:{" "}
-                      <Text style={localStyles.kvVal}>{item.phone}</Text>
+                  {/* Type / quick facts */}
+                  <View style={localStyles.detailsRow}>
+                    <View style={localStyles.bloodTypeBox}>
+                      <Text style={localStyles.bloodTypeText}>
+                        {item.type ?? "--"}
+                      </Text>
+                    </View>
+                    <Text style={localStyles.kvInline}>
+                      Units:{" "}
+                      <Text style={localStyles.kvValInline}>
+                        {item.amount ?? 0}
+                      </Text>
                     </Text>
-                    <Text style={localStyles.kv}>
-                      Email: <Text style={localStyles.kvVal}>{item.email}</Text>
-                    </Text>
-                    <Text style={localStyles.kv}>
-                      Required Unit:{" "}
-                      <Text style={localStyles.kvVal}>{item.amount}</Text>
-                    </Text>
+                  </View>
 
-                    <TouchableOpacity
-                      style={[
-                        localStyles.mapbutton,
-                        { alignSelf: "center", marginTop: 6 },
-                      ]}
-                      onPress={() => handlePress(item)}
-                    >
-                      <Text style={localStyles.mapbuttonText}>Map</Text>
-                    </TouchableOpacity>
+                  {/* Expanded details + actions */}
+                  {selectedIndex === i && (
+                    <View style={{ marginTop: 10 }}>
+                      <Text style={localStyles.kv}>
+                        Phone:{" "}
+                        <Text style={localStyles.kvVal}>
+                          {item.phone ?? "—"}
+                        </Text>
+                      </Text>
+                      <Text style={localStyles.kv}>
+                        Email:{" "}
+                        <Text style={localStyles.kvVal}>
+                          {item.email ?? "—"}
+                        </Text>
+                      </Text>
+                      {item.hospital ? (
+                        <Text style={localStyles.kv}>
+                          Hospital:{" "}
+                          <Text style={localStyles.kvVal}>{item.hospital}</Text>
+                        </Text>
+                      ) : null}
 
-                    {acceptedFilterId && getId(item) === acceptedFilterId ? (
-                      <View style={localStyles.btnRow}>
-                        <TouchableOpacity
-                          style={[localStyles.btn, localStyles.btnOutline]}
-                          onPress={() => handleCancel(item)}
-                        >
-                          <Text style={localStyles.btnTextOutline}>Cancel</Text>
-                        </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[localStyles.btn, localStyles.btnGhost]}
+                        onPress={() => handlePress(item)}
+                      >
+                        <Text style={localStyles.btnTextGhost}>Open Map</Text>
+                      </TouchableOpacity>
 
+                      {acceptedFilterId && getId(item) === acceptedFilterId ? (
+                        <View style={localStyles.btnRow}>
+                          <TouchableOpacity
+                            style={[localStyles.btn, localStyles.btnOutline]}
+                            onPress={() => handleCancel(item)}
+                          >
+                            <Text style={localStyles.btnTextOutline}>
+                              Cancel
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[localStyles.btn, localStyles.btnPrimary]}
+                            onPress={() => handleDone(item)}
+                          >
+                            <Text style={localStyles.btnTextPrimary}>Done</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
                         <TouchableOpacity
                           style={[localStyles.btn, localStyles.btnPrimary]}
-                          onPress={() => handleDone(item)}
+                          onPress={() => handleAccept(item)}
                         >
-                          <Text style={localStyles.btnTextPrimary}>Done</Text>
+                          <Text style={localStyles.btnTextPrimary}>Accept</Text>
                         </TouchableOpacity>
-                      </View>
-                    ) : (
-                      <TouchableOpacity
-                        style={[localStyles.btn, localStyles.btnPrimary]}
-                        onPress={() => handleAccept(item)}
-                      >
-                        <Text style={localStyles.btnTextPrimary}>Accept</Text>
-                      </TouchableOpacity>
-                    )}
-                  </>
-                )}
-              </View>
-            </TouchableOpacity>
-          ))}
+                      )}
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
 
           {requestList.length === 0 && (
             <View style={{ padding: 16 }}>
@@ -317,12 +348,15 @@ const Delivery = ({ navigation }) => {
 };
 
 const localStyles = StyleSheet.create({
+  // Page shell
   container: {
     flex: 1,
     backgroundColor: "#f7f6f7",
     alignItems: "center",
     paddingVertical: 30,
   },
+
+  // Header
   headerContainer: {
     position: "relative",
     paddingVertical: 15,
@@ -345,6 +379,8 @@ const localStyles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
   },
+
+  // Page title
   title: {
     marginTop: 14,
     marginBottom: 6,
@@ -355,20 +391,33 @@ const localStyles = StyleSheet.create({
     width: "100%",
   },
 
+  // Card
   card: {
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: verticalScale(12),
     marginBottom: verticalScale(10),
+
+    // Brand accent
     borderLeftWidth: 4,
     borderLeftColor: "#e53935",
+
+    // Subtle depth
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
   },
-  cardTime: { fontSize: moderateScale(14), color: "#333", fontWeight: "600" },
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  cardTime: { fontSize: moderateScale(14), color: "#333", fontWeight: "700" },
   cardPlace: { marginTop: 2, fontSize: moderateScale(13), color: "#666" },
+
+  // Quick facts row
   detailsRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -383,13 +432,33 @@ const localStyles = StyleSheet.create({
   },
   bloodTypeText: {
     color: "#e53935",
-    fontWeight: "700",
+    fontWeight: "800",
     fontSize: moderateScale(12),
+    letterSpacing: 0.2,
   },
-  statusText: { color: "#444", fontSize: moderateScale(13) },
-  statusStrong: { color: "#111", fontWeight: "700" },
+
+  // Status badge
+  badge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+  },
+  badgeActive: { backgroundColor: "#fdecec" }, // On The Way / Accepted
+  badgePending: { backgroundColor: "#f0f0f0" },
+  badgeDone: { backgroundColor: "#e8f5e9" },
+  badgeText: {
+    fontSize: moderateScale(12),
+    fontWeight: "800",
+    color: "#e53935",
+  },
+
+  // Key/Value text
   kv: { color: "#444", marginTop: 6, fontSize: moderateScale(13) },
-  kvVal: { color: "#111", fontWeight: "600" },
+  kvVal: { color: "#111", fontWeight: "700" },
+  kvInline: { color: "#444", fontSize: moderateScale(13) },
+  kvValInline: { color: "#111", fontWeight: "700" },
+
+  // Buttons
   btnRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -397,7 +466,7 @@ const localStyles = StyleSheet.create({
     marginTop: 12,
   },
   btn: {
-    flexGrow: 1,
+    alignSelf: "stretch",
     minWidth: scale(110),
     height: verticalScale(44),
     borderRadius: moderateScale(10),
@@ -405,12 +474,12 @@ const localStyles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: scale(14),
 
-    // light shadow for iOS
+    // iOS shadow
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
-    // elevation for Android
+    // Android elevation
     elevation: 2,
   },
   btnPrimary: {
@@ -421,6 +490,12 @@ const localStyles = StyleSheet.create({
     backgroundColor: "#fff",
     borderWidth: 2,
     borderColor: "#e53935",
+  },
+  btnGhost: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#eee",
+    marginTop: 8,
   },
   btnTextPrimary: {
     color: "#fff",
@@ -434,9 +509,11 @@ const localStyles = StyleSheet.create({
     fontSize: moderateScale(13),
     letterSpacing: 0.3,
   },
-  mapbutton: {
-    alignSelf: "stretch",
-    marginTop: 8,
+  btnTextGhost: {
+    color: "#333",
+    fontWeight: "700",
+    fontSize: moderateScale(13),
+    letterSpacing: 0.2,
   },
 });
 

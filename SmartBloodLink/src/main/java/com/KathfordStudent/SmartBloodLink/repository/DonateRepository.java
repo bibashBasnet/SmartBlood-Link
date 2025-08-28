@@ -1,12 +1,12 @@
 package com.KathfordStudent.SmartBloodLink.repository;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.KathfordStudent.SmartBloodLink.model.DonateModel;
 
 public interface DonateRepository extends MongoRepository<DonateModel, String>{
-    Optional<DonateModel> findByCreatedBy(String createdBy);
-    boolean existsByCreatedBy(String createdBy);
+    List<DonateModel> findAllByCreatedBy(String createdBy);
+
 }

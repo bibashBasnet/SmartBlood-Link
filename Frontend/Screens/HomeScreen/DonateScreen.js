@@ -134,9 +134,7 @@ export default function BloodDonationForm({ navigation }) {
     try {
       await axios.post(`${API_URL}/donate/create`, payload);
       Alert.alert("Success", "Donation request submitted!");
-      const res = await axios.get(`${API_URL}/donate/get`, {
-        params: { createdBy: user.id },
-      });
+      const res = await axios.get(`${API_URL}/donate/get/${user.id}`);
       setDonate(res.data);
       navigation.dispatch(
         CommonActions.reset({
@@ -465,7 +463,7 @@ const s = StyleSheet.create({
     marginBottom: verticalScale(12),
   },
   picker: {
-    height: verticalScale(50),
+    height: verticalScale(60),
     color: "#333",
   },
 
