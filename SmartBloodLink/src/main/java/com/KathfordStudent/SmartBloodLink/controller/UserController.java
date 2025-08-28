@@ -61,11 +61,6 @@ public class UserController {
                 Path savePath = Paths.get(dir, filename);
                 Files.createDirectories(savePath.getParent());
                 Files.write(savePath, profileImage.getBytes());
-                // if(user.getUserType() == 1){
-                //     if(user.getDriverLicenceUrl() == null || user.getDriverLicenceUrl().isEmpty()){
-                //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Driver Licence picture is missing");
-                //     }
-                // }
                 newUser.setProfileUrl(base_url + filename);
                 userRepository.save(newUser);
                 return ResponseEntity.ok("User has been created.");

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,16 +8,21 @@ import {
   ScrollView,
   Image,
   Alert,
+  Dimensions,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import logo from "../../assets/logo.png";
-import { styles } from "./RegistrationScreenStyle";
 
 import Constants from "expo-constants";
 import axios from "axios";
-import { verticalScale } from "../../utils/responsive";
+import { moderateScale, scale, verticalScale } from "../../utils/responsive";
+
 const API_URL = Constants.expoConfig.extra.apiUrl;
+const { width } = Dimensions.get("window");
+const RED = "#e53935";
+const BG = "#f7f6f7";
+const CARD = "#ffffff";
 
 const RegistrationScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -63,22 +68,20 @@ const RegistrationScreen = ({ navigation }) => {
       const newImage = result.assets[0]?.uri;
       if (newImage) {
         let newImages = [...existingImages, newImage];
-        if (newImages.length > 2) {
-          newImages = newImages.slice(0, 2);
-        }
+        if (newImages.length > 2) newImages = newImages.slice(0, 2);
         setter(newImages);
       }
     }
   };
 
   const pickProfileImage = async () => {
-    console.log("Pick image function called");
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
         "Permission Denied",
         "We need media permissions to upload images."
       );
+      return;
     }
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -88,9 +91,7 @@ const RegistrationScreen = ({ navigation }) => {
 
     if (!result.canceled) {
       const uri = result.assets[0]?.uri;
-      if (uri) {
-        setUserProfile(uri); // Only one image
-      }
+      if (uri) setUserProfile(uri);
     }
   };
 
@@ -113,7 +114,6 @@ const RegistrationScreen = ({ navigation }) => {
       Alert.alert("Validation Error", "Please fill all required fields.");
       return;
     }
-
     if (!emailRegex.test(email.trim())) {
       Alert.alert("Validation Error", "Enter a valid email address.");
       return;
@@ -135,7 +135,7 @@ const RegistrationScreen = ({ navigation }) => {
       return;
     }
 
-    if (userType === 1 && driverLicenses.length === 0) {
+    if (userType === "1" && driverLicenses.length === 0) {
       Alert.alert(
         "Validation Error",
         "Driver License upload is required for Drivers."
@@ -157,6 +157,7 @@ const RegistrationScreen = ({ navigation }) => {
       "address",
       `${address.province}, ${address.district}, ${address.ward}, ${address.municipality}`
     );
+
     if (userProfile) {
       const filename = userProfile.split("/").pop();
       formData.append("profileImage", {
@@ -165,16 +166,6 @@ const RegistrationScreen = ({ navigation }) => {
         type: "image/jpeg",
       });
     }
-    // if(parseInt(userType) === 1){
-    //   driverLicenses.forEach((url, index) => {
-    //     const filename = url.split('/').pop()
-    //     formData.append('driverLicenses', {
-    //       uri,
-    //       name: filename,
-    //       type: 'image/jpeg'
-    //     })
-    //   })
-    // }
 
     try {
       const res = await axios.post(`${API_URL}/users/createUser`, formData, {
@@ -192,39 +183,38 @@ const RegistrationScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      style={styles.screen} // takes full height
-      contentContainerStyle={[
-        styles.content,
-        {
-          // only padding here
-          marginTop: verticalScale(20),
-        },
-      ]}
+      style={styles.screen}
+      contentContainerStyle={[styles.content, { marginTop: verticalScale(20) }]}
       keyboardShouldPersistTaps="handled"
     >
-      {/* Logo and Title */}
-      <View style={[styles.headerContainer]}>
-        <Image source={logo} style={styles.logo} />
+      {/* Header */}
+      <View style={styles.headerContainer}>
         <Text style={styles.organizationName}>Smart BloodLink Nepal</Text>
       </View>
+
       <Text style={styles.title}>Registration Form</Text>
 
-      <View style={{}}>
+      {/* Form Card */}
+      <View style={styles.formCard}>
         <TextInput
           style={styles.input}
           placeholder="Full Name"
+          placeholderTextColor="#9e9e9e"
           value={name}
           onChangeText={setName}
         />
         <TextInput
           style={styles.input}
           placeholder="Age"
+          placeholderTextColor="#9e9e9e"
           value={age}
           onChangeText={setAge}
+          keyboardType="number-pad"
         />
         <TextInput
           style={styles.input}
           placeholder="Phone Number"
+          placeholderTextColor="#9e9e9e"
           value={phone}
           onChangeText={setPhone}
           keyboardType="phone-pad"
@@ -232,11 +222,12 @@ const RegistrationScreen = ({ navigation }) => {
         <TextInput
           style={styles.input}
           placeholder="Email"
+          placeholderTextColor="#9e9e9e"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
+          autoCapitalize="none"
         />
-
         <Text style={styles.label}>Gender</Text>
         <Picker
           selectedValue={gender}
@@ -244,24 +235,29 @@ const RegistrationScreen = ({ navigation }) => {
           onValueChange={setGender}
         >
           <Picker.Item label="Select Gender" value="" />
-          {["Male", "Female", "Other"].map((gender) => (
-            <Picker.Item key={gender} label={gender} value={gender} />
+          {["Male", "Female", "Other"].map((g) => (
+            <Picker.Item key={g} label={g} value={g} />
           ))}
         </Picker>
+
         <TextInput
           style={styles.input}
           placeholder="Username"
+          placeholderTextColor="#9e9e9e"
           value={username}
           onChangeText={setUsername}
-          keyboardType="default"
+          autoCapitalize="none"
         />
+
         <View style={styles.inputContainer}>
           <TextInput
-            style={[styles.input]}
+            style={styles.input}
             placeholder="Password"
+            placeholderTextColor="#9e9e9e"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
+            autoCapitalize="none"
           />
           <TouchableOpacity
             style={styles.toggleButton}
@@ -296,7 +292,7 @@ const RegistrationScreen = ({ navigation }) => {
           <Picker.Item label="Driver" value="1" />
         </Picker>
 
-        {/* Permanent Address */}
+        {/* Address */}
         <Text style={styles.sectionTitle}>Address</Text>
         <Picker
           selectedValue={address.province}
@@ -314,31 +310,26 @@ const RegistrationScreen = ({ navigation }) => {
             key={field}
             style={styles.input}
             placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+            placeholderTextColor="#9e9e9e"
             value={address[field]}
             onChangeText={(text) => setAddress({ ...address, [field]: text })}
           />
         ))}
 
-        {/* User Profile file upload */}
-        <>
-          <Text style={styles.sectionTitle}>Profile picture</Text>
-          <TouchableOpacity
-            style={styles.uploadButton}
-            onPress={pickProfileImage}
-          >
-            <Text>Upload Profile picture</Text>
-          </TouchableOpacity>
-          <View style={styles.imagePreviewContainer}>
-            {userProfile && (
-              <Image
-                source={{ uri: userProfile }}
-                style={styles.imagePreview}
-              />
-            )}
-          </View>
-        </>
-
-        {/* Driver License Upload */}
+        {/* Profile Image */}
+        <Text style={styles.sectionTitle}>Profile picture</Text>
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={pickProfileImage}
+        >
+          <Text style={styles.uploadButtonText}>Upload Profile picture</Text>
+        </TouchableOpacity>
+        <View style={styles.imagePreviewContainer}>
+          {userProfile && (
+            <Image source={{ uri: userProfile }} style={styles.imagePreview} />
+          )}
+        </View>
+        {/* Driver License (max 2) */}
         {userType === "1" && (
           <>
             <Text style={styles.sectionTitle}>
@@ -348,7 +339,9 @@ const RegistrationScreen = ({ navigation }) => {
               style={styles.uploadButton}
               onPress={() => pickImages(setDriverLicenses, driverLicenses)}
             >
-              <Text>Upload Driver License Images</Text>
+              <Text style={styles.uploadButtonText}>
+                Upload Driver License Images
+              </Text>
             </TouchableOpacity>
             <View style={styles.imagePreviewContainer}>
               {driverLicenses.map((uri, i) => (
@@ -358,6 +351,7 @@ const RegistrationScreen = ({ navigation }) => {
           </>
         )}
 
+        {/* Submit */}
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
@@ -365,5 +359,133 @@ const RegistrationScreen = ({ navigation }) => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: BG,
+  },
+  content: {
+    paddingHorizontal: scale(16),
+    paddingBottom: verticalScale(40),
+  },
+  headerContainer: {
+    alignItems: "center",
+    marginBottom: verticalScale(12),
+  },
+  organizationName: {
+    fontSize: moderateScale(18),
+    fontWeight: "bold",
+    color: RED,
+  },
+  title: {
+    textAlign: "center",
+    fontSize: moderateScale(20),
+    fontWeight: "700",
+    color: RED,
+    marginBottom: verticalScale(10),
+  },
+  formCard: {
+    backgroundColor: CARD,
+    borderRadius: moderateScale(10),
+    padding: verticalScale(14),
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+    borderLeftWidth: 4,
+    borderLeftColor: RED,
+    marginBottom: verticalScale(14),
+  },
+  input: {
+    backgroundColor: CARD,
+    borderWidth: 1,
+    borderColor: "#e3e3e3",
+    borderRadius: moderateScale(8),
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(12),
+    fontSize: moderateScale(14),
+    marginBottom: verticalScale(10),
+    color: "#222",
+  },
+  label: {
+    fontSize: moderateScale(13),
+    fontWeight: "600",
+    color: "#444",
+    marginBottom: verticalScale(6),
+    marginTop: verticalScale(4),
+  },
+  sectionTitle: {
+    fontSize: moderateScale(16),
+    fontWeight: "700",
+    color: RED,
+    marginTop: verticalScale(10),
+    marginBottom: verticalScale(6),
+  },
+  inputContainer: {
+    position: "relative",
+    marginBottom: verticalScale(10),
+  },
+  toggleButton: {
+    position: "absolute",
+    right: scale(12),
+    top: verticalScale(12),
+    paddingVertical: verticalScale(4),
+    paddingHorizontal: scale(6),
+  },
+  toggleText: {
+    color: RED,
+    fontWeight: "700",
+    fontSize: moderateScale(12),
+  },
+  picker: {
+    backgroundColor: CARD,
+    borderWidth: 1,
+    borderColor: "#e3e3e3",
+    borderRadius: moderateScale(8),
+    marginBottom: verticalScale(10),
+  },
+  uploadButton: {
+    backgroundColor: "#fff",
+    borderWidth: 2,
+    borderColor: RED,
+    borderRadius: moderateScale(8),
+    paddingVertical: verticalScale(10),
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: verticalScale(10),
+  },
+  uploadButtonText: {
+    color: RED,
+    fontWeight: "700",
+    fontSize: moderateScale(14),
+  },
+  imagePreviewContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: scale(8),
+    marginBottom: verticalScale(12),
+  },
+  imagePreview: {
+    width: width * 0.28,
+    height: width * 0.28,
+    borderRadius: moderateScale(8),
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  button: {
+    backgroundColor: RED,
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(8),
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: verticalScale(6),
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: moderateScale(16),
+  },
+});
 
 export default RegistrationScreen;

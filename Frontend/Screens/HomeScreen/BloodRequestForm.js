@@ -4,11 +4,11 @@ import {
   Text,
   TextInput,
   ScrollView,
-  Button,
   Alert,
   StyleSheet,
   TouchableOpacity,
   Image,
+  SafeAreaView,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import Constants from "expo-constants";
@@ -17,6 +17,11 @@ import { Context } from "../../Context/Context";
 import RadioGroup from "react-native-radio-buttons-group";
 import { moderateScale, scale, verticalScale } from "../../utils/responsive";
 import { DrawerActions } from "@react-navigation/native";
+
+const RED = "#e53935";
+const BG = "#f7f6f7";
+const CARD = "#ffffff";
+const API_URL = Constants.expoConfig.extra.apiUrl;
 
 const BloodRequestForm = ({ navigation }) => {
   const {
@@ -30,23 +35,20 @@ const BloodRequestForm = ({ navigation }) => {
     setCoordinate,
     bloodBank,
   } = useContext(Context);
-  const API_URL = Constants.expoConfig.extra.apiUrl;
 
-  useEffect(() => {
-    setIsForm(true);
-  }, []);
+  useEffect(() => setIsForm(true), [setIsForm]);
 
   const [form, setForm] = useState({
     patientName: "Bibash",
-    contact: "98674857354",
+    contact: "9867485735",
     bloodGroup: "A+",
     province: "Bagmati Province",
-    district: "dang",
-    municipality: "ghorah",
-    unitsRequired: "5",
-    reason: "accident",
+    district: "Dang",
+    municipality: "Ghorahi",
+    unitsRequired: "2",
+    reason: "Accident",
     email: "bibash3@gmail.com",
-    hospital: "Sahid memorial",
+    hospital: "Sahid Memorial",
   });
 
   const Freshoptions = [
@@ -58,7 +60,7 @@ const BloodRequestForm = ({ navigation }) => {
     { id: "2", label: "No", value: "no" },
   ];
 
-  // Blood group dropdown state
+  // dropdowns
   const [bloodGroupOpen, setBloodGroupOpen] = useState(false);
   const [bloodGroupItems, setBloodGroupItems] = useState([
     { label: "A+", value: "A+" },
@@ -71,43 +73,41 @@ const BloodRequestForm = ({ navigation }) => {
     { label: "O-", value: "O-" },
   ]);
 
-  // Province dropdown state
   const [provinceOpen, setProvinceOpen] = useState(false);
   const [provinceItems, setProvinceItems] = useState([
-    { label: "Bagmati Province", value: "Bagmati" },
-    { label: "Gandaki Province", value: "Gandaki" },
-    { label: "Lumbini Province", value: "Lumbini" },
-    { label: "Karnali Province", value: "Karnali" },
-    { label: "Sudurpashchim Province", value: "Sudurpashchim" },
-    { label: "Koshi Province", value: "Koshi" },
-    { label: "Madhesh Province", value: "Madhesh" },
+    { label: "Bagmati Province", value: "Bagmati Province" },
+    { label: "Gandaki Province", value: "Gandaki Province" },
+    { label: "Lumbini Province", value: "Lumbini Province" },
+    { label: "Karnali Province", value: "Karnali Province" },
+    { label: "Sudurpashchim Province", value: "Sudurpashchim Province" },
+    { label: "Koshi Province", value: "Koshi Province" },
+    { label: "Madhesh Province", value: "Madhesh Province" },
   ]);
 
-  const handleChange = (field, value) => {
-    setForm({ ...form, [field]: value });
-  };
+  const handleChange = (field, value) =>
+    setForm((f) => ({ ...f, [field]: value }));
 
-  const selectedFreshValue = Freshoptions.find(
-    (opt) => opt.id === selectedFreshId
-  )?.value;
-  const selectedDeliveryValue = Deliveryoptions.find(
-    (opt) => opt.id === selectedDeliveryId
-  )?.value;
-
+  const selectedFreshValue =
+    Freshoptions.find((o) => o.id === selectedFreshId)?.value ?? "no";
+  const selectedDeliveryValue =
+    Deliveryoptions.find((o) => o.id === selectedDeliveryId)?.value ?? "no";
   const isFresh = selectedFreshValue === "yes";
   const isDelivery = selectedDeliveryValue === "yes";
+
+  const showMenu = () => navigation.dispatch(DrawerActions.openDrawer());
+
+  const handlePressMap = () => {
+    setCoordinate({ latitude: 27.6949, longitude: 85.2899 });
+    navigation.navigate("Map", { from: "Request" });
+  };
 
   const handleSubmit = () => {
     const emailRegex =
       /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     const phoneRegex = /^(98|97)\d{8}$/;
 
-    console.log("Email to validate:", form.email);
-    console.log("Pattern test result:", emailRegex.test(form.email));
-    if (!emailRegex.test(form.email.trim())) {
-      Alert.alert("Validation Error", "Enter a valid email address.");
-      return;
-    }
+    if (!emailRegex.test(form.email.trim()))
+      return Alert.alert("Validation Error", "Enter a valid email address.");
 
     if (
       !form.patientName ||
@@ -118,26 +118,20 @@ const BloodRequestForm = ({ navigation }) => {
       !form.municipality ||
       !form.unitsRequired ||
       !form.email
-    ) {
-      Alert.alert("Error", "Please fill in all required fields");
-      return;
-    }
+    )
+      return Alert.alert("Error", "Please fill in all required fields");
 
-    if (!phoneRegex.test(form.contact.trim())) {
-      Alert.alert(
+    if (!phoneRegex.test(form.contact.trim()))
+      return Alert.alert(
         "Validation Error",
         "Enter a valid 10-digit Nepali phone number."
       );
-      return;
-    }
 
-    const units = parseInt(form.unitsRequired);
-    if (isNaN(units) || units <= 0) {
-      Alert.alert("Error", "Please enter a valid number of units required");
-      return;
-    }
+    const units = parseInt(form.unitsRequired, 10);
+    if (Number.isNaN(units) || units <= 0)
+      return Alert.alert("Error", "Enter a valid number of units.");
 
-    const requestData = {
+    const payload = {
       name: form.patientName,
       phone: form.contact,
       email: form.email,
@@ -145,20 +139,19 @@ const BloodRequestForm = ({ navigation }) => {
       location: `${form.province}, ${form.district}, ${form.municipality}`,
       amount: units,
       createdBy: user.id,
-      isFresh, // ✅ now reliable
+      isFresh,
       isDelivery,
       latitude: requestCoord?.latitude ?? null,
       longitude: requestCoord?.longitude ?? null,
       hospital: form.hospital,
-      bloodBank: bloodBank,
+      bloodBank,
     };
 
     axios
-      .post(`${API_URL}/requests/create`, requestData)
-      .then((res) => {
+      .post(`${API_URL}/requests/create`, payload)
+      .then(() => {
         Alert.alert("Success", "Blood request submitted successfully!");
         navigation.navigate("RequestScreen");
-
         setForm({
           patientName: "",
           contact: "",
@@ -171,301 +164,298 @@ const BloodRequestForm = ({ navigation }) => {
           email: "",
           hospital: "",
         });
-        setSelectedFreshId("1");
-        setSelectedDeliveryId("0");
+        setSelectedFreshId("2"); // default to "No"
+        setSelectedDeliveryId("2");
       })
-      .catch((e) => {
-        Alert.alert("Error", e?.response?.data?.message || "Submission failed");
-      });
-  };
-  const showMenu = () => {
-    navigation.dispatch(DrawerActions.openDrawer());
-  };
-
-  const handlePress = () => {
-    setCoordinate({
-      latitude: 27.6949,
-      longitude: 85.2899,
-    });
-    navigation.navigate("Map", { from: "Request" });
+      .catch((e) =>
+        Alert.alert("Error", e?.response?.data?.message || "Submission failed")
+      );
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.title}>Smart BloodLink Nepal</Text>
-        <Text style={styles.subtitle}>Blood Request Form</Text>
-      </View>
-      <TouchableOpacity style={styles.menuButton} onPress={showMenu}>
-        <Image
-          source={require("../../assets/list.png")}
-          style={styles.menuIcon}
-        />
+    <SafeAreaView style={s.safe}>
+      {/* Floating menu (white over red header) */}
+      <TouchableOpacity style={s.menuButton} onPress={showMenu}>
+        <Image source={require("../../assets/list.png")} style={s.menuIcon} />
       </TouchableOpacity>
-      <View style={styles.formContainer}>
-        {/* Patient Name */}
-        <Text style={styles.label}>Patient Name *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter patient name"
-          value={form.patientName}
-          onChangeText={(text) => handleChange("patientName", text)}
-        />
 
-        {/* Contact Details */}
-        <Text style={styles.label}>Contact Number *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter contact number"
-          keyboardType="phone-pad"
-          value={form.contact}
-          onChangeText={(text) => handleChange("contact", text)}
-        />
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter email"
-          value={form.email}
-          onChangeText={(text) => handleChange("email", text)}
-        />
+      <ScrollView style={s.container} contentContainerStyle={s.content}>
+        {/* Red header */}
+        <View style={s.header}>
+          <Text style={s.headerTitle}>Smart BloodLink Nepal</Text>
+        </View>
+        <Text style={s.headerSubtitle}>Blood Request Form</Text>
+        {/* Form card */}
+        <View style={s.card}>
+          <Text style={s.sectionTitle}>Patient Details</Text>
 
-        {/* Blood Group Dropdown */}
-        <Text style={styles.label}>Required Blood Group *</Text>
-        <DropDownPicker
-          open={bloodGroupOpen}
-          value={form.bloodGroup}
-          items={bloodGroupItems}
-          setOpen={setBloodGroupOpen}
-          setValue={(callback) => {
-            const value = callback(form.bloodGroup);
-            handleChange("bloodGroup", value);
-          }}
-          setItems={setBloodGroupItems}
-          placeholder="Select blood group"
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
-          zIndex={3000}
-          zIndexInverse={1000}
-          listMode="SCROLLVIEW"
-          dropDownDirection="AUTO"
-        />
+          <Text style={s.label}>Patient Name *</Text>
+          <TextInput
+            style={s.input}
+            placeholder="Enter patient name"
+            placeholderTextColor="#9e9e9e"
+            value={form.patientName}
+            onChangeText={(t) => handleChange("patientName", t)}
+          />
 
-        {/* Number of Units Required */}
-        <Text style={styles.label}>Number of Units Required *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter number of units (e.g., 1, 2, 3)"
-          keyboardType="numeric"
-          value={form.unitsRequired}
-          onChangeText={(text) => handleChange("unitsRequired", text)}
-        />
-        {/* Location Section */}
-        <Text style={styles.subtitle}>Location Information</Text>
+          <Text style={s.label}>Contact Number *</Text>
+          <TextInput
+            style={s.input}
+            placeholder="Enter contact number"
+            placeholderTextColor="#9e9e9e"
+            keyboardType="phone-pad"
+            value={form.contact}
+            onChangeText={(t) => handleChange("contact", t)}
+          />
 
-        {/* Province Dropdown */}
-        <Text style={styles.label}>Province *</Text>
-        <DropDownPicker
-          open={provinceOpen}
-          value={form.province}
-          items={provinceItems}
-          setOpen={setProvinceOpen}
-          setValue={(callback) => {
-            const value = callback(form.province);
-            handleChange("province", value);
-          }}
-          setItems={setProvinceItems}
-          placeholder="Select province"
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
-          zIndex={2000}
-          zIndexInverse={2000}
-          listMode="SCROLLVIEW"
-          dropDownDirection="AUTO"
-        />
+          <Text style={s.label}>Email *</Text>
+          <TextInput
+            style={s.input}
+            placeholder="Enter email"
+            placeholderTextColor="#9e9e9e"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            value={form.email}
+            onChangeText={(t) => handleChange("email", t)}
+          />
 
-        {/* District */}
-        <Text style={styles.label}>District *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter district"
-          value={form.district}
-          onChangeText={(text) => handleChange("district", text)}
-        />
+          <Text style={s.label}>Required Blood Group *</Text>
+          <DropDownPicker
+            open={bloodGroupOpen}
+            value={form.bloodGroup}
+            items={bloodGroupItems}
+            setOpen={setBloodGroupOpen}
+            setItems={setBloodGroupItems}
+            setValue={(cb) => handleChange("bloodGroup", cb(form.bloodGroup))}
+            placeholder="Select blood group"
+            style={s.dropdown}
+            dropDownContainerStyle={s.dropdownContainer}
+            zIndex={3000}
+            zIndexInverse={1000}
+            listMode="SCROLLVIEW"
+          />
 
-        {/* Municipality */}
-        <Text style={styles.label}>Municipality *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter municipality"
-          value={form.municipality}
-          onChangeText={(text) => handleChange("municipality", text)}
-        />
+          <Text style={s.label}>Number of Units Required *</Text>
+          <TextInput
+            style={s.input}
+            placeholder="e.g., 1, 2, 3"
+            placeholderTextColor="#9e9e9e"
+            keyboardType="numeric"
+            value={form.unitsRequired}
+            onChangeText={(t) => handleChange("unitsRequired", t)}
+          />
 
-        <Text style={styles.label}>Do you need fresh Blood?</Text>
-        <RadioGroup
-          radioButtons={Freshoptions}
-          selectedId={selectedFreshId}
-          onPress={setSelectedFreshId}
-          layout="row"
-          containerStyle={{ marginVertical: 10 }}
-          labelStyle={{ marginRight: 20, fontSize: 16 }}
-        />
-        {isFresh && (
-          <>
-            <Text style={styles.label}>Hospital Name:</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Hospital Name"
-              value={form.hospital}
-              onChangeText={(text) => handleChange("hospital", text)}
-            />
-          </>
-        )}
-        {!isFresh && (
-          <>
-            <Text style={styles.label}>Do you need Delivery Service?</Text>
-            <RadioGroup
-              radioButtons={Deliveryoptions}
-              selectedId={selectedDeliveryId}
-              onPress={setSelectedDeliveryId}
-              layout="row"
-              containerStyle={{ marginVertical: 10 }}
-              labelStyle={{ marginRight: 20, fontSize: 16 }}
-            />
-            <TouchableOpacity style={styles.submitButton} onPress={handlePress}>
-              <Text style={styles.submitButtonText}>Your Location</Text>
-            </TouchableOpacity>
-          </>
-        )}
+          <Text style={s.sectionTitle}>Location</Text>
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Submit Blood Request</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <Text style={s.label}>Province *</Text>
+          <DropDownPicker
+            open={provinceOpen}
+            value={form.province}
+            items={provinceItems}
+            setOpen={setProvinceOpen}
+            setItems={setProvinceItems}
+            setValue={(cb) => handleChange("province", cb(form.province))}
+            placeholder="Select province"
+            style={s.dropdown}
+            dropDownContainerStyle={s.dropdownContainer}
+            zIndex={2000}
+            zIndexInverse={2000}
+            listMode="SCROLLVIEW"
+          />
+
+          <Text style={s.label}>District *</Text>
+          <TextInput
+            style={s.input}
+            placeholder="Enter district"
+            placeholderTextColor="#9e9e9e"
+            value={form.district}
+            onChangeText={(t) => handleChange("district", t)}
+          />
+
+          <Text style={s.label}>Municipality *</Text>
+          <TextInput
+            style={s.input}
+            placeholder="Enter municipality"
+            placeholderTextColor="#9e9e9e"
+            value={form.municipality}
+            onChangeText={(t) => handleChange("municipality", t)}
+          />
+
+          <Text style={s.sectionTitle}>Fresh / Delivery</Text>
+
+          <Text style={s.label}>Do you need Fresh Blood?</Text>
+          <RadioGroup
+            radioButtons={Freshoptions}
+            selectedId={selectedFreshId}
+            onPress={setSelectedFreshId}
+            layout="row"
+            containerStyle={{ marginVertical: 8 }}
+            labelStyle={{ marginRight: 16, fontSize: moderateScale(14) }}
+          />
+
+          {isFresh ? (
+            <>
+              <Text style={s.label}>Hospital Name *</Text>
+              <TextInput
+                style={s.input}
+                placeholder="Enter Hospital Name"
+                placeholderTextColor="#9e9e9e"
+                value={form.hospital}
+                onChangeText={(t) => handleChange("hospital", t)}
+              />
+            </>
+          ) : (
+            <>
+              <Text style={s.label}>Do you need Delivery Service?</Text>
+              <RadioGroup
+                radioButtons={Deliveryoptions}
+                selectedId={selectedDeliveryId}
+                onPress={setSelectedDeliveryId}
+                layout="row"
+                containerStyle={{ marginVertical: 8 }}
+                labelStyle={{ marginRight: 16, fontSize: moderateScale(14) }}
+              />
+
+              <TouchableOpacity
+                style={s.secondaryButton}
+                onPress={handlePressMap}
+              >
+                <Text style={s.secondaryButtonText}>
+                  Pick Your Location on Map
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+
+          <TouchableOpacity style={s.primaryButton} onPress={handleSubmit}>
+            <Text style={s.primaryButtonText}>Submit Blood Request</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: "#f7f6f7",
-    flex: 1,
-  },
-  headerContainer: {
-    marginTop: verticalScale(30),
+const s = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: BG },
+  container: { flex: 1, backgroundColor: BG },
+  content: { paddingHorizontal: scale(16), paddingBottom: verticalScale(40) },
+
+  header: {
+    backgroundColor: RED,
+    borderRadius: moderateScale(8),
+    paddingVertical: verticalScale(16),
+    paddingHorizontal: scale(12),
     alignItems: "center",
-    paddingVertical: verticalScale(25),
-    paddingHorizontal: scale(20),
-    borderBottomLeftRadius: moderateScale(20),
-    borderBottomRightRadius: moderateScale(20),
+    marginTop: verticalScale(40),
+    marginBottom: verticalScale(16),
   },
-  formContainer: {
-    marginTop: verticalScale(0),
-    flex: 1,
-    padding: scale(20),
-  },
-  title: {
-    fontSize: moderateScale(24),
-    fontWeight: "bold",
-    color: "#c62828",
-    textAlign: "center",
-    marginBottom: verticalScale(5),
-  },
-  subtitle: {
-    marginTop: verticalScale(30),
+  headerTitle: {
+    color: "#fff",
+    fontWeight: "800",
     fontSize: moderateScale(18),
-    fontWeight: "600",
-    color: "#c62828",
-    textAlign: "center",
-    opacity: 0.9,
   },
+  headerSubtitle: {
+    textAlign: "center",
+    fontSize: moderateScale(20),
+    fontWeight: "700",
+    color: RED,
+    marginBottom: verticalScale(10),
+  },
+
+  // floating menu
   menuButton: {
     position: "absolute",
-    top: verticalScale(100),
+    top: verticalScale(50),
     left: scale(20),
-    backgroundColor: "#f7f6f7",
-    borderRadius: moderateScale(25),
-    padding: scale(10),
-    shadowColor: "#000",
+    zIndex: 10,
+    padding: scale(8),
   },
-  menuIcon: {
-    width: scale(24),
-    height: verticalScale(24),
-    tintColor: "#c62828",
+  menuIcon: { width: scale(24), height: scale(24), tintColor: "#fff" },
+
+  card: {
+    backgroundColor: CARD,
+    borderRadius: moderateScale(12),
+    padding: verticalScale(14),
+    borderLeftWidth: 4,
+    borderLeftColor: RED,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  sectionTitle: {
+    fontSize: moderateScale(16),
+    fontWeight: "700",
+    color: RED,
+    marginTop: verticalScale(6),
+    marginBottom: verticalScale(8),
   },
   label: {
-    fontSize: 16,
+    fontSize: moderateScale(13.5),
     fontWeight: "600",
-    marginBottom: 8,
     color: "#b71c1c",
-    paddingLeft: 5,
+    marginBottom: verticalScale(6),
   },
+
   input: {
-    borderWidth: 2,
+    backgroundColor: CARD,
+    borderWidth: 1.5,
     borderColor: "#ffcdd2",
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
-    backgroundColor: "#ffffff",
-    fontSize: 16,
-    shadowColor: "#e57373",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    borderRadius: moderateScale(10),
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(12),
+    fontSize: moderateScale(14),
+    marginBottom: verticalScale(12),
+    color: "#222",
   },
-  textArea: {
-    height: 100,
-    textAlignVertical: "top",
-  },
+
   dropdown: {
     borderColor: "#ffcdd2",
-    borderWidth: 2,
-    borderRadius: 10,
-    marginBottom: 15,
-    backgroundColor: "#ffffff",
-    shadowColor: "#e57373",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1.5,
+    borderRadius: moderateScale(10),
+    marginBottom: verticalScale(12),
+    backgroundColor: CARD,
   },
   dropdownContainer: {
     borderColor: "#ffcdd2",
+    borderWidth: 1.5,
+    borderRadius: moderateScale(10),
+    backgroundColor: CARD,
+  },
+
+  secondaryButton: {
+    backgroundColor: "#fff",
     borderWidth: 2,
-    borderRadius: 10,
-    backgroundColor: "#ffffff",
+    borderColor: RED,
+    borderRadius: moderateScale(10),
+    paddingVertical: verticalScale(10),
+    alignItems: "center",
+    marginTop: verticalScale(4),
+    marginBottom: verticalScale(12),
   },
-  submitButton: {
-    backgroundColor: "#d32f2f",
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    marginTop: 20,
-    marginBottom: 30,
-    shadowColor: "#b71c1c",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  submitButtonText: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
+  secondaryButtonText: {
+    color: RED,
+    fontWeight: "800",
+    fontSize: moderateScale(14),
     textTransform: "uppercase",
-    letterSpacing: 1,
+    letterSpacing: 0.5,
+  },
+
+  primaryButton: {
+    backgroundColor: RED,
+    paddingVertical: verticalScale(14),
+    borderRadius: moderateScale(10),
+    alignItems: "center",
+    marginTop: verticalScale(6),
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontWeight: "800",
+    fontSize: moderateScale(15.5),
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
 });
 

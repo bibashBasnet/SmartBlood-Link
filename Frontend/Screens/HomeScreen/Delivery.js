@@ -15,13 +15,13 @@ import {
   ScrollView,
   AppState,
   Alert,
+  RefreshControl,
 } from "react-native";
 import {
   DrawerActions,
   useFocusEffect,
   useIsFocused,
 } from "@react-navigation/native";
-import { styles } from "../../Styles";
 import axios from "axios";
 import Constants from "expo-constants";
 import { Context } from "../../Context/Context";
@@ -35,7 +35,7 @@ const Delivery = ({ navigation }) => {
   const [requestList, setRequestList] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [acceptedFilterId, setAcceptedFilterId] = useState(null);
-
+  const [refreshing, setRefreshing] = useState(false);
   const { user, setIsForm, setCoordinate } = useContext(Context);
   const API_URL = Constants.expoConfig.extra.apiUrl;
 
@@ -126,6 +126,11 @@ const Delivery = ({ navigation }) => {
     };
   }, [setIsForm]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
   const load = useCallback(async () => {
     let isActive = true;
     try {
@@ -215,97 +220,98 @@ const Delivery = ({ navigation }) => {
       <Text style={localStyles.title}>Delivery Orders</Text>
 
       {/* Request List */}
-      <ScrollView
-        style={{ flex: 1, width: "100%" }}
-        contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24 }}
-      >
-        {requestList.map((item, i) => (
-          <TouchableOpacity
-            key={getId(item) ?? i}
-            onPress={() => showDetail(i)}
-          >
-            <View style={localStyles.card}>
-              <Text style={localStyles.cardTime}>{item.time}</Text>
-              <Text style={localStyles.cardPlace}>{item.location}</Text>
+      <View style={{ flex: 1, width: "100%" }}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 12, paddingBottom: 24 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          {requestList.map((item, i) => (
+            <TouchableOpacity
+              key={getId(item) ?? i}
+              onPress={() => showDetail(i)}
+            >
+              <View style={localStyles.card}>
+                <Text style={localStyles.cardTime}>{item.time}</Text>
+                <Text style={localStyles.cardPlace}>{item.location}</Text>
 
-              <View style={localStyles.detailsRow}>
-                <View style={localStyles.bloodTypeBox}>
-                  <Text style={localStyles.bloodTypeText}>{item.type}</Text>
+                <View style={localStyles.detailsRow}>
+                  <View style={localStyles.bloodTypeBox}>
+                    <Text style={localStyles.bloodTypeText}>{item.type}</Text>
+                  </View>
+                  <Text style={localStyles.statusText}>
+                    Status:{" "}
+                    <Text style={localStyles.statusStrong}>{item.status}</Text>
+                  </Text>
                 </View>
-                <Text style={localStyles.statusText}>
-                  Status:{" "}
-                  <Text style={localStyles.statusStrong}>{item.status}</Text>
-                </Text>
-              </View>
 
-              {selectedIndex === i && (
-                <>
-                  <Text style={localStyles.kv}>
-                    Phone No:{" "}
-                    <Text style={localStyles.kvVal}>{item.phone}</Text>
-                  </Text>
-                  <Text style={localStyles.kv}>
-                    Email: <Text style={localStyles.kvVal}>{item.email}</Text>
-                  </Text>
-                  <Text style={localStyles.kv}>
-                    Required Unit:{" "}
-                    <Text style={localStyles.kvVal}>{item.amount}</Text>
-                  </Text>
+                {selectedIndex === i && (
+                  <>
+                    <Text style={localStyles.kv}>
+                      Phone No:{" "}
+                      <Text style={localStyles.kvVal}>{item.phone}</Text>
+                    </Text>
+                    <Text style={localStyles.kv}>
+                      Email: <Text style={localStyles.kvVal}>{item.email}</Text>
+                    </Text>
+                    <Text style={localStyles.kv}>
+                      Required Unit:{" "}
+                      <Text style={localStyles.kvVal}>{item.amount}</Text>
+                    </Text>
 
-                  <TouchableOpacity
-                    style={[
-                      localStyles.mapbutton,
-                      { alignSelf: "center", marginTop: 6 },
-                    ]}
-                    onPress={() => handlePress(item)}
-                  >
-                    <Text style={localStyles.mapbuttonText}>Map</Text>
-                  </TouchableOpacity>
-
-                  {acceptedFilterId && getId(item) === acceptedFilterId ? (
-                    <View style={localStyles.btnRow}>
-                      <TouchableOpacity
-                        style={[localStyles.btn, localStyles.btnOutline]}
-                        onPress={() => handleCancel(item)}
-                      >
-                        <Text style={localStyles.btnTextOutline}>Cancel</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={[localStyles.btn, localStyles.btnPrimary]}
-                        onPress={() => handleDone(item)}
-                      >
-                        <Text style={localStyles.btnTextPrimary}>Done</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
                     <TouchableOpacity
                       style={[
-                        localStyles.btn,
-                        localStyles.btnPrimary,
-                        { alignSelf: "center" },
+                        localStyles.mapbutton,
+                        { alignSelf: "center", marginTop: 6 },
                       ]}
-                      onPress={() => handleAccept(item)}
+                      onPress={() => handlePress(item)}
                     >
-                      <Text style={localStyles.btnTextPrimary}>Accept</Text>
+                      <Text style={localStyles.mapbuttonText}>Map</Text>
                     </TouchableOpacity>
-                  )}
-                </>
-              )}
-            </View>
-          </TouchableOpacity>
-        ))}
 
-        {requestList.length === 0 && (
-          <View style={{ padding: 16 }}>
-            <Text style={{ textAlign: "center", color: "#666" }}>
-              {acceptedFilterId
-                ? "This order is no longer available."
-                : "No deliveries found."}
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+                    {acceptedFilterId && getId(item) === acceptedFilterId ? (
+                      <View style={localStyles.btnRow}>
+                        <TouchableOpacity
+                          style={[localStyles.btn, localStyles.btnOutline]}
+                          onPress={() => handleCancel(item)}
+                        >
+                          <Text style={localStyles.btnTextOutline}>Cancel</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[localStyles.btn, localStyles.btnPrimary]}
+                          onPress={() => handleDone(item)}
+                        >
+                          <Text style={localStyles.btnTextPrimary}>Done</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity
+                        style={[localStyles.btn, localStyles.btnPrimary]}
+                        onPress={() => handleAccept(item)}
+                      >
+                        <Text style={localStyles.btnTextPrimary}>Accept</Text>
+                      </TouchableOpacity>
+                    )}
+                  </>
+                )}
+              </View>
+            </TouchableOpacity>
+          ))}
+
+          {requestList.length === 0 && (
+            <View style={{ padding: 16 }}>
+              <Text style={{ textAlign: "center", color: "#666" }}>
+                {acceptedFilterId
+                  ? "This order is no longer available."
+                  : "No deliveries found."}
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -384,45 +390,54 @@ const localStyles = StyleSheet.create({
   statusStrong: { color: "#111", fontWeight: "700" },
   kv: { color: "#444", marginTop: 6, fontSize: moderateScale(13) },
   kvVal: { color: "#111", fontWeight: "600" },
-
-  mapbutton: {
-    backgroundColor: "#e53935",
-    paddingVertical: verticalScale(12),
-    paddingHorizontal: scale(24),
-    borderRadius: moderateScale(8),
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: scale(110),
-    height: verticalScale(42),
-  },
-  mapbuttonText: {
-    color: "#ffffff",
-    fontSize: moderateScale(12),
-    fontWeight: "bold",
-  },
-
   btnRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     gap: 10,
-    marginTop: 10,
+    marginTop: 12,
   },
   btn: {
-    flex: 1,
-    paddingVertical: verticalScale(12),
-    borderRadius: moderateScale(8),
+    flexGrow: 1,
+    minWidth: scale(110),
+    height: verticalScale(44),
+    borderRadius: moderateScale(10),
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: scale(14),
+
+    // light shadow for iOS
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    // elevation for Android
+    elevation: 2,
   },
-  btnPrimary: { backgroundColor: "#e53935" },
-  btnTextPrimary: { color: "#fff", fontWeight: "700" },
+  btnPrimary: {
+    backgroundColor: "#e53935",
+    borderWidth: 0,
+  },
   btnOutline: {
+    backgroundColor: "#fff",
     borderWidth: 2,
     borderColor: "#e53935",
-    backgroundColor: "#fff",
   },
-  btnTextOutline: { color: "#e53935", fontWeight: "700" },
+  btnTextPrimary: {
+    color: "#fff",
+    fontWeight: "800",
+    fontSize: moderateScale(13),
+    letterSpacing: 0.3,
+  },
+  btnTextOutline: {
+    color: "#e53935",
+    fontWeight: "800",
+    fontSize: moderateScale(13),
+    letterSpacing: 0.3,
+  },
+  mapbutton: {
+    alignSelf: "stretch",
+    marginTop: 8,
+  },
 });
 
 export default Delivery;
