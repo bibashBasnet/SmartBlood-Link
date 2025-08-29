@@ -26,9 +26,10 @@ export default function DonationRequests() {
 
   // Handle approve/reject actions
   const handleAction = async (id, status) => {
-    if(status === "Done"){
-      try{}catch(e){
-        console.error("Error updating the history")
+    if (status === "Done") {
+      try {
+      } catch (e) {
+        console.error("Error updating the history");
       }
     }
     try {
@@ -78,12 +79,13 @@ export default function DonationRequests() {
                 <td>{d.status}</td>
                 <td>
                   {d.status.toLowerCase() === "pending" ? (
-                    <>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
                       <button
                         className="approve-btn"
                         onClick={() => handleAction(d.id, "Approved")}
                         style={{
                           backgroundColor: "#3ce74aff",
+                          marginRight: "3px",
                         }}
                       >
                         Approve
@@ -103,17 +105,9 @@ export default function DonationRequests() {
                       >
                         Reject
                       </button>
-                    </>
+                    </div>
                   ) : (
-                    <button
-                      className="approve-btn"
-                      onClick={() => handleAction(d.id, "Done")}
-                      style={{
-                        backgroundColor: "#3ce74aff",
-                      }}
-                    >
-                      Done
-                    </button>
+                    <span>—</span>
                   )}
                 </td>
               </tr>
@@ -121,6 +115,7 @@ export default function DonationRequests() {
           )}
         </tbody>
       </table>
+         
     </div>
   );
 }

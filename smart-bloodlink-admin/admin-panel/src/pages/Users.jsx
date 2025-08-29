@@ -61,7 +61,6 @@ export default function Users() {
               <th>Blood Type</th>
               <th>Phone</th>
               <th>Email</th>
-              <th>Verified</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -72,7 +71,6 @@ export default function Users() {
                 <td>{user.bloodType}</td>
                 <td>{user.phone}</td>
                 <td>{user.email}</td>
-                <td>{user.verified ? "Yes" : "No"}</td>
                 <td>
                   {!user.verified && (
                     <button

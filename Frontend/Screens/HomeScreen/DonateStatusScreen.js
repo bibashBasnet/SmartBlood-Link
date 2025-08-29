@@ -135,7 +135,7 @@ const DonateStatusScreen = ({ navigation }) => {
         />
       </TouchableOpacity>
 
-      <Text style={localStyles.title}>My Pending Request</Text>
+      <Text style={localStyles.title}>My Pending Donation Request</Text>
 
       <ScrollView
         style={localStyles.scroll}
