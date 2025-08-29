@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   View,
   Text,
@@ -15,7 +15,11 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import Constants from "expo-constants";
 import axios from "axios";
 import { Context } from "../../Context/Context";
-import { CommonActions, DrawerActions } from "@react-navigation/native";
+import {
+  CommonActions,
+  DrawerActions,
+  useFocusEffect,
+} from "@react-navigation/native";
 import { moderateScale, scale, verticalScale } from "../../utils/responsive";
 
 const API_URL = Constants.expoConfig.extra.apiUrl;
@@ -29,9 +33,12 @@ export default function BloodDonationForm({ navigation }) {
     useContext(Context);
   const [trigger, setTrigger] = useState(false);
 
-  useEffect(() => {
-    setIsForm(true);
-  }, [setIsForm]);
+  useFocusEffect(
+    useCallback(() => {
+      setIsForm(true);
+      return () => {};
+    }, [])
+  );
 
   useEffect(() => {
     if (!checking && donate) {
@@ -156,12 +163,14 @@ export default function BloodDonationForm({ navigation }) {
   if (!trigger) {
     return (
       <SafeAreaView style={s.safe}>
-        {/* Floating menu over header */}
-        <TouchableOpacity style={s.menuButton} onPress={showMenu}>
-          <Image source={require("../../assets/list.png")} style={s.menuIcon} />
-        </TouchableOpacity>
-
         <ScrollView style={s.container} contentContainerStyle={s.content}>
+          {/* Floating menu over header */}
+          <TouchableOpacity style={s.menuButton} onPress={showMenu}>
+            <Image
+              source={require("../../assets/list.png")}
+              style={s.menuIcon}
+            />
+          </TouchableOpacity>
           {/* Header */}
           <View style={s.header}>
             <Text style={s.headerTitle}>Smart BloodLink Nepal</Text>

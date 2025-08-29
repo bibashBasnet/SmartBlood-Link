@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import axios from "axios";
 import { Context } from "../../Context/Context";
 import RadioGroup from "react-native-radio-buttons-group";
 import { moderateScale, scale, verticalScale } from "../../utils/responsive";
-import { DrawerActions } from "@react-navigation/native";
+import { DrawerActions, useFocusEffect } from "@react-navigation/native";
 
 const RED = "#e53935";
 const BG = "#f7f6f7";
@@ -36,7 +36,15 @@ const BloodRequestForm = ({ navigation }) => {
     bloodBank,
   } = useContext(Context);
 
-  useEffect(() => setIsForm(true), [setIsForm]);
+  useFocusEffect(
+    useCallback(() => {
+      setIsForm(true); // when the screen gains focus
+      return () => {
+        // optional: when screen loses focus
+        // setIsForm(false);
+      };
+    }, [])
+  );
 
   const [form, setForm] = useState({
     patientName: "Bibash",
@@ -174,12 +182,11 @@ const BloodRequestForm = ({ navigation }) => {
 
   return (
     <SafeAreaView style={s.safe}>
-      {/* Floating menu (white over red header) */}
-      <TouchableOpacity style={s.menuButton} onPress={showMenu}>
-        <Image source={require("../../assets/list.png")} style={s.menuIcon} />
-      </TouchableOpacity>
-
       <ScrollView style={s.container} contentContainerStyle={s.content}>
+        {/* Floating menu (white over red header) */}
+        <TouchableOpacity style={s.menuButton} onPress={showMenu}>
+          <Image source={require("../../assets/list.png")} style={s.menuIcon} />
+        </TouchableOpacity>
         {/* Red header */}
         <View style={s.header}>
           <Text style={s.headerTitle}>Smart BloodLink Nepal</Text>

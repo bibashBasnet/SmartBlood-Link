@@ -97,17 +97,17 @@ const DonateNavigation = () => {
       <Stack.Screen
         name="DonateStatusScreen"
         component={DonateStatusScreen}
-        options={{ headerShown: false, unmountOnBlur: true }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="DonateScreen"
         component={DonateScreen}
-        options={{ headerShown: false, unmountOnBlur: true }}
+        options={{ headerShown: false}}
       />
       <Stack.Screen
         name="Map"
         component={MapScreen}
-        options={{ headerShown: false, unmountOnBlur: true }}
+        options={{ headerShown: false}}
       />
     </Stack.Navigator>
   );

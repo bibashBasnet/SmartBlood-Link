@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import Delivery from "./Screens/HomeScreen/Delivery";
 import DeliveryHistory from "./Screens/HomeScreen/DeliveryHistory";
 import DeliveryNavigation from "./StackNavigation/DeliveryNavigation";
+import { StackActions } from "@react-navigation/native";
 
 const Drawer = createDrawerNavigator();
 
