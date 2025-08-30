@@ -52,9 +52,9 @@ export default function BloodRequests() {
           <tr>
             <th>Requester Name</th>
             <th>Blood Type</th>
-            <th>Hospital</th>
+            <th>Amount</th>
             <th>Request Time</th>
-            <th>Status</th>
+            <th>Hospital</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -63,9 +63,9 @@ export default function BloodRequests() {
             <tr key={r.id}>
               <td>{r.name}</td>
               <td>{r.type}</td>
-              <td>{r.hospital}</td>
+              <td>{r.amount}</td>
               <td>{new Date(r.time).toLocaleString()}</td>
-              <td>{r.status}</td>
+              <td>{r.hospital}</td>
               <td>
                 {r.status.toLowerCase() === "pending" ? (
                   <div

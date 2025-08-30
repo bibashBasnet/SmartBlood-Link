@@ -97,7 +97,9 @@ export default function Map() {
     const dLng = toRad(p2.lng - p1.lng);
     const a =
       Math.sin(dLat / 2) ** 2 +
-      Math.cos(toRad(p1.lat)) * Math.cos(toRad(p2.lat)) * Math.sin(dLng / 2) ** 2;
+      Math.cos(toRad(p1.lat)) *
+        Math.cos(toRad(p2.lat)) *
+        Math.sin(dLng / 2) ** 2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
@@ -280,13 +282,29 @@ export default function Map() {
   return (
     <div style={{ display: "flex", gap: 20, padding: 10 }}>
       <div id="map" style={{ height: "80vh", width: "75%" }} />
-      <div style={{ display: "flex", flexDirection: "column", gap: 20, width: 300 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 20,
+          width: 300,
+        }}
+      >
         {/* Legend */}
         <div style={box}>
-          <h4 style={{ margin: 0 }}>Density Legend</h4>
-          <div><span style={colorBox("red")} />High</div>
-          <div><span style={colorBox("orange")} />Medium</div>
-          <div><span style={colorBox("blue")} />Low</div>
+          <h4 style={{ margin: 0 }}>Density Legend(in decreasing)</h4>
+          <div>
+            <span style={colorBox("red")} />
+            Red
+          </div>
+          <div>
+            <span style={colorBox("orange")} />
+            Yellow
+          </div>
+          <div>
+            <span style={colorBox("blue")} />
+            Blue
+          </div>
         </div>
 
         {/* Dataset selector */}
@@ -332,7 +350,9 @@ export default function Map() {
               >
                 <option value="All">All</option>
                 {availableYears.map((y) => (
-                  <option key={y} value={String(y)}>{y}</option>
+                  <option key={y} value={String(y)}>
+                    {y}
+                  </option>
                 ))}
               </select>
             </div>
@@ -344,7 +364,9 @@ export default function Map() {
                 style={{ width: "100%", padding: 6 }}
               >
                 {months.map(([val, label]) => (
-                  <option key={val} value={val}>{label}</option>
+                  <option key={val} value={val}>
+                    {label}
+                  </option>
                 ))}
               </select>
             </div>

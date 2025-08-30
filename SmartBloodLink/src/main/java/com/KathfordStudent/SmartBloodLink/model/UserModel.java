@@ -82,7 +82,7 @@ public class UserModel {
     public void setProfileUrl(String profileUrl) { this.profileUrl = profileUrl; }
 
     public List<String> getDriverLicenceUrl() { return driverLicenceUrl; }
-    public void getDriverLicenceUrl(List<String> driverLicenceUrl) { this.driverLicenceUrl = driverLicenceUrl; }
+    public void setDriverLicenceUrl(List<String> driverLicenceUrl) { this.driverLicenceUrl = driverLicenceUrl; }
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }

@@ -9,10 +9,11 @@ export default function DonationRequests() {
     try {
       const data = await getRequest("/donations");
 
-      // ✅ Only keep pending ones
-      const pendingDonations = data.filter(
-        (d) => d.status.toLowerCase() === "pending" || "approved"
-      );
+      // keep only pending or approved
+      const pendingDonations = data.filter((d) => {
+        const status = d.status?.toLowerCase();
+        return status === "pending" || status === "approved";
+      });
 
       setDonations(pendingDonations);
     } catch (error) {
@@ -26,12 +27,6 @@ export default function DonationRequests() {
 
   // Handle approve/reject actions
   const handleAction = async (id, status) => {
-    if (status === "Done") {
-      try {
-      } catch (e) {
-        console.error("Error updating the history");
-      }
-    }
     try {
       await putRequest(`/donations/${id}/status?status=${status}`, {});
       fetchDonations(); // Refresh list after update
@@ -107,7 +102,18 @@ export default function DonationRequests() {
                       </button>
                     </div>
                   ) : (
-                    <span>—</span>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <button
+                        className="approve-btn"
+                        onClick={() => handleAction(d.id, "Done")}
+                        style={{
+                          backgroundColor: "#3ce74aff",
+                          marginRight: "3px",
+                        }}
+                      >
+                        Done
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>

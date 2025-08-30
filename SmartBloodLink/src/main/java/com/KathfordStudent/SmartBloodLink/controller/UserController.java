@@ -4,13 +4,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,28 +53,81 @@ public class UserController {
         return userRepository.findAll();
     }
 
-    @PostMapping("/createUser")
-    public ResponseEntity<?> createUser(@ModelAttribute signupDTO user, @RequestParam(value = "profileImage", required = false) MultipartFile profileImage){
-        if(userRepository.existsByUsername(user.getUsername())){
+    @PostMapping(value = "/createUser", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<?> createUser(
+            @ModelAttribute signupDTO user,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+            // multiple files under the same key:
+            @RequestParam(value = "driverLicenceImages", required = false) List<MultipartFile> driverLicenceImages
+    ) {
+        if (userRepository.existsByUsername(user.getUsername())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User Already exist");
         }
-        else{
-            try{
-                UserModel newUser = userMapping.convertToUser(user);
-                String filename = profileImage.getOriginalFilename();
-                Path savePath = Paths.get(dir, filename);
-                Files.createDirectories(savePath.getParent());
-                Files.write(savePath, profileImage.getBytes());
-                newUser.setProfileUrl(base_url + filename);
-                userRepository.save(newUser);
-                return ResponseEntity.ok("User has been created.");
-            }catch(IOException e){
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Image upload failed: " + e.getMessage());
+
+        try {
+            UserModel newUser = userMapping.convertToUser(user);
+
+            // Save profile image → /images/profile-picture/...
+            if (profileImage != null && !profileImage.isEmpty()) {
+                String profileUrl = saveImage(profileImage, "profile-picture");
+                newUser.setProfileUrl(profileUrl);
             }
-            
+
+            // Save licence images → /images/licence/...
+            List<String> licenceUrls = new ArrayList<>();
+            if (driverLicenceImages != null && !driverLicenceImages.isEmpty()) {
+                for (MultipartFile file : driverLicenceImages) {
+                    if (file == null || file.isEmpty()) continue;
+                    licenceUrls.add(saveImage(file, "licence"));
+                }
+            }
+            newUser.setDriverLicenceUrl(licenceUrls);
+
+            userRepository.save(newUser);
+
+            return ResponseEntity.ok(Map.of(
+                "message", "User has been created.",
+                "id", newUser.getId(),
+                "profileUrl", newUser.getProfileUrl(),
+                "driverLicenceUrl", newUser.getDriverLicenceUrl()
+            ));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Image upload failed: " + e.getMessage());
         }
     }
+
+
+    @Value("${upload.dir}")
+    private String uploadDir;        // e.g. C:/.../Images/images/
+    @Value("${image.base.url}")
+    private String publicBaseUrl;    // e.g. http://10.0.2.2:8080/images/
+
+    private String saveImage(MultipartFile file, String subFolder) throws IOException {
+        String ct = Optional.ofNullable(file.getContentType()).orElse("").toLowerCase();
+        if (!ct.startsWith("image/")) throw new IOException("Only image files are allowed");
+
+        String original = Optional.ofNullable(file.getOriginalFilename()).orElse("file.jpg");
+        String ext = "";
+        int dot = original.lastIndexOf('.');
+        if (dot >= 0 && dot < original.length() - 1) ext = original.substring(dot + 1).toLowerCase();
+        if (ext.isBlank()) ext = "jpg";
+
+        String unique = java.util.UUID.randomUUID().toString().replace("-", "")
+                        + "_" + System.currentTimeMillis() + "." + ext;
+
+        java.nio.file.Path folder = java.nio.file.Paths.get(uploadDir, subFolder)
+                .toAbsolutePath().normalize();
+        java.nio.file.Files.createDirectories(folder);
+
+        java.nio.file.Path savePath = folder.resolve(unique);
+        java.nio.file.Files.write(savePath, file.getBytes(), java.nio.file.StandardOpenOption.CREATE_NEW);
+
+        // URL → http://10.0.2.2:8080/images/{subFolder}/{unique}
+        return publicBaseUrl + subFolder + "/" + unique;
+    }
+
+
 
     @DeleteMapping("/deleteUser/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable String id){

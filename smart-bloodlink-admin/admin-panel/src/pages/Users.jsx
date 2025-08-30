@@ -9,25 +9,34 @@ export default function Users() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const data = await getRequest("/users/userType/0");
-      const mapped = data.map((user) => ({
+      // fetch both in parallel
+      const [data0, data1] = await Promise.all([
+        getRequest("/users/userType/0"),
+        getRequest("/users/userType/1"),
+      ]);
+
+      // normalize
+      const mapped0 = data0.map((user) => ({
         ...user,
         id: user._id || user.id,
       }));
-      setUsers(mapped);
+      const mapped1 = data1.map((user) => ({
+        ...user,
+        id: user._id || user.id,
+      }));
+      const newUsers = [...mapped0, ...mapped1];
+
+
+      // append + always sort (unverified first)
+      setUsers((prev) =>
+        [...prev, ...newUsers].sort(
+          (a, b) => Number(a.verified) - Number(b.verified)
+        )
+      );
     } catch (err) {
       console.error("Error fetching users:", err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const verifyUser = async (id) => {
-    try {
-      await putRequest(`/users/${id}/verify`, {});
-      fetchUsers();
-    } catch (err) {
-      console.error("Error verifying user:", err);
     }
   };
 

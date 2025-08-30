@@ -8,4 +8,5 @@ import com.smartbloodlink.adminpanel.model.DonateModel;
 
 public interface DonateRepository extends MongoRepository<DonateModel, String>{
     List<DonateModel> findAll();
+    long count();
 }

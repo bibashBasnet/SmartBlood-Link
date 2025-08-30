@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface DonationRequestRepository extends MongoRepository<DonationRequest, String> {
     List<DonationRequest> findByStatus(String status);
+    long count();
 }

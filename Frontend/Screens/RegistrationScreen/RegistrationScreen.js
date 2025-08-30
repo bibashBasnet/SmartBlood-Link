@@ -13,6 +13,7 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import logo from "../../assets/logo.png";
+import { Asset } from "expo-asset";
 
 import Constants from "expo-constants";
 import axios from "axios";
@@ -57,9 +58,24 @@ const RegistrationScreen = ({ navigation }) => {
     "Sudurpashchim Province",
   ];
 
+  const getDefaultAvatarUri = async () => {
+    const asset = Asset.fromModule(require("../../assets/default-avatar.png"));
+    await asset.downloadAsync();
+    return asset.localUri || asset.uri;
+  };
+
   const pickImages = async (setter, existingImages) => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.IMAGE,
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        "We need media permissions to upload images."
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
       allowsEditing: true,
     });
@@ -83,7 +99,7 @@ const RegistrationScreen = ({ navigation }) => {
       );
       return;
     }
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
       allowsEditing: true,
@@ -158,6 +174,11 @@ const RegistrationScreen = ({ navigation }) => {
       `${address.province}, ${address.district}, ${address.ward}, ${address.municipality}`
     );
 
+    let profileUri = userProfile;
+    if (!profileUri) {
+      profileUri = await getDefaultAvatarUri(); // fallback
+    }
+
     if (userProfile) {
       const filename = userProfile.split("/").pop();
       formData.append("profileImage", {
@@ -166,6 +187,16 @@ const RegistrationScreen = ({ navigation }) => {
         type: "image/jpeg",
       });
     }
+
+    // 👇 Add driver licence images (max 2, as your UI enforces)
+    driverLicenses.forEach((uri, index) => {
+      const name = uri.split("/").pop() || `licence_${index}.jpg`;
+      formData.append("driverLicenceImages", {
+        uri,
+        name,
+        type: "image/jpeg",
+      });
+    });
 
     try {
       const res = await axios.post(`${API_URL}/users/createUser`, formData, {
@@ -177,7 +208,8 @@ const RegistrationScreen = ({ navigation }) => {
         Alert.alert("Error", "Something went wrong.");
       }
     } catch (e) {
-      Alert.alert("Error", e?.response?.data?.message || "Registration failed");
+      console.log("ERR:", e?.response?.data);
+  Alert.alert("Error", e?.response?.data?.message || "Registration failed");
     }
   };
 
